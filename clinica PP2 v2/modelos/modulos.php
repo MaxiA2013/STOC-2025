@@ -4,7 +4,6 @@ require_once('conexion.php');
 
 class Modulos
 {
-    private $conn;
     private $id_modulos;
     private $nombre;
 
@@ -13,27 +12,23 @@ class Modulos
         $this->id_modulos = $id_modulos;
         $this->nombre = $nombre;
     }
-
-    public function guardarModulo()
-    {
-        $conexion = new Conexion();
-        $query = "INSERT INTO clinica.modulos (nombre) VALUES ('$this->nombre')";
-        $conexion->insertar($query);
-    }
-/*
     public function eliminarModulo()
     {
         $conexion = new Conexion();
-        $query = "DELETE FROM clinica.modulos WHERE id_modulos = '$this->id_modulos;'";
+        // borrar relaciones primero
+        $conexion->eliminar("DELETE FROM clinica.modulos_tablas WHERE modulos_id_modulos = '$this->id_modulos'");
+        // borrar módulo
+        $query = "DELETE FROM clinica.modulos WHERE id_modulos = '$this->id_modulos'";
         return $conexion->eliminar($query);
     }
+
 
     public function actualizarModulo()
     {
         $conexion = new Conexion();
-        $query = "UPDATE clinica.modulos SET nombre = '$this->nombre' WHERE id_modulos = '$this->id_modulos;'";
+        $query = "UPDATE clinica.modulos SET nombre = '$this->nombre' WHERE id_modulos = '$this->id_modulos'";
         return $conexion->actualizar($query);
-    }*/
+    }
 
     public function traer_Modulos()
     {
@@ -65,55 +60,46 @@ class Modulos
         return $conexion->consultar($query);
     }
 
-   // Guardar módulo y devolver el ID usando mysqli_insert_id
-    public function guardarModuloConRetorno() {
-        $sql = "INSERT INTO modulos (nombre) VALUES (?)";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("s", $this->nombre);
-        $stmt->execute();
-        return mysqli_insert_id($this->conn); // sin propiedad personalizada
+    //agregado
+    public function guardarModulo()
+    {
+        $conexion = new Conexion();
+        $query = "INSERT INTO clinica.modulos (nombre) VALUES ('$this->nombre')";
+        // insertar() en Conexion ya devuelve insert_id
+        $id = $conexion->insertar($query);
+        $this->id_modulos = $id;
+        return $id;
     }
 
-    public function actualizarModulo() {
-        $sql = "UPDATE modulos SET nombre=? WHERE id_modulos=?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("si", $this->nombre, $this->id_modulos);
-        $stmt->execute();
+    // --- asignar una tabla a un módulo (inserta en la tabla pivote)
+    public function asignarTabla($id_modulo, $id_tabla)
+    {
+        $conexion = new Conexion();
+        $query = "INSERT INTO clinica.modulos_tablas (Tablas_id_tablas, modulos_id_modulos) VALUES ('$id_tabla', '$id_modulo')";
+        return $conexion->insertar($query);
     }
 
-    public function eliminarModulo() {
-        $sql = "DELETE FROM modulos WHERE id_modulos=?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("i", $this->id_modulos);
-        $stmt->execute();
+    // --- desasignar todas las tablas de un módulo (usar en actualización)
+    public function desasignarTablas($id_modulo)
+    {
+        $conexion = new Conexion();
+        $query = "DELETE FROM clinica.modulos_tablas WHERE modulos_id_modulos = '$id_modulo'";
+        return $conexion->eliminar($query);
     }
 
-    // Relaciones módulo-tablas
-    public function asignarTablaAModulo($idModulo, $idTabla) {
-        $sql = "INSERT INTO modulos_tablas (modulos_id_modulos, Tablas_id_tablas) VALUES (?, ?)";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ii", $idModulo, $idTabla);
-        $stmt->execute();
-    }
-
-    public function eliminarTablasDeModulo($idModulo) {
-        $sql = "DELETE FROM modulos_tablas WHERE modulos_id_modulos=?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("i", $idModulo);
-        $stmt->execute();
-    }
-
-    public function traerTablasAsignadas($idModulo) {
-        $sql = "SELECT Tablas_id_tablas FROM modulos_tablas WHERE modulos_id_modulos=?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("i", $idModulo);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $tablas = [];
-        while ($row = $result->fetch_assoc()) {
-            $tablas[] = $row['Tablas_id_tablas'];
+    // --- traer ids de tablas asignadas a un módulo (devuelve array de ints)
+    public function traer_tablas_ids_por_modulo($id_modulo)
+    {
+        $conexion = new Conexion();
+        $query = "SELECT Tablas_id_tablas as id_tabla FROM clinica.modulos_tablas WHERE modulos_id_modulos = '$id_modulo'";
+        $res = $conexion->consultar($query);
+        $ids = [];
+        if ($res) {
+            while ($r = $res->fetch_assoc()) {
+                $ids[] = (int)$r['id_tabla'];
+            }
         }
-        return $tablas;
+        return $ids;
     }
 
 

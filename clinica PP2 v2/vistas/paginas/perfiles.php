@@ -1,7 +1,20 @@
 <?php
 include_once "modelos/perfil.php";
-$per = new Perfil("", "");
+include_once "modelos/modulos.php";
+
+$per = new Perfil();
 $lista_perfiles = $per->traer_perfiles();
+
+$mod = new Modulos();
+$lista_modulos_result = $mod->traer_Modulos();
+
+// convertir resultado de módulos a array para usarlo varias veces
+$modulosArray = [];
+if ($lista_modulos_result) {
+    while ($r = $lista_modulos_result->fetch_assoc()) {
+        $modulosArray[] = $r;
+    }
+}
 ?>
 
 <div class="py-5 container">
@@ -23,6 +36,17 @@ $lista_perfiles = $per->traer_perfiles();
                         <label for="descripcion" class="form-label">Descripcion</label>
                         <input type="text" class="form-control" id="descripcion" placeholder="Ingrese Descripcion " name="descripcion">
                     </div>
+
+                    <div>
+                        <h4>Asignar Módulos:</h4>
+                        <?php foreach ($modulosArray as $row): ?>
+                            <div>
+                                <input type="checkbox" name="modulos[]" value="<?= $row['id_modulos'] ?>">
+                                <?= $row['nombre'] ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Agregar</button>
                 </form>
             </div>
@@ -40,61 +64,114 @@ $lista_perfiles = $per->traer_perfiles();
                 </thead>
                 <tbody>
                     <?php
-                    foreach ($lista_perfiles as $row) {
+                    if ($lista_perfiles) {
+                        while ($row = $lista_perfiles->fetch_assoc()) {
+                            $modulos_ids = $per->traer_modulos_ids_por_perfil($row['id_perfil']);
                     ?>
                         <tr>
-                            <td><?php echo $row['id_perfil'] ?></td>
-                            <td><?php echo $row['nombre_perfil'] ?></td>
-                            <td><?php echo $row['descripcion'] ?></td>
+                            <td><?= $row['id_perfil'] ?></td>
+                            <td><?= $row['nombre_perfil'] ?></td>
+                            <td><?= $row['descripcion'] ?></td>
                             <td>
                                 <form action="controladores/perfiles/perfiles_controlador.php" method="post">
-                                    <input type="hidden" name="id_perfil" value="<?php echo $row['id_perfil'] ?>">
+                                    <input type="hidden" name="id_perfil" value="<?= $row['id_perfil'] ?>">
                                     <input type="hidden" name="action" value="eliminacion">
                                     <button type="submit"><i class="fa-solid fa-delete-left"></i></button>
                                 </form>
                             </td>
                             <td>
-                                <!-- Botón que abre el modal -->
-                                <button type="button" data-bs-toggle="modal" data-bs-target="#modal<?php echo $row['id_perfil'] ?>">
+                                <!-- Se agrega la descripción como tercer parámetro -->
+                                <button type="button" onclick='editarPerfil(
+                                    <?= $row['id_perfil']; ?>, 
+                                    <?= json_encode($row['nombre_perfil']); ?>, 
+                                    <?= json_encode($row['descripcion']); ?>, 
+                                    <?= json_encode($modulos_ids); ?>)'>
                                     <i class="fa-solid fa-pen-nib"></i>
                                 </button>
-
-                                <!-- Modal dinámico -->
-                                <div class="modal fade" id="modal<?php echo $row['id_perfil'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel<?php echo $row['id_perfil'] ?>" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="exampleModalLabel<?php echo $row['id_perfil'] ?>">Modificar Perfil</h1>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <form action="controladores/perfiles/perfiles_controlador.php" method="post">
-                                                <div class="modal-body">
-                                                    <input type="hidden" name="action" value="actualizacion">
-                                                    <input type="hidden" name="id_perfil" value="<?php echo $row['id_perfil'] ?>">
-
-                                                    <div class="mb-3">
-                                                        <label for="nombre_perfil<?php echo $row['id_perfil'] ?>" class="form-label">Perfil</label>
-                                                        <input type="text" class="form-control" id="nombre_perfil<?php echo $row['id_perfil'] ?>" name="nombre_perfil" value="<?php echo $row['nombre_perfil'] ?>">
-                                                    </div>
-
-                                                    <div class="mb-3">
-                                                        <label for="descripcion<?php echo $row['id_perfil'] ?>" class="form-label">Descripción</label>
-                                                        <input type="text" class="form-control" id="descripcion<?php echo $row['id_perfil'] ?>" name="descripcion" value="<?php echo $row['descripcion'] ?>">
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                                    <button type="submit" class="btn btn-success">Guardar</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
                             </td>
-                        <?php } ?>
-                        </tr>';
+                        </tr>
+                    <?php
+                        }
+                    }
+                    ?>
                 </tbody>
             </table>
+
+            <!-- Modal -->
+            <div class="modal fade" id="modalPerfil" tabindex="-1" aria-labelledby="modalPerfilLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <form method="POST" action="controladores/perfiles/perfiles_controlador.php">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalPerfilLabel">Gestionar Perfil</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="id_perfil" id="id_perfil">
+                                <input type="hidden" name="action" id="action">
+
+                                <div class="mb-3">
+                                    <label for="nombre_perfil_modal" class="form-label">Perfil</label>
+                                    <input type="text" class="form-control" id="nombre_perfil_modal" name="nombre_perfil" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="descripcion_modal" class="form-label">Descripción</label>
+                                    <input type="text" class="form-control" id="descripcion_modal" name="descripcion" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Asignar Módulos</label><br>
+                                    <?php foreach ($modulosArray as $modulo): ?>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="modulos[]"
+                                                   value="<?= $modulo['id_modulos']; ?>" id="modulo_<?= $modulo['id_modulos']; ?>">
+                                            <label class="form-check-label" for="modulo_<?= $modulo['id_modulos']; ?>">
+                                                <?= $modulo['nombre']; ?>
+                                            </label>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- fin modal -->
         </div>
     </div>
 </div>
+
+<script>
+    // ahora la función recibe descripcion como parámetro
+    function editarPerfil(id, nombre, descripcion, modulosAsignados) {
+        document.getElementById('id_perfil').value = id;
+        document.getElementById('nombre_perfil_modal').value = nombre;
+        document.getElementById('descripcion_modal').value = descripcion; // se llena el campo
+        document.getElementById('action').value = 'actualizacion';
+
+        // desmarcar todo
+        document.querySelectorAll("input[name='modulos[]']").forEach(cb => cb.checked = false);
+
+        // marcar los asignados
+        modulosAsignados.forEach(id_mod => {
+            let checkbox = document.getElementById('modulo_' + id_mod);
+            if (checkbox) checkbox.checked = true;
+        });
+
+        new bootstrap.Modal(document.getElementById('modalPerfil')).show();
+    }
+
+    function nuevoPerfil() {
+        document.getElementById('id_perfil').value = '';
+        document.getElementById('nombre_perfil_modal').value = '';
+        document.getElementById('descripcion_modal').value = '';
+        document.getElementById('action').value = 'insertar';
+        document.querySelectorAll("input[name='modulos[]']").forEach(cb => cb.checked = false);
+        new bootstrap.Modal(document.getElementById('modalPerfil')).show();
+    }
+</script>

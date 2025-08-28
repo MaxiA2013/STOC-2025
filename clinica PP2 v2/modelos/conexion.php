@@ -2,13 +2,13 @@
 
 class Conexion
 {
-    private $_con;
+    private $conn;
     private $servidor;
     private $usuarios;
     private $password;
     private $base_datos;
 
-    public function __construct()
+    public function __construct() // <-- CORREGIDO
     {
         $this->servidor = "localhost";
         $this->usuarios = "root";
@@ -18,23 +18,21 @@ class Conexion
 
     public function conectar()
     {
-        $this->_con = new mysqli($this->servidor, $this->usuarios, $this->password, $this->base_datos);
-        if ($this->_con->connect_error) {
-            die("Conexión fallida: " . $this->_con->connect_error);
-        } else {
-            //echo "Conexión exitosa.";
+        $this->conn = new mysqli($this->servidor, $this->usuarios, $this->password, $this->base_datos);
+        if ($this->conn->connect_error) {
+            die("Conexión fallida: " . $this->conn->connect_error);
         }
     }
 
     public function desconectar()
     {
-        $this->_con->close();
+        $this->conn->close();
     }
 
     public function consultar($query)
     {
         $this->conectar();
-        $resultado = $this->_con->query($query);
+        $resultado = $this->conn->query($query);
         $this->desconectar();
         return $resultado;
     }
@@ -42,17 +40,18 @@ class Conexion
     public function insertar($query)
     {
         $this->conectar();
-        $this->_con->query($query);
-        $id = $this->_con->insert_id;
+        $this->conn->query($query);
+        $id = $this->conn->insert_id;
         $this->desconectar();
         return $id;
     }
+
     public function actualizar($query)
     {
         $this->conectar();
-        $resultado = $this->_con->query($query);
+        $resultado = $this->conn->query($query);
         if (!$resultado) {
-            echo "Error en la consulta: " . $this->_con->error;
+            echo "Error en la consulta: " . $this->conn->error;
             $this->desconectar();
             return false;
         }
@@ -63,9 +62,9 @@ class Conexion
     public function eliminar($query)
     {
         $this->conectar();
-        $this->_con->query($query);
-        $this->_con->commit();
+        $this->conn->query($query);
         $this->desconectar();
         return true;
     }
 }
+?>

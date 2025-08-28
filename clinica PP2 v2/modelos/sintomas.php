@@ -5,7 +5,7 @@ class Sintomas{
 
     private int $id_sintomas;
     private string $nombre_sintomas;
-    private string $decsripcion;
+    private string $descripcion;
 
     public function getIdSintomas(): int
     {
@@ -31,29 +31,29 @@ class Sintomas{
         return $this;
     }
 
-    public function getDecsripcion(): string
+    public function getDescripcion(): string
     {
-        return $this->decsripcion;
+        return $this->descripcion;
     }
 
-    public function setDecsripcion(string $decsripcion): self
+    public function setDescripcion(string $descripcion): self
     {
-        $this->decsripcion = $decsripcion;
+        $this->descripcion = $descripcion;
 
         return $this;
     }
 
     public function guardarSintoma(){
         $con = new Conexion();
-        $query = "INSERT INTO sintomas (nombre_sintomas, decsripcion) VALUES ('{$this->nombre_sintomas}', '{$this->decsripcion}')";
+        $query = "INSERT INTO sintomas (nombre_sintomas, descripcion) VALUES ('{$this->nombre_sintomas}', '{$this->descripcion}')";
         $id = $con->insertar($query);
         $this->id_sintomas = $id;
     }
 
     public function actualizarSintoma(){
         $con = new Conexion();
-        $query = "UPDATE sintomas SET nombre_sintomas='{$this->nombre_sintomas}', decsripcion='{$this->decsripcion}' WHERE id_sintomas={$this->id_sintomas}";
-        $con->modificar($query);
+        $query = "UPDATE sintomas SET nombre_sintomas='{$this->nombre_sintomas}', descripcion='{$this->descripcion}' WHERE id_sintomas={$this->id_sintomas}";
+        $con->actualizar($query);
     }
 
     public function eliminarSintoma(){

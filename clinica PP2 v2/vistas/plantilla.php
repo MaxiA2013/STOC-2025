@@ -44,17 +44,20 @@ if (!isset($_SESSION['id_usuario'])) {
 
             $paginas_publica = ['indexo', 'noticias', 'nosotros', 'biblioteca', 'turnos', 'info_turnos', 'doctores', 'areas', 'login', 'registro'];
             $paginas_comunes = ['mi_perfil', 'salida'];
-            $paginas_admin = ['lista_usuario', 'lista_doctor', 'registro', 'modulos', 'perfiles', 'tablas'];
+            $paginas_admin = ['lista_usuario', 'lista_doctor', 'registro', 'modulos', 'perfiles', 'tablas', 'tablas_maestras', 'sintomas_lista', 'obra_social_lista', 'especialidad'];
+            $listas = ['sintomas_lista', 'obra_social_lista', 'especialidad_lista'];
 
             if (in_array($peges, $paginas_publica)) {
                 include('vistas/paginas/' . $peges . '.php');
-                
             } elseif (isset($_SESSION['nombre_usuario'])) {
 
                 if (in_array($peges, $paginas_comunes)) {
                     include('vistas/paginas/' . $peges . '.php');
                 } elseif (in_array($peges, $paginas_admin) && $_SESSION['nombre_perfil'] === 'Administrador') {
                     include('vistas/paginas/' . $peges . '.php');
+                    if (in_array($peges, $listas)) {
+                        include('template/' . $peges . '.php');
+                    }
                 } else {
                     include('vistas/paginas/403.php');
                 }

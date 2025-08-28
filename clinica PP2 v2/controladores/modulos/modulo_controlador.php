@@ -4,38 +4,35 @@ require_once "../../modelos/modulos.php";
 if (isset($_POST['action'])) {
     $accion = $_POST['action'];
     $modulo = new Modulos();
+    $tablas = $_POST['tablas'] ?? [];
 
     switch ($accion) {
         case 'insertar':
-            // Guardar el módulo
             $modulo->setNombre($_POST['nombre_modulo']);
-            $idModulo = $modulo->guardarModuloConRetorno(); // devuelve el ID con mysqli_insert_id
+            // guardar y obtener id
+            $id_modulo = $modulo->guardarModulo();
 
-            // Guardar las tablas seleccionadas
-            if (!empty($_POST['tablas'])) {
-                foreach ($_POST['tablas'] as $idTabla) {
-                    $modulo->asignarTablaAModulo($idModulo, $idTabla);
-                }
+            // asignar tablas seleccionadas
+            foreach ($tablas as $id_tabla) {
+                $modulo->asignarTabla($id_modulo, $id_tabla);
             }
 
             header('Location: ../../index.php?page=modulos');
             break;
 
         case 'actualizacion':
-            // Actualizar módulo
-            $modulo->setIdModulos($_POST['id_modulos']);
+            $id_mod = $_POST['id_modulos'];
+            $modulo->setIdModulos($id_mod);
             $modulo->setNombre($_POST['nombre_modulo']);
             $modulo->actualizarModulo();
 
-            // Actualizar tablas
-            $modulo->eliminarTablasDeModulo($_POST['id_modulos']); // borramos las relaciones viejas
-            if (!empty($_POST['tablas'])) {
-                foreach ($_POST['tablas'] as $idTabla) {
-                    $modulo->asignarTablaAModulo($_POST['id_modulos'], $idTabla);
-                }
+            // desasigna y reasigna las tablas
+            $modulo->desasignarTablas($id_mod);
+            foreach ($tablas as $id_tabla) {
+                $modulo->asignarTabla($id_mod, $id_tabla);
             }
 
-            header('Location: ../../index.php?page=modulos'); 
+            header('Location: ../../index.php?page=modulos');
             break;
 
         case 'eliminacion':
@@ -45,3 +42,4 @@ if (isset($_POST['action'])) {
             break;
     }
 }
+?>
