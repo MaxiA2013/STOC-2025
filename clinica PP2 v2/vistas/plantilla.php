@@ -38,14 +38,15 @@ if (!isset($_SESSION['id_usuario'])) {
     <div>
         <?php
         // Aquí se define qué páginas puede ver cada perfil
+        include 'vistas/componentes/breadcrumb.php';
 
         if (isset($_GET['page'])) {
             $peges = $_GET['page'];
 
             $paginas_publica = ['indexo', 'noticias', 'nosotros', 'biblioteca', 'turnos', 'info_turnos', 'doctores', 'areas', 'login', 'registro'];
-            $paginas_comunes = ['mi_perfil', 'salida'];
-            $paginas_admin = ['lista_usuario', 'lista_doctor', 'registro', 'modulos', 'perfiles', 'tablas', 'tablas_maestras', 'sintomas_lista', 'obra_social_lista', 'especialidad'];
-            $listas = ['sintomas_lista', 'obra_social_lista', 'especialidad_lista'];
+            $paginas_comunes = ['mi_perfil', 'salida', 'mis_datos'];
+            $paginas_admin = ['lista_usuario', 'lista_doctor', 'registro', 'modulos', 'perfiles', 'tablas', 'tablas_maestras', 'sintomas_lista', 'obra_social_lista', 'especialidad_lista'];
+            $listas = ['condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','direccion_lista','sintomas_lista', 'obra_social_lista', 'especialidad_lista'];
 
             if (in_array($peges, $paginas_publica)) {
                 include('vistas/paginas/' . $peges . '.php');
@@ -53,10 +54,29 @@ if (!isset($_SESSION['id_usuario'])) {
 
                 if (in_array($peges, $paginas_comunes)) {
                     include('vistas/paginas/' . $peges . '.php');
-                } elseif (in_array($peges, $paginas_admin) && $_SESSION['nombre_perfil'] === 'Administrador') {
-                    include('vistas/paginas/' . $peges . '.php');
+                } elseif (in_array($peges, $paginas_admin) && $_SESSION['nombre_perfil'] === 'administrador') {
+                    // Ruta absoluta hacia vistas/paginas
+                    $path = realpath(__DIR__ . '/paginas/' . $peges . '.php');
+
+                    if ($path && is_file($path) && is_readable($path)) {
+                        require_once $path; // se incluye solo si existe y es accesible
+                    } else {
+                        // Manejo de error si no se encuentra el archivo
+                        error_log("Archivo no encontrado en paginas: " . $path);
+                        http_response_code(404);
+                        //echo "<p>Página no encontrada</p>";
+                    }
+
+                    // Si la página está en la lista de "listas", incluir la template asociada
                     if (in_array($peges, $listas)) {
-                        include('template/' . $peges . '.php');
+                        $templatePath = realpath(__DIR__ . '/paginas/template_tablasMaestras/' . $peges . '.php');
+                        //echo $templatePath;
+
+                        if ($templatePath && is_file($templatePath) && is_readable($templatePath)) {
+                            require_once $templatePath;
+                        } else {
+                            error_log("Template no encontrada: " . $templatePath);
+                        }
                     }
                 } else {
                     include('vistas/paginas/403.php');
@@ -78,9 +98,12 @@ if (!isset($_SESSION['id_usuario'])) {
     <?php include 'componentes/footer.php'; ?>
 
     <!-- Scripts -->
-    <script src="assets/js/jquery-3.7.1.min.js"></script>
-    <script src="assets/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/all.min.js"></script>
+
 </body>
+
+<script src="assets/js/jquery-3.7.1.min.js"></script>
+<script src="assets/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/all.min.js"></script>
+<!-- <script src="assets/js/controlador_perfil.js"></script>  hay que arreglar el por que no se estaría encontrando el archivo -->
 
 </html>

@@ -16,7 +16,6 @@ $perfil_id = $_SESSION['id_perfil']; // Este dato se usará con JS
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil de Usuario</title>
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <style>
         header,
         h1,
@@ -187,17 +186,6 @@ $perfil_id = $_SESSION['id_perfil']; // Este dato se usará con JS
                     </div>
 
 
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card-custom p-3">
-                        <h5>Información</h5>
-                        <ul class="list-unstyled">
-                            <li class="mt-2"><strong>Teléfono:</strong><br> +1 54546 45648</li>
-                            <li class="mt-2"><strong>Email:</strong><br> john@example.com</li>
-                            <li class="mt-2"><strong>Ubicación:</strong><br> Calle Salud 123, Las Vegas, NV</li>
-                        </ul>
-                    </div>
                 </div>
             </div>
 
@@ -401,5 +389,4 @@ $perfil_id = $_SESSION['id_perfil']; // Este dato se usará con JS
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
 </body>
-
 </html>
