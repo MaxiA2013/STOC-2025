@@ -15,7 +15,7 @@ class Metodo_Pago{
     public function actualizarMetodoPago(){
         $conn = new Conexion();
         $query = "UPDATE metodo_pago SET nombre_metodo = '$this->nombre_metodo' WHERE id_metodo_pago = $this->id_metodo_pago";
-        $conn->modificar($query);
+        $conn->actualizar($query);
     }
 
     public function eliminarMetodoPago(){

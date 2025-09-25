@@ -49,10 +49,10 @@ class Documento{
         $this->setIdDocumento($id);
     }
 
-    public function modificarDocumento(){
+    public function actualizarDocumento(){
         $conn = new Conexion();
         $query = "UPDATE documento SET tipo_documento_id = $this->id_documento, detalle = '$this->detalle' WHERE id = $this->id_documento";
-        $conn->modificar($query);
+        $conn->actualizar($query);
     }
 
     public function eliminarDocumento(){

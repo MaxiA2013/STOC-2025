@@ -2,7 +2,7 @@
   #toggleSidebar {
     position: relative;
     left: 150px;
-    z-index: 1050;
+    z-index: 2050;
     border-radius: 25%;
     border-style: none;
     width: 50px;
@@ -20,7 +20,7 @@
 </style>
 <!-- despues arreglar las ubicaciones del css y js en carpetas diferentes-->
 
-<div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark position-absolute vh-100" style="width: 280px;">
+<div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark position-absolute vh-100" style="width: 280px; z-index: 2050;">
   <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
     <img src="assets/images/logo/captura_de_pantalla_3.png" alt="Logo" style="width:40px; margin-right: 5px">
     <span class="fs-4">Menú</span>

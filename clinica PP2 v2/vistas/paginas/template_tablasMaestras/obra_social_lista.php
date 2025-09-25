@@ -61,7 +61,7 @@ $lista_obra_social = $obra_social->consultarVariasObrasSociales();
                                 </button>
 
                                 <!-- Modal dinámico -->
-                                <div class="modal fade" id="modal<?php echo $row['id_obra_social'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel<?php echo $row['id_obra_socials'] ?>" aria-hidden="true">
+                                <div class="modal fade" id="modal<?php echo $row['id_obra_social'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel<?php echo $row['id_obra_social'] ?>" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">

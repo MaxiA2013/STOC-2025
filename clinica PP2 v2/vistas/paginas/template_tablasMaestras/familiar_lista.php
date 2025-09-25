@@ -1,28 +1,28 @@
 <?php
-include_once "modelos/condicion.php";
+include_once "modelos/familiar.php";
 
-$condicion = new Condicion();
-$lista_condicion = $condicion->consultarVariasCondiciones();
+$fam = new Familiar();
+$lista_fam = $fam->consultarVariosFamiliar();
 ?>
 
 <div class="py-5 container">
     <div class="row">
         <div class="col">
-            <h2>Condiciones</h2>
-            <p>Ingresa una nueva Condicion</p>
+            <h2>Familiar</h2>
+            <p>Ingresa un nuevo tipo Familiar</p>
         </div>
     </div>
     <div class="row">
         <div class="col">
             <div class="container">
-                <form method="post" action="controladores/condicion_controlador.php">
+                <form method="post" action="controladores/familiar_controlador.php">
                     <div class="mb-3">
                         <input type="hidden" name="action" value="insertar">
-                        <label for="nombre_condicion" class="form-label">Condicion</label>
-                        <input type="text" class="form-control" id="nombre_condicion" placeholder="Ingrese la condicion" name="nombre_condicion">
+                        <label for="relacion" class="form-label">Relación</label>
+                        <input type="text" class="form-control" id="relacion" placeholder="Ingrese la relacion " name="relacion">
 
-                        <label for="detalle" class="form-label">Detalle</label>
-                        <input type="text" class="form-control" id="detalle" placeholder="Ingrese el detalle " name="detalle">
+                        <label for="descripcion" class="form-label">descripcion</label>
+                        <input type="text" class="form-control" id="descripcion" placeholder="Ingrese la Descripcion " name="descripcion">
                     </div>
                     <button type="submit" class="btn btn-primary">Agregar</button>
                 </form>
@@ -34,53 +34,53 @@ $lista_condicion = $condicion->consultarVariasCondiciones();
                 <thead>
                     <tr>
                         <th scope="col">ID</th>
-                        <th scope="col">condicion</th>
-                        <th scope="col">detalle</th>
+                        <th scope="col">Relacion</th>
+                        <th scope="col">Descripcion</th>
                         <th scope="col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    foreach ($lista_condicion as $row) {
+                    foreach ($lista_fam as $row) {
                     ?>
                         <tr>
-                            <td><?php echo $row['id_condicion'] ?></td>
-                            <td><?php echo $row['nombre_condicion'] ?></td>
-                            <td><?php echo $row['detalle'] ?></td>
+                            <td><?php echo $row['id_familiar'] ?></td>
+                            <td><?php echo $row['relacion'] ?></td>
+                            <td><?php echo $row['descripcion'] ?></td>
                             <td>
-                                <form action="controladores/condicion_controlador.php" method="post">
-                                    <input type="hidden" name="id_condicion" value="<?php echo $row['id_condicion'] ?>">
+                                <form action="controladores/familiar_controlador.php" method="post">
+                                    <input type="hidden" name="id_familiar" value="<?php echo $row['id_familiar'] ?>">
                                     <input type="hidden" name="action" value="eliminacion">
                                     <button type="submit"><i class="fa-solid fa-delete-left"></i></button>
                                 </form>
                             </td>
                             <td>
                                 <!-- Botón que abre el modal -->
-                                <button type="button" data-bs-toggle="modal" data-bs-target="#modal<?php echo $row['id_condicion'] ?>">
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#modal<?php echo $row['id_familiar'] ?>">
                                     <i class="fa-solid fa-pen-nib"></i>
                                 </button>
 
                                 <!-- Modal dinámico -->
-                                <div class="modal fade" id="modal<?php echo $row['id_condicion'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel<?php echo $row['id_condicion'] ?>" aria-hidden="true">
+                                <div class="modal fade" id="modal<?php echo $row['id_familiar'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel<?php echo $row['id_familiar'] ?>" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="exampleModalLabel<?php echo $row['id_condicion'] ?>">Modificar condicion</h1>
+                                                <h1 class="modal-title fs-5" id="exampleModalLabel<?php echo $row['id_familiar'] ?>">Modificar Relacion</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form action="controladores/condicion_controlador.php" method="post">
+                                            <form action="controladores/sintomas_controlador.php" method="post">
                                                 <div class="modal-body">
                                                     <input type="hidden" name="action" value="actualizacion">
-                                                    <input type="hidden" name="id_condicions" value="<?php echo $row['id_condicion'] ?>">
+                                                    <input type="hidden" name="id_familiar" value="<?php echo $row['id_familiar'] ?>">
 
                                                     <div class="mb-3">
-                                                        <label for="nombre_condicion<?php echo $row['id_condicion'] ?>" class="form-label">condicion</label>
-                                                        <input type="text" class="form-control" id="nombre_condicion<?php echo $row['id_condicion'] ?>" name="nombre_condicion" value="<?php echo $row['nombre_condicion'] ?>">
+                                                        <label for="relacion<?php echo $row['id_familiar'] ?>" class="form-label">Relacion</label>
+                                                        <input type="text" class="form-control" id="relacion<?php echo $row['id_familiar'] ?>" name="relacion" value="<?php echo $row['relacion'] ?>">
                                                     </div>
 
                                                     <div class="mb-3">
-                                                        <label for="detalle<?php echo $row['id_condicion'] ?>" class="form-label">detalle</label>
-                                                        <input type="text" class="form-control" id="detalle<?php echo $row['id_condicion'] ?>" name="detalle" value="<?php echo $row['detalle'] ?>">
+                                                        <label for="descripcion<?php echo $row['id_familiar'] ?>" class="form-label">Descripción</label>
+                                                        <input type="text" class="form-control" id="descripcion<?php echo $row['id_familiar'] ?>" name="descripcion" value="<?php echo $row['descripcion'] ?>">
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -93,7 +93,7 @@ $lista_condicion = $condicion->consultarVariasCondiciones();
                                 </div>
                             </td>
                         <?php } ?>
-                        </tr>';
+                        </tr>
                 </tbody>
             </table>
         </div>

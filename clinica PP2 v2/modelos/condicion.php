@@ -4,7 +4,7 @@ require_once "conexion.php";
 class Condicion{
     private int $id_condicion;
     private string $nombre_condicion;
-    private string $detalles;
+    private string $detalle;
 
 
     public function getIdCondicion(): int
@@ -31,14 +31,14 @@ class Condicion{
         return $this;
     }
 
-    public function getDetalles(): string
+    public function getDetalle(): string
     {
-        return $this->detalles;
+        return $this->detalle;
     }
 
-    public function setDetalles(string $detalles): self
+    public function setDetalle(string $detalle): self
     {
-        $this->detalles = $detalles;
+        $this->detalle = $detalle;
 
         return $this;
     }
@@ -46,7 +46,7 @@ class Condicion{
     
     public function guardarCondicion(){
         $conn = new Conexion();
-        $query = "INSERT INTO condicin (nombre_condicion, detalle) VALUES ('{$this->nombre_condicion}','{$this->detalles}')";
+        $query = "INSERT INTO condicion (nombre_condicion, detalle) VALUES ('{$this->nombre_condicion}','{$this->detalle}')";
         $id = $conn->insertar($query);
         $this->setIdCondicion($id);
     }
@@ -57,10 +57,10 @@ class Condicion{
         $conn->eliminar($query);
     }
 
-    public function modificarCondicion(){
+    public function actualizarCondicion(){
         $conn = new Conexion();
-        $query = "UPDATE condicion SET nombre_condicion='{$this->nombre_condicion}', detalle='{$this->detalles}' WHERE id_condicion={$this->id_condicion}";
-        $conn->modificar($query);
+        $query = "UPDATE condicion SET nombre_condicion='{$this->nombre_condicion}', detalle='{$this->detalle}' WHERE id_condicion={$this->id_condicion}";
+        $conn->actualizar($query);
     }
 
     public function consultarVariasCondiciones(){

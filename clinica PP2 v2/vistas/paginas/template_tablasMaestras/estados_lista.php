@@ -1,103 +1,101 @@
 <?php
-require_once "../modulos/estados.php";
-$con = new Estado();
-$lista = $con->consultarVariosEstados();
+include_once "modelos/estados.php";
+
+$stat = new Estado();
+$lista_estados = $stat->consultarVariosEstados();
 ?>
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modulo Estados</title>
-    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
-</head>
-
-<body>
-    <div class="mt-4 p-5 bg-primary text-white rounded">
-        <h1>Bienvenido al Modulo Estados</h1>
-        <p>Gestioná los Estados del sistema agregando, eliminando o modificando.</p>
-    </div>
-    <a href="../index.php">Regresar al Inicio</a> <!-- Link para la página -->
-
-    <div class="container-fluid">
-
-        <div class="container text-center">
-            <div class="row">
-                <div class="col">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th scope="col">Id</th>
-                                <th scope="col">Nombre</th>
-                                <th scope="col">Descripción</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($lista as $estado) { ?>
-                                <tr>
-                                    <td><?php echo $estado['id_estados'] ?></td>
-                                    <td><?php echo $estado['tipo_estado'] ?></td>
-                                    <td><?php echo $estado['descripcion'] ?></td>
-                                    <td>
-                                        <form class="needs-validation" action="../controladores/estado_controlador.php" method="post">
-                                            <input type="hidden" name="id_estados" value="<?= $estado['id_estados'] ?>">
-                                            <input type="hidden" name="accion" value="baja">
-                                            <button type="submit" class="btn btn-danger">Borrar</button>
-                                        </form>
-                                    </td>
-                                    <td>
-                                        <form class="needs-validation" action="../controladores/estado_controlador.php" method="post">
-                                            <input type="hidden" name="id_estados" value="<?= $estado['id_estados'] ?>">
-                                            <input type="hidden" name="accion" value="actualizacion">
-                                            <button type="submit" class="btn btn-warning">Modificar</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="col">
-                    <form class="needs-validation" action="../controladores/estado_controlador.php" method="post">
-                        <div class="mb-3 mt-3">
-                            <label for="estado" class="form-label">Nombre de Estado:</label>
-                            <input type="text" class="form-control" id="estado" placeholder="Ingrese estado" name="estado" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="descripcion_estado" class="form-label">Descripción:</label>
-                            <input type="text" class="form-control" id="descripcion_estado" placeholder="Ingrese Descripción" name="descripcion_estado" required>
-                        </div>
-                        <input type="hidden" name="accion" value="alta">
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                    </form>
-                </div>
-            </div>
+<div class="py-5 container">
+    <div class="row">
+        <div class="col">
+            <h2>Estados</h2>
+            <p>Ingresa un nuevo Estados</p>
         </div>
     </div>
+    <div class="row">
+        <div class="col">
+            <div class="container">
+                <form method="post" action="controladores/estados_controlador.php">
+                    <div class="mb-3">
+                        <input type="hidden" name="action" value="insertar">
+                        <label for="tipo_estado" class="form-label">Estado</label>
+                        <input type="text" class="form-control" id="tipo_estado" placeholder="Ingrese el estado " name="tipo_estado">
 
-    <script src="../assets/js/bootstrap.bundle.min.js"></script>
-    <script>
-        (() => {
-            'use strict'
+                        <label for="descripcion" class="form-label">descripcion</label>
+                        <input type="text" class="form-control" id="descripcion" placeholder="Ingrese la Descripcion " name="descripcion">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Agregar</button>
+                </form>
+            </div>
+        </div>
 
-            // Fetch all the forms we want to apply custom Bootstrap validation styles to
-            const forms = document.querySelectorAll('.needs-validation')
+        <div class="col">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Estados</th>
+                        <th scope="col">Descripcion</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    foreach ($lista_estados as $row) {
+                    ?>
+                        <tr>
+                            <td><?php echo $row['id_estados'] ?></td>
+                            <td><?php echo $row['tipo_estado'] ?></td>
+                            <td><?php echo $row['descripcion'] ?></td>
+                            <td>
+                                <form action="controladores/sintomas_controlador.php" method="post">
+                                    <input type="hidden" name="id_estados" value="<?php echo $row['id_estados'] ?>">
+                                    <input type="hidden" name="action" value="eliminacion">
+                                    <button type="submit"><i class="fa-solid fa-delete-left"></i></button>
+                                </form>
+                            </td>
+                            <td>
+                                <!-- Botón que abre el modal -->
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#modal<?php echo $row['id_estados'] ?>">
+                                    <i class="fa-solid fa-pen-nib"></i>
+                                </button>
 
-            // Loop over them and prevent submission
-            Array.from(forms).forEach(form => {
-                form.addEventListener('submit', event => {
-                    if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                    }
+                                <!-- Modal dinámico -->
+                                <div class="modal fade" id="modal<?php echo $row['id_estados'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel<?php echo $row['id_estados'] ?>" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="exampleModalLabel<?php echo $row['id_estados'] ?>">Modificar Estado</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form action="controladores/sintomas_controlador.php" method="post">
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="action" value="actualizacion">
+                                                    <input type="hidden" name="id_estados" value="<?php echo $row['id_estados'] ?>">
 
-                    form.classList.add('was-validated')
-                }, false)
-            })
-        })()
-    </script>
-</body>
+                                                    <div class="mb-3">
+                                                        <label for="tipo_estado<?php echo $row['id_estados'] ?>" class="form-label">Estado</label>
+                                                        <input type="text" class="form-control" id="tipo_estado<?php echo $row['id_estados'] ?>" name="tipo_estado" value="<?php echo $row['tipo_estado'] ?>">
+                                                    </div>
 
-</html>
+                                                    <div class="mb-3">
+                                                        <label for="descripcion<?php echo $row['id_estados'] ?>" class="form-label">Descripción</label>
+                                                        <input type="text" class="form-control" id="descripcion<?php echo $row['id_estados'] ?>" name="descripcion" value="<?php echo $row['descripcion'] ?>">
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                    <button type="submit" class="btn btn-success">Guardar</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        <?php } ?>
+                        </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

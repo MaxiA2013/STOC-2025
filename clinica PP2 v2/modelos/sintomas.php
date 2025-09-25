@@ -12,7 +12,7 @@ class Sintomas{
         return $this->id_sintomas;
     }
 
-    public function setIdSintomas(int $id_sintomas): self
+    public function setIdSintomas($id_sintomas): self
     {
         $this->id_sintomas = $id_sintomas;
 
@@ -24,7 +24,7 @@ class Sintomas{
         return $this->nombre_sintomas;
     }
 
-    public function setNombreSintomas(string $nombre_sintomas): self
+    public function setNombreSintomas($nombre_sintomas): self
     {
         $this->nombre_sintomas = $nombre_sintomas;
 
@@ -36,7 +36,7 @@ class Sintomas{
         return $this->descripcion;
     }
 
-    public function setDescripcion(string $descripcion): self
+    public function setDescripcion($descripcion): self
     {
         $this->descripcion = $descripcion;
 
@@ -66,7 +66,6 @@ class Sintomas{
         $con = new Conexion();
         $query = "SELECT * FROM sintomas WHERE id_sintomas={$id}";
         $datos = $con->consultar($query);
-
     }
 
     public function consultarVariosSintomas(){

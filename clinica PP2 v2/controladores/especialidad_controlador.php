@@ -1,26 +1,26 @@
 <?php
-require_once "../../modelos/tablas.php";
+require_once "../modelos/especialidad.php";
 if (isset($_POST['action'])){
     $accion= $_POST['action'];
     switch ($accion){
         case 'insertar':
-            $tabla = new Tablas();
-            $tabla->setNombreTabla($_POST['nombre_tabla']);
-            $tabla->guardarTabla();
-            header('Location: ../../index.php?page=tablas');
+            $especialidades = new Especialidad();
+            $especialidades->setNombreEspecialidad($_POST['nombre_especialidad']);
+            $especialidades->guardarEspecialidad();
+            header('Location: ../index.php?page=especialidad_lista');
             break;
         case 'eliminacion':
-            $tabla = new Tablas();
-            $tabla->setIdTablas($_POST['id_tablas']);
-            $tabla->eliminarTabla();
-            header('Location: ../../index.php?page=tablas');
+            $especialidades = new Especialidad();
+            $especialidades->setIdEspecialidad($_POST['id_especialidad']);
+            $especialidades->eliminarEspecialidad();
+            header('Location: ../index.php?page=especialidad_lista');
             break;
         case 'actualizacion':
-            $tabla = new Tablas();
-            $tabla->setIdTablas($_POST['id_tablas']);
-            $tabla->setNombreTabla($_POST['nombre_tabla']);
-            $tabla->actualizarTabla();
-            header('Location: ../../index.php?page=tablas');
+            $especialidades = new Especialidad();
+            $especialidades->setIdEspecialidad($_POST['id_especialidad']);
+            $especialidades->setNombreEspecialidad($_POST['nombre_especialidad']);
+            $especialidades->actualizarEspecialidad();
+            header('Location: ../index.php?page=especialidad_lista');
             break;
     }
 }
