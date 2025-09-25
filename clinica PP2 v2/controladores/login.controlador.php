@@ -2,6 +2,7 @@
 require_once ('../modelos/usuarios.php');
 require_once ('../modelos/persona.php');
 require_once ('../modelos/perfil.php');
+require_once ('../modelos/doctor.php');
 
 if (isset($_POST['action'])) {
     $login_controlador = new LoginControlador();
@@ -32,18 +33,15 @@ class LoginControlador {
                     $_SESSION['nombre_usuario'] = $row['nombre_usuario'];
                     $_SESSION['email'] = $row['email'];
 
-                    //Obtener perfil desde usuario_has_perfil
                     $perfil = new Perfil();
-                    $resultado_perfil = $perfil->traer_perfil_por_usuario($row['id_usuario']); // Método de Perfil.php
+                    $resultado_perfil = $perfil->traer_perfil_por_usuario($row['id_usuario']);
                     if ($resultado_perfil->num_rows > 0) {
                         while ($row_perfil = $resultado_perfil->fetch_assoc()) {
                             $_SESSION['id_perfil'] = $row_perfil['id_perfil'];
                             $_SESSION['nombre_perfil'] = $row_perfil['nombre_perfil'];
                         }
                     }
-                    //Obtener perfil desde usuario_has_perfil
 
-                    // Redireccionar según el perfil
                     if ($_SESSION['nombre_perfil'] == 'Administrador') {
                         header('Location: ../index.php?page=lista_usuario');
                     } elseif ($_SESSION['nombre_perfil'] == 'Doctor') {
@@ -51,7 +49,6 @@ class LoginControlador {
                     } elseif ($_SESSION['nombre_perfil'] == 'Paciente') {
                         header('Location: ../index.php?page=mi_perfil');
                     } else {
-                        // Perfil no reconocido
                         header('Location: ../index.php?message=Perfil no reconocido&status=warning');
                     }
 
@@ -86,13 +83,20 @@ class LoginControlador {
                 $id_usuario = $usuario->guardarUsuario();
 
                 if ($id_usuario) {
-
-                    //Insertar perfil en usuario_has_perfil
-                    $perfil_id = $_POST['perfil_id_perfil']; // Este campo debe venir del formulario
+                    $perfil_id = $_POST['perfil_id_perfil'];
                     $conn = new mysqli("localhost", "root", "", "clinica");
                     $sql = "INSERT INTO usuario_has_perfil (usuario_id_usuario, perfil_id_perfil) VALUES ($id_usuario, $perfil_id)";
                     $conn->query($sql);
-                    //Insertar perfil en usuario_has_perfil
+
+                    // Si el perfil es Doctor (ID 2), insertar también en la tabla doctor
+                    if ($perfil_id == 2) {
+                        $numero_matricula_profesional = isset($_POST['numero_matricula_profesional']) ? $_POST['numero_matricula_profesional'] : '';
+                        $salario = isset($_POST['salario']) ? floatval($_POST['salario']) : 0;
+
+                        $doctor = new Doctor( $numero_matricula_profesional, 'Activo', $id_usuario, $salario);
+                        $doctor-> setNumero_matricula_profesional($_POST['numero_matricula_profesional']);
+                        $doctor->guardar();
+                    }
 
                     header('Location: ../index.php?message=Usuario registrado correctamente&status=success');
                 } else {
@@ -104,4 +108,3 @@ class LoginControlador {
         }
     }
 }
-?>

@@ -30,6 +30,7 @@ $perfil = $_SESSION['nombre_perfil']; // nuevo
         <div class="modulos">
             <h3>Módulos de administración</h3>
             <a href="index.php?page=lista_usuario">Lista de Usuario</a><br>
+            <a href="index.php?page=lista_agenda">Agenda</a><br>
             <a href="index.php?page=lista_doctor">Lista de Doctores</a><br>
             <a href="vistas/paginas/salida.php">Cerrar Sesión</a>
         </div>';

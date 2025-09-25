@@ -6,7 +6,7 @@ $is_admin = isset($_SESSION['nombre_perfil']) && $_SESSION['nombre_perfil'] === 
     <div class="col" style="border: solid 1px; background-color: rgb(111, 111, 229);"></div>
 
     <div class="col-6">
-        <form method="POST" action="../../controladores/login.controlador.php">
+        <form method="POST" action="controladores/login.controlador.php">
             <input type="hidden" name="action" value="registro" />
 
             <div class="mb-3 mt-3">
@@ -54,18 +54,29 @@ $is_admin = isset($_SESSION['nombre_perfil']) && $_SESSION['nombre_perfil'] === 
                 </label>
             </div>
 
-            <?php if ($is_admin): ?>
-                <!-- Si es administrador, puede elegir el perfil -->
+            <?php if ($is_admin): ?> 
                 <div class="mb-3 mt-3">
                     <label for="perfil" class="form-label">Perfil</label>
-                    <select class="form-select" id="perfil" name="perfil_id_perfil">
+                    <select class="form-select" id="perfil" name="perfil_id_perfil" onchange="toggleDoctorFields()">
                         <option value="1">Administrador</option>
-                        <option value="2" selected>Paciente</option>
-                        <option value="3">Doctor</option>
+                        <option value="2">Doctor</option>
+                        <option value="3" selected>Paciente</option>
                     </select>
                 </div>
+
+                <!-- Campos extra solo si selecciona Doctor -->
+                <div id="doctorFields" style="display: none;">
+                    <div class="mb-3 mt-3">
+                        <label for="matricula" class="form-label">Número de Matrícula Profesional</label>
+                        <input type="text" class="form-control" id="matricula" name="numero_matricula_profesional" placeholder="Ingrese la matrícula">
+                    </div>
+
+                    <div class="mb-3 mt-3">
+                        <label for="salario" class="form-label">Salario</label>
+                        <input type="number" class="form-control" id="salario" name="salario" placeholder="Ingrese el salario" step="0.01">
+                    </div>
+                </div>
             <?php else: ?>
-                <!-- Si no es administrador, se asigna automáticamente como Paciente -->
                 <input type="hidden" name="perfil_id_perfil" value="3">
             <?php endif; ?>
 
@@ -75,3 +86,16 @@ $is_admin = isset($_SESSION['nombre_perfil']) && $_SESSION['nombre_perfil'] === 
 
     <div class="col" style="border: solid 1px; background-color: rgb(111, 111, 229);"></div>
 </div>
+
+<?php if ($is_admin): ?>
+<script>
+    function toggleDoctorFields() {
+        var perfil = document.getElementById("perfil").value;
+        var camposDoctor = document.getElementById("doctorFields");
+        camposDoctor.style.display = (perfil == "2") ? "block" : "none";
+    }
+
+    // Ejecutar al cargar si ya está seleccionado Doctor
+    window.onload = toggleDoctorFields;
+</script>
+<?php endif; ?>
