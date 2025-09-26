@@ -17,7 +17,7 @@ class Obra_Social{
         return $this->id_obra_social;
     }
 
-    public function setIdObraSocial(int $id_obra_social): self
+    public function setIdObraSocial($id_obra_social): self
     {
         $this->id_obra_social = $id_obra_social;
 
@@ -29,7 +29,7 @@ class Obra_Social{
         return $this->nombre_obra_social;
     }
 
-    public function setNombreObraSocial(string $nombre_obra_social): self
+    public function setNombreObraSocial($nombre_obra_social): self
     {
         $this->nombre_obra_social = $nombre_obra_social;
 
@@ -41,7 +41,7 @@ class Obra_Social{
         return $this->detalle;
     }
 
-    public function setDetalle(string $detalle): self
+    public function setDetalle( $detalle): self
     {
         $this->detalle = $detalle;
 

@@ -68,10 +68,10 @@ $lista_obra_social = $obra_social->consultarVariasObrasSociales();
                                                 <h1 class="modal-title fs-5" id="exampleModalLabel<?php echo $row['id_obra_social'] ?>">Modificar obra_social</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form action="controladores/obra_socials/obra_social_controlador.php" method="post">
+                                            <form action="controladores/obra_social_controlador.php" method="post">
                                                 <div class="modal-body">
                                                     <input type="hidden" name="action" value="actualizacion">
-                                                    <input type="hidden" name="id_obra_socials" value="<?php echo $row['id_obra_social'] ?>">
+                                                    <input type="hidden" name="id_obra_social" value="<?php echo $row['id_obra_social'] ?>">
 
                                                     <div class="mb-3">
                                                         <label for="nombre_obra_social<?php echo $row['id_obra_social'] ?>" class="form-label">obra_social</label>

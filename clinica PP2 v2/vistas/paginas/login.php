@@ -1,5 +1,5 @@
-<div class="container col-xl-10 col-xxl-8 px-4 py-5">
-    <div class="row align-items-center g-lg-5 py-5">
+<div class="row align-items-center g-lg-5 py-5">
+
     <div class="col-md-10 mx-auto col-lg-5" style="background-color: rgb(79, 100, 139); margin-top: 5%;">
         <form id="id_form" method="POST" action="controladores/login.controlador.php">
             <input type="hidden" name="action" value="login" />
@@ -25,7 +25,7 @@
             </div>
             <div class="mb-3">
                 <p style="color: white;">¿No tenés una cuenta?
-                    <a href="index.php?page=registro" style="color: yellow; text-decoration: underline;">Registrate</a>
+                    <a href="vistas/paginas/registro.php" style="color: yellow; text-decoration: underline;">Registrate</a>
                 </p>
             </div>
 
@@ -42,7 +42,6 @@
             ¡Tu bienestar merece esta comodidad!</p>
     </div>
 
-</div>
 </div>
 
 <script src="assets/js/validaciones/login.js"></script>
