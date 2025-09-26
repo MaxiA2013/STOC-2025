@@ -98,6 +98,12 @@ class LoginControlador {
                         $doctor->guardar();
                     }
 
+                    // Si el perfil es Paciente (ID 3), insertar también en la tabla paciente
+                    if ($perfil_id == 3) {
+                        $conn->query("INSERT INTO paciente (usuario_id_usuario) VALUES ($id_usuario)");
+                    }
+
+
                     header('Location: ../index.php?message=Usuario registrado correctamente&status=success');
                 } else {
                     header('Location: ../index.php?message=Error al registrar usuario&status=danger');

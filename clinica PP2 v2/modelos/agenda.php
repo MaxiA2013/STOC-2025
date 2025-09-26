@@ -11,13 +11,12 @@ class Agenda {
     private $dias_id_dias;
     private $doctor_id_doctor;
 
-    public function __construct($id_agenda, $fecha_desde, $fecha_hasta, $hora_desde, $hora_hasta, $minutos_turnos, $dias_id_dias, $doctor_id_doctor) {
+    public function __construct($id_agenda, $fecha_desde, $fecha_hasta, $hora_desde, $hora_hasta, $dias_id_dias, $doctor_id_doctor) {
         $this->id_agenda = $id_agenda;
         $this->fecha_desde = $fecha_desde;
         $this->fecha_hasta = $fecha_hasta;
         $this->hora_desde = $hora_desde;
         $this->hora_hasta = $hora_hasta;
-        $this->minutos_turnos = $minutos_turnos;
         $this->dias_id_dias = $dias_id_dias;
         $this->doctor_id_doctor = $doctor_id_doctor;
     }
@@ -29,7 +28,6 @@ class Agenda {
                     fecha_hasta,
                     hora_desde,
                     hora_hasta,
-                    minutos_turnos,
                     dias_id_dias,
                     doctor_id_doctor
                 ) VALUES (
@@ -37,7 +35,6 @@ class Agenda {
                     '$this->fecha_hasta',
                     '$this->hora_desde',
                     '$this->hora_hasta',
-                    $this->minutos_turnos,
                     $this->dias_id_dias,
                     $this->doctor_id_doctor
                 )";

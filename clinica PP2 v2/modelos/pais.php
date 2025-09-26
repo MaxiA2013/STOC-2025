@@ -16,7 +16,7 @@ class Pais{
     public function actualizarPais(){
         $conn = new Conexion();
         $query = "UPDATE pais SET descripcion='$this->descripcion' WHERE id_pais=$this->id_pais";
-        $conn->modificar($query);
+        $conn->actualizar($query);
     }
 
     public function eliminarPais(){

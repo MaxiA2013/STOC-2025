@@ -9,7 +9,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $fecha_hasta = $_POST["fecha_hasta"];
         $hora_desde = $_POST["hora_desde"];
         $hora_hasta = $_POST["hora_hasta"]; 
-        $minutos_turnos = $_POST["minutos_turnos"];
         $dias_id_dias = $_POST["dias_id_dias"];
         $doctor_id_doctor = $_POST["doctor_id_doctor"];
 
@@ -19,7 +18,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $fecha_hasta,
             $hora_desde,
             $hora_hasta,
-            $minutos_turnos,
             $dias_id_dias,
             $doctor_id_doctor
         );

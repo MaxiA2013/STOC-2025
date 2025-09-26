@@ -6,7 +6,8 @@ $is_admin = isset($_SESSION['nombre_perfil']) && $_SESSION['nombre_perfil'] === 
     <div class="col" style="border: solid 1px; background-color: rgb(111, 111, 229);"></div>
 
     <div class="col-6">
-        <form method="POST" action="controladores/login.controlador.php">
+        <form method="POST" action="<?php echo 'http://' . $_SERVER['HTTP_HOST'] . '/clinica PP2 v2/controladores/login.controlador.php'; ?>">
+
             <input type="hidden" name="action" value="registro" />
 
             <div class="mb-3 mt-3">

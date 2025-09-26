@@ -3,7 +3,7 @@ require_once "modelos/conexion.php";
 require_once "modelos/agenda.php";
 
 // Obtener las agendas existentes
-$agenda = new Agenda("", "", "", "", "", "", "", "");
+$agenda = new Agenda("", "", "", "", "", "", "", );
 $agendas = $agenda->all_agendas();
 
 // Obtener los doctores para el select
@@ -43,7 +43,7 @@ foreach ($dias as $dia) {
 
 <div class="container mt-5">
     <h2 class="mb-4">Registrar Agenda</h2>
-    <form action="../../controladores/agenda_controlador.php" method="POST">
+    <form action="controladores/agenda_controlador.php" method="POST">
         <input type="hidden" name="action" value="guardar_agenda">
 
         <div class="row mb-3">
@@ -65,10 +65,6 @@ foreach ($dias as $dia) {
             <div class="col">
                 <label for="hora_hasta">Hora Hasta</label>
                 <input type="time" name="hora_hasta" class="form-control" required>
-            </div>
-            <div class="col">
-                <label for="minutos_turnos">Duración del turno (minutos)</label>
-                <input type="number" name="minutos_turnos" class="form-control" required>
             </div>
         </div>
 
@@ -109,7 +105,6 @@ foreach ($dias as $dia) {
                 <th>Fecha Hasta</th>
                 <th>Hora Desde</th>
                 <th>Hora Hasta</th>
-                <th>Minutos por Turno</th>
                 <th>Día</th>
                 <th>Doctor</th>
             </tr>
@@ -123,7 +118,6 @@ foreach ($dias as $dia) {
                         <td><?= $fila['fecha_hasta'] ?></td>
                         <td><?= $fila['hora_desde'] ?></td>
                         <td><?= $fila['hora_hasta'] ?></td>
-                        <td><?= $fila['minutos_turnos'] ?></td>
                         <td><?= $mapaDias[$fila['dias_id_dias']] ?? 'Desconocido' ?></td>
                         <td><?= $mapaDoctores[$fila['doctor_id_doctor']] ?? 'Desconocido' ?></td>
                     </tr>

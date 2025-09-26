@@ -32,6 +32,7 @@ $perfil = $_SESSION['nombre_perfil']; // nuevo
             <a href="index.php?page=lista_usuario">Lista de Usuario</a><br>
             <a href="index.php?page=lista_agenda">Agenda</a><br>
             <a href="index.php?page=lista_doctor">Lista de Doctores</a><br>
+            <a href="index.php?page=lista_paciente">Lista de Paciente</a><br>
             <a href="vistas/paginas/salida.php">Cerrar Sesión</a>
         </div>';
     } elseif ($perfil == 'Doctor') {

@@ -59,7 +59,7 @@ require_once("conexion.php");
         public function modificarTipoContacto(){
                 $con = new Conexion();
                 $query = "UPDATE contacto SET descripcion WHERE id_contacto =".$this->getId_contacto(); #query
-                $con->modificar($query); #actualiza
+                $con->actualizar($query); #actualiza
         }
 
         public function eliminarTipoContacto(){

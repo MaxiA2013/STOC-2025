@@ -54,7 +54,7 @@ if (!isset($_SESSION['id_usuario'])) {
 
         if (isset($_GET['page'])) {
             $peges = $_GET['page'];
-
+ 
             // Si hay sesión iniciada
             if (isset($_SESSION['nombre_usuario'])) {
 
@@ -62,7 +62,7 @@ if (!isset($_SESSION['id_usuario'])) {
                 $paginas_comunes = ['mi_perfil', 'salida'];
 
                 // Páginas exclusivas de administrador
-                $paginas_admin = ['lista_usuario', 'lista_doctor', 'registro', 'lista_agenda'];
+                $paginas_admin = ['lista_usuario', 'lista_doctor', 'registro', 'lista_agenda', 'lista_paciente'];
 
                 if (in_array($peges, $paginas_comunes)) {
                     include('vistas/paginas/' . $peges . '.php');
