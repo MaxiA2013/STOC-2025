@@ -45,8 +45,8 @@ if (!isset($_SESSION['id_usuario'])) {
 
             $paginas_publica = ['indexo', 'noticias', 'nosotros', 'biblioteca', 'turnos', 'info_turnos', 'doctores', 'areas', 'login', 'registro'];
             $paginas_comunes = ['mi_perfil', 'salida', 'mis_datos'];
-            $paginas_admin = ['lista_usuario', 'lista_doctor', 'registro', 'modulos', 'perfiles', 'tablas', 'tablas_maestras', 'sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','direccion_lista', 'familiar_lista'];
-            $listas = ['condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','direccion_lista','sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'familiar_lista'];
+            $paginas_admin = ['lista_usuario', 'lista_doctor', 'registro', 'modulos', 'perfiles', 'tablas', 'tablas_maestras', 'sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','direccion_lista', 'familiar_lista', 'agenda_lista'];
+            $listas = ['lista_usuario', 'lista_doctor','condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','direccion_lista','sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'familiar_lista', 'agenda_lista'];
 
             if (in_array($peges, $paginas_publica)) {
                 include('vistas/paginas/' . $peges . '.php');

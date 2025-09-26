@@ -54,6 +54,7 @@ $lista_condicion = $condicion->consultarVariasCondiciones();
                                     <button type="submit"><i class="fa-solid fa-delete-left"></i></button>
                                 </form>
                             </td>
+                            
                             <td>
                                 <!-- Botón que abre el modal -->
                                 <button type="button" data-bs-toggle="modal" data-bs-target="#modal<?php echo $row['id_condicion'] ?>">

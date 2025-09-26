@@ -5,6 +5,7 @@ if (isset($_POST['action'])){
     switch ($accion) {
         case 'insertar':
             $usuario = new Usuario();
+            
             break;
         case 'eliminacion':
             $usuario = new Usuario();
@@ -17,3 +18,4 @@ if (isset($_POST['action'])){
 
 
 if (isset($_POST['usuarios']));
+?>

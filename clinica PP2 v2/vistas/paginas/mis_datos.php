@@ -88,7 +88,7 @@ $doctor = [
         <!-- Columna derecha: Reservas -->
         <div class="col-lg-4">
             <div class="card shadow-sm">
-                <div class="card-header bg-secondary text-white">Reserva de cita</div>
+                <div class="card-header bg-secondary text-white">Agendas</div>
                 <div class="card-body">
                     <div class="d-flex justify-content-around mb-3">
                         <div><strong>Hoy</strong><br><small>20 Sep</small></div>
