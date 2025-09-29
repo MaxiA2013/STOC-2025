@@ -62,7 +62,7 @@ if (!isset($_SESSION['id_usuario'])) {
                 $paginas_comunes = ['mi_perfil', 'salida'];
 
                 // Páginas exclusivas de administrador
-                $paginas_admin = ['lista_usuario', 'lista_doctor', 'registro', 'lista_agenda', 'lista_paciente'];
+                $paginas_admin = ['lista_usuario', 'lista_doctor', 'registro', 'lista_agenda', 'lista_paciente', 'obra_social_lista'];
 
                 if (in_array($peges, $paginas_comunes)) {
                     include('vistas/paginas/' . $peges . '.php');

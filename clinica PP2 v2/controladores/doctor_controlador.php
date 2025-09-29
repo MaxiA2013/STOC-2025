@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             '',
             $_POST['numero_matricula_profesional'],
             $_POST['usuario_id_usuario'],
-            $_POST['salario']
+            $_POST['precio_consulta']
         );
         $doctor->guardar();
         header("Location: ../vistas/paginas/lista_doctor.php");
@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_POST['id_doctor'],
             $_POST['numero_matricula_profesional'],
             $_POST['usuario_id_usuario'],
-            $_POST['salario']
+            $_POST['precio_consulta']
         );
         $doctor->actualizar();
         header("Location: ../vistas/paginas/lista_doctor.php");

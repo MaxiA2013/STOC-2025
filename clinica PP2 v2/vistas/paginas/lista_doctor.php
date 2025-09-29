@@ -33,8 +33,8 @@ $usuarios = $conn->consultar($sqlUsuarios);
         </div>
 
         <div class="mb-3">
-            <label for="salario">Salario</label>
-            <input type="number" name="salario" step="0.01" class="form-control" required>
+            <label for="precio_consulta">Precio de Consulta</label>
+            <input type="number" name="precio_consulta" step="0.01" class="form-control" required>
         </div>
 
         <div class="mb-3">
@@ -63,7 +63,7 @@ $usuarios = $conn->consultar($sqlUsuarios);
                 <th>Nombre</th>
                 <th>Apellido</th>
                 <th>Usuario</th>
-                <th>Salario</th>
+                <th>Precio de Consulta</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -76,9 +76,9 @@ $usuarios = $conn->consultar($sqlUsuarios);
                         <td><?= $fila['nombre'] ?></td>
                         <td><?= $fila['apellido'] ?></td>
                         <td><?= $fila['nombre_usuario'] ?></td>
-                        <td><?= $fila['salario'] ?></td>
+                        <td><?= $fila['precio_consulta'] ?></td>
                         <td>
-                            <form action="../../controladores/doctor_controlador.php" method="POST" style="display:inline;">
+                            <form action="controladores/doctor_controlador.php" method="POST" style="display:inline;">
                                 <input type="hidden" name="action" value="eliminar_doctor">
                                 <input type="hidden" name="id_doctor" value="<?= $fila['id_doctor'] ?>">
                                 <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>

@@ -3,32 +3,30 @@ require_once "modelos/conexion.php";
 require_once "modelos/agenda.php";
 
 // Obtener las agendas existentes
-$agenda = new Agenda("", "", "", "", "", "", "", );
+$agenda = new Agenda("", "", "", "", "", "");
 $agendas = $agenda->all_agendas();
 
-// Obtener los doctores para el select
+// Obtener los doctores para el select (usando usuario.nombre_usuario)
 $conn = new Conexion();
-$sqlDoctores = "SELECT d.id_doctor, p.nombre, p.apellido
+$sqlDoctores = "SELECT d.id_doctor, u.nombre_usuario
                 FROM doctor d
-                JOIN usuario u ON d.usuario_id_usuario = u.id_usuario
-                JOIN persona p ON u.persona_id_persona = p.id_persona
-                JOIN usuario_has_perfil up ON u.id_usuario = up.usuario_id_usuario
-                WHERE up.perfil_id_perfil = 2"; 
+                INNER JOIN usuario u ON d.usuario_id_usuario = u.id_usuario";
 $doctores = $conn->consultar($sqlDoctores);
 
-// Obtener los días para el select
-$sqlDias = "SELECT id_dias, descripcion FROM dias";
-$dias = $conn->consultar($sqlDias);
-
-// Crear arrays para mapear doctor y día por ID
+// Crear array para mapear doctor por ID
 $mapaDoctores = [];
 foreach ($doctores as $doc) {
-    $mapaDoctores[$doc['id_doctor']] = $doc['nombre'] . ' ' . $doc['apellido'];
+    $mapaDoctores[$doc['id_doctor']] = $doc['nombre_usuario'];
 }
 
-$mapaDias = [];
-foreach ($dias as $dia) {
-    $mapaDias[$dia['id_dias']] = $dia['descripcion'];
+// Obtener los estados para el select
+$sqlEstados = "SELECT id_estados, tipo_estado FROM estados";
+$estados = $conn->consultar($sqlEstados);
+
+// Crear array para mapear estados por ID
+$mapaEstados = [];
+foreach ($estados as $estado) {
+    $mapaEstados[$estado['id_estados']] = $estado['tipo_estado'];
 }
 ?>
 
@@ -48,16 +46,9 @@ foreach ($dias as $dia) {
 
         <div class="row mb-3">
             <div class="col">
-                <label for="fecha_desde">Fecha Desde</label>
-                <input type="date" name="fecha_desde" class="form-control" required>
+                <label for="fecha_agenda">Fecha</label>
+                <input type="date" name="fecha_agenda" class="form-control" required>
             </div>
-            <div class="col">
-                <label for="fecha_hasta">Fecha Hasta</label>
-                <input type="date" name="fecha_hasta" class="form-control" required>
-            </div>
-        </div>
-
-        <div class="row mb-3">
             <div class="col">
                 <label for="hora_desde">Hora Desde</label>
                 <input type="time" name="hora_desde" class="form-control" required>
@@ -70,11 +61,11 @@ foreach ($dias as $dia) {
 
         <div class="row mb-3">
             <div class="col">
-                <label for="dias_id_dias">Día</label>
-                <select name="dias_id_dias" class="form-control" required>
-                    <option value="">Seleccione un día</option>
-                    <?php foreach ($dias as $dia): ?>
-                        <option value="<?= $dia['id_dias'] ?>"><?= $dia['descripcion'] ?></option>
+                <label for="estados_id_estados">Estado</label>
+                <select name="estados_id_estados" class="form-control" required>
+                    <option value="">Seleccione un estado</option>
+                    <?php foreach ($estados as $estado): ?>
+                        <option value="<?= $estado['id_estados'] ?>"><?= $estado['tipo_estado'] ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -84,7 +75,7 @@ foreach ($dias as $dia) {
                     <option value="">Seleccione un doctor</option>
                     <?php foreach ($doctores as $doctor): ?>
                         <option value="<?= $doctor['id_doctor'] ?>">
-                            Dr. <?= $doctor['nombre'] . ' ' . $doctor['apellido'] ?>
+                            Dr. <?= $doctor['nombre_usuario'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -101,11 +92,10 @@ foreach ($dias as $dia) {
         <thead class="table-dark">
             <tr>
                 <th>ID</th>
-                <th>Fecha Desde</th>
-                <th>Fecha Hasta</th>
+                <th>Fecha</th>
                 <th>Hora Desde</th>
                 <th>Hora Hasta</th>
-                <th>Día</th>
+                <th>Estado</th>
                 <th>Doctor</th>
             </tr>
         </thead>
@@ -114,17 +104,16 @@ foreach ($dias as $dia) {
                 <?php foreach ($agendas as $fila) : ?>
                     <tr>
                         <td><?= $fila['id_agenda'] ?></td>
-                        <td><?= $fila['fecha_desde'] ?></td>
-                        <td><?= $fila['fecha_hasta'] ?></td>
+                        <td><?= $fila['fecha_agenda'] ?></td>
                         <td><?= $fila['hora_desde'] ?></td>
                         <td><?= $fila['hora_hasta'] ?></td>
-                        <td><?= $mapaDias[$fila['dias_id_dias']] ?? 'Desconocido' ?></td>
+                        <td><?= $mapaEstados[$fila['estados_id_estados']] ?? 'Desconocido' ?></td>
                         <td><?= $mapaDoctores[$fila['doctor_id_doctor']] ?? 'Desconocido' ?></td>
                     </tr>
                 <?php endforeach; ?>
             <?php else : ?>
                 <tr>
-                    <td colspan="8" class="text-center">No hay agendas registradas.</td>
+                    <td colspan="6" class="text-center">No hay agendas registradas.</td>
                 </tr>
             <?php endif; ?>
         </tbody>

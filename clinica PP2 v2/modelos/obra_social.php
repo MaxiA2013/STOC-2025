@@ -1,5 +1,5 @@
 <?php
-require_once "../modelos/conexion.php";
+require_once "conexion.php";
 
 class Obra_Social{
     private int $id_obra_social;
@@ -51,10 +51,8 @@ class Obra_Social{
 
     public function guardarObraSocial(){
         $con = new Conexion();
-        $query = "INSERT INTO obra_social (nombre_obra_social,detalle) VALUES ('$this->nombre_obra_social','$this->detalle')";
-        $id = $con->insertar($query);
-        $this->setIdObraSocial($id);
-
+        $query = "INSERT INTO obra_social (nombre_obra_social, detalle) VALUES ('$this->nombre_obra_social','$this->detalle')";
+        $con->insertar($query);
     }
 
     public function actualizarObraSocial(){

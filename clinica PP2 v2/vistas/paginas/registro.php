@@ -73,8 +73,8 @@ $is_admin = isset($_SESSION['nombre_perfil']) && $_SESSION['nombre_perfil'] === 
                     </div>
 
                     <div class="mb-3 mt-3">
-                        <label for="salario" class="form-label">Salario</label>
-                        <input type="number" class="form-control" id="salario" name="salario" placeholder="Ingrese el salario" step="0.01">
+                        <label for="precio_consulta" class="form-label">Precio de Consulta</label>
+                        <input type="number" class="form-control" id="precio_consulta" name="precio_consulta" placeholder="Ingrese el precio_consulta" step="0.01">
                     </div>
                 </div>
             <?php else: ?>

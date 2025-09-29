@@ -5,19 +5,19 @@ class Doctor {
     private $id_doctor;
     private $numero_matricula_profesional;
     private $usuario_id_usuario;
-    private $salario;
+    private $precio_consulta;
 
-    public function __construct($id_doctor = '', $numero_matricula_profesional = '', $usuario_id_usuario = '', $salario = '') {
+    public function __construct($id_doctor = '', $numero_matricula_profesional = '', $usuario_id_usuario = '', $precio_consulta = '') {
         $this->id_doctor = $id_doctor;
         $this->numero_matricula_profesional = $numero_matricula_profesional;
         $this->usuario_id_usuario = $usuario_id_usuario;
-        $this->salario = $salario;
+        $this->precio_consulta = $precio_consulta;
     }
 
     public function guardar() {
         $conexion = new Conexion();
-        $query = "INSERT INTO doctor (numero_matricula_profesional, usuario_id_usuario, salario) 
-                  VALUES ('$this->numero_matricula_profesional', '$this->usuario_id_usuario', '$this->salario')";
+        $query = "INSERT INTO doctor (numero_matricula_profesional, usuario_id_usuario, precio_consulta) 
+                  VALUES ('$this->numero_matricula_profesional', '$this->usuario_id_usuario', '$this->precio_consulta')";
         return $conexion->insertar($query);
     }
 
@@ -26,7 +26,7 @@ class Doctor {
         $query = "UPDATE doctor 
                   SET numero_matricula_profesional = '$this->numero_matricula_profesional', 
                       usuario_id_usuario = '$this->usuario_id_usuario', 
-                      salario = '$this->salario'
+                      precio_consulta = '$this->precio_consulta'
                   WHERE id_doctor = '$this->id_doctor'";
         return $conexion->actualizar($query);
     }
@@ -39,7 +39,7 @@ class Doctor {
 
     public function all_doctores() {
         $conexion = new Conexion();
-        $query = "SELECT d.id_doctor, d.numero_matricula_profesional, d.salario,
+        $query = "SELECT d.id_doctor, d.numero_matricula_profesional, d.precio_consulta,
                          u.nombre_usuario, p.nombre, p.apellido
                   FROM doctor d
                   JOIN usuario u ON d.usuario_id_usuario = u.id_usuario
@@ -108,21 +108,21 @@ class Doctor {
     }
 
     /**
-     * Get the value of salario
+     * Get the value of precio_consulta
      */ 
-    public function getSalario()
+    public function getprecio_consulta()
     {
-        return $this->salario;
+        return $this->precio_consulta;
     }
 
     /**
-     * Set the value of salario
+     * Set the value of precio_consulta
      *
      * @return  self
      */ 
-    public function setSalario($salario)
+    public function setprecio_consulta($precio_consulta)
     {
-        $this->salario = $salario;
+        $this->precio_consulta = $precio_consulta;
 
         return $this;
     }
