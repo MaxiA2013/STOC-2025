@@ -34,6 +34,20 @@ class Conexion {
         return $resultado;
     }
 
+    public function consultarArray($query) {
+    $this->conectar();
+    $resultado = $this->_con->query($query);
+    $datos = [];
+    if ($resultado) {
+        while ($fila = $resultado->fetch_assoc()) {
+            $datos[] = $fila;
+        }
+    }
+    $this->desconectar();
+    return $datos;
+}
+
+
     public function insertar($query) {
         $this->conectar();
         $this->_con->query($query);
