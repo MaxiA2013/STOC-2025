@@ -37,7 +37,7 @@
             </div>
 
             <div class="col-md-5 offset-md-1 mb-3">
-                <img src="../../assets/images/logo/Captura_de_pantalla_2.png" class="img-fluid" alt="#">
+                <img src="assets/images/logo/Captura_de_pantalla_2.png" class="img-fluid" alt="#">
 
                 <div class="foot-contact-block">
                     <h3>Contactanos</h3>

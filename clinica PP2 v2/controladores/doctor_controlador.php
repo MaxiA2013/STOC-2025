@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($action == "eliminar_doctor") {
         $doctor = new Doctor();
-        $doctor->eliminar($_POST['id_doctor']);
+        $doctor->eliminar($_POST['id_doctor']); // ahora hace eliminación en cascada desde el modelo
         header("Location: ../index.php?page=lista_doctor");
         exit();
     }

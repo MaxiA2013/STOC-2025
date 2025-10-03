@@ -1,35 +1,12 @@
 <?php
-require_once "modelos/conexion.php";
 require_once "modelos/agenda.php";
 
-// Obtener las agendas existentes
-$agenda = new Agenda("", "", "", "", "", "", "", "");
-$agendas = $agenda->all_agendas();
-
-// Obtener los doctores para el select
-$conn = new Conexion();
-$sqlDoctores = "SELECT d.id_doctor, p.nombre, p.apellido
-                FROM doctor d
-                JOIN usuario u ON d.usuario_id_usuario = u.id_usuario
-                JOIN persona p ON u.persona_id_persona = p.id_persona
-                JOIN usuario_has_perfil up ON u.id_usuario = up.usuario_id_usuario
-                WHERE up.perfil_id_perfil = 2"; 
-$doctores = $conn->consultar($sqlDoctores);
-
-// Obtener los días para el select
-$sqlDias = "SELECT id_dias, descripcion FROM dias";
-$dias = $conn->consultar($sqlDias);
-
-// Crear arrays para mapear doctor y día por ID
-$mapaDoctores = [];
-foreach ($doctores as $doc) {
-    $mapaDoctores[$doc['id_doctor']] = $doc['nombre'] . ' ' . $doc['apellido'];
-}
-
-$mapaDias = [];
-foreach ($dias as $dia) {
-    $mapaDias[$dia['id_dias']] = $dia['descripcion'];
-}
+$agenda = new Agenda();
+$agendas = $agenda->obtenerAgendas();
+$doctores = $agenda->obtenerDoctores();
+$estados = $agenda->obtenerEstados();
+$mapaDoctores = $agenda->mapearDoctoresPorId();
+$mapaEstados = $agenda->mapearEstadosPorId();
 ?>
 
 <!DOCTYPE html>
@@ -37,27 +14,21 @@ foreach ($dias as $dia) {
 <head>
     <meta charset="UTF-8">
     <title>Lista de Agendas</title>
-    <link rel="stylesheet" href="../../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 </head>
 <body class="bg-light">
 
 <div class="container mt-5">
     <h2 class="mb-4">Registrar Agenda</h2>
-    <form action="../../controladores/agenda_controlador.php" method="POST">
+
+    <form action="controladores/agenda_controlador.php" method="POST">
         <input type="hidden" name="action" value="guardar_agenda">
 
         <div class="row mb-3">
             <div class="col">
-                <label for="fecha_desde">Fecha Desde</label>
-                <input type="date" name="fecha_desde" class="form-control" required>
+                <label for="fecha_agenda">Fecha</label>
+                <input type="date" name="fecha_agenda" class="form-control" required>
             </div>
-            <div class="col">
-                <label for="fecha_hasta">Fecha Hasta</label>
-                <input type="date" name="fecha_hasta" class="form-control" required>
-            </div>
-        </div>
-
-        <div class="row mb-3">
             <div class="col">
                 <label for="hora_desde">Hora Desde</label>
                 <input type="time" name="hora_desde" class="form-control" required>
@@ -66,19 +37,15 @@ foreach ($dias as $dia) {
                 <label for="hora_hasta">Hora Hasta</label>
                 <input type="time" name="hora_hasta" class="form-control" required>
             </div>
-            <div class="col">
-                <label for="minutos_turnos">Duración del turno (minutos)</label>
-                <input type="number" name="minutos_turnos" class="form-control" required>
-            </div>
         </div>
 
         <div class="row mb-3">
             <div class="col">
-                <label for="dias_id_dias">Día</label>
-                <select name="dias_id_dias" class="form-control" required>
-                    <option value="">Seleccione un día</option>
-                    <?php foreach ($dias as $dia): ?>
-                        <option value="<?= $dia['id_dias'] ?>"><?= $dia['descripcion'] ?></option>
+                <label for="estados_id_estados">Estado</label>
+                <select name="estados_id_estados" class="form-control" required>
+                    <option value="">Seleccione un estado</option>
+                    <?php foreach ($estados as $estado): ?>
+                        <option value="<?= $estado['id_estados'] ?>"><?= $estado['tipo_estado'] ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -88,7 +55,7 @@ foreach ($dias as $dia) {
                     <option value="">Seleccione un doctor</option>
                     <?php foreach ($doctores as $doctor): ?>
                         <option value="<?= $doctor['id_doctor'] ?>">
-                            Dr. <?= $doctor['nombre'] . ' ' . $doctor['apellido'] ?>
+                            Dr. <?= $doctor['nombre_persona'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -98,6 +65,7 @@ foreach ($dias as $dia) {
         <button type="submit" class="btn btn-primary">Guardar Agenda</button>
     </form>
 
+
     <hr class="my-5">
 
     <h3>Agendas Registradas</h3>
@@ -105,13 +73,12 @@ foreach ($dias as $dia) {
         <thead class="table-dark">
             <tr>
                 <th>ID</th>
-                <th>Fecha Desde</th>
-                <th>Fecha Hasta</th>
+                <th>Fecha</th>
                 <th>Hora Desde</th>
                 <th>Hora Hasta</th>
-                <th>Minutos por Turno</th>
-                <th>Día</th>
+                <th>Estado</th>
                 <th>Doctor</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -119,18 +86,27 @@ foreach ($dias as $dia) {
                 <?php foreach ($agendas as $fila) : ?>
                     <tr>
                         <td><?= $fila['id_agenda'] ?></td>
-                        <td><?= $fila['fecha_desde'] ?></td>
-                        <td><?= $fila['fecha_hasta'] ?></td>
+                        <td><?= $fila['fecha_agenda'] ?></td>
                         <td><?= $fila['hora_desde'] ?></td>
                         <td><?= $fila['hora_hasta'] ?></td>
-                        <td><?= $fila['minutos_turnos'] ?></td>
-                        <td><?= $mapaDias[$fila['dias_id_dias']] ?? 'Desconocido' ?></td>
+                        <td><?= $mapaEstados[$fila['estados_id_estados']] ?? 'Desconocido' ?></td>
                         <td><?= $mapaDoctores[$fila['doctor_id_doctor']] ?? 'Desconocido' ?></td>
+                        <td>
+                           <a href="index.php?page=editar_agenda&id=<?= $fila['id_agenda'] ?>" class="btn btn-warning btn-sm">Modificar</a>
+
+                            <!-- boton eliminar -->
+                            <form action="controladores/agenda_controlador.php" method="POST" style="display:inline;">
+                                <input type="hidden" name="action" value="eliminar_agenda">
+                                <input type="hidden" name="id_agenda" value="<?= $fila['id_agenda'] ?>">
+                                <input type="hidden" name="estado_inactivo_id" value="3"> <!-- ID del estado 'inactivo' -->
+                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                            </form>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             <?php else : ?>
                 <tr>
-                    <td colspan="8" class="text-center">No hay agendas registradas.</td>
+                    <td colspan="7" class="text-center">No hay agendas registradas.</td>
                 </tr>
             <?php endif; ?>
         </tbody>

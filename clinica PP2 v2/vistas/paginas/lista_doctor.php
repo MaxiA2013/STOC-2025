@@ -18,13 +18,14 @@ $usuarios = $conn->consultar($sqlUsuarios);
 <head>
     <meta charset="UTF-8">
     <title>Lista de Doctores</title>
-    <link rel="stylesheet" href="../../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
 </head>
 
 <body class="bg-light">
 
     <div class="container mt-5">
         <h2 class="mb-4">Registrar Doctor</h2>
+        <p>Registra a un usuario ya existente como doctor</p>
         <form id="formDoctor" action="controladores/doctor_controlador.php" method="POST">
             <input type="hidden" name="action" value="guardar_doctor">
 
@@ -57,6 +58,12 @@ $usuarios = $conn->consultar($sqlUsuarios);
         <hr class="my-5">
 
         <h3>Doctores Registrados</h3>
+        <div class="col">
+            <button type="button" class="btn btn-success">
+                <a href="controladores/generar_excel.php" style="text-decoration: none; color: white">Excel</a>
+            </button>
+            <button type="button" class="btn btn-danger">PDF</button>
+        </div>
         <table class="table table-bordered table-hover mt-3">
             <thead class="table-dark">
                 <tr>
@@ -149,8 +156,8 @@ $usuarios = $conn->consultar($sqlUsuarios);
         </table>
     </div>
 
-    <script src="../../assets/js/bootstrap.bundle.min.js"></script>
-    <script src="../../assets/js/validaciones/lista_doctor/lista_doctor.php"></script>
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/validaciones/lista_doctor/lista_doctor.js"></script>
 </body>
 
 </html>
