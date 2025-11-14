@@ -7,6 +7,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema clinica
 -- -----------------------------------------------------
+DROP SCHEMA IF EXISTS `clinica` ;
 
 -- -----------------------------------------------------
 -- Schema clinica
@@ -144,8 +145,8 @@ DROP TABLE IF EXISTS `clinica`.`doctor` ;
 CREATE TABLE IF NOT EXISTS `clinica`.`doctor` (
   `id_doctor` INT NOT NULL AUTO_INCREMENT,
   `numero_matricula_profesional` INT NOT NULL,
-  `usuario_id_usuario` INT NOT NULL,
   `precio_consulta` FLOAT NOT NULL,
+  `usuario_id_usuario` INT NOT NULL,
   PRIMARY KEY (`id_doctor`),
   INDEX `fk_doctor_usuario1_idx` (`usuario_id_usuario` ASC) ,
   CONSTRAINT `fk_doctor_usuario1`
@@ -178,11 +179,12 @@ DROP TABLE IF EXISTS `clinica`.`agenda` ;
 
 CREATE TABLE IF NOT EXISTS `clinica`.`agenda` (
   `id_agenda` INT NOT NULL AUTO_INCREMENT,
-  `fecha_agenda` DATE NOT NULL,
+  `fecha_desde` DATE NOT NULL,
+  `fecha_hasta` DATE NOT NULL,
   `hora_desde` TIME NOT NULL,
   `hora_hasta` TIME NOT NULL,
-  `estados_id_estados` INT NOT NULL,
   `doctor_id_doctor` INT NOT NULL,
+  `estados_id_estados` INT NOT NULL,
   PRIMARY KEY (`id_agenda`),
   INDEX `fk_calendario_doctor1_idx` (`doctor_id_doctor` ASC) ,
   INDEX `fk_agenda_estados1_idx` (`estados_id_estados` ASC) ,
@@ -1287,8 +1289,7 @@ DROP TABLE IF EXISTS `clinica`.`prestacion` ;
 
 CREATE TABLE IF NOT EXISTS `clinica`.`prestacion` (
   `id_prestacion` INT NOT NULL AUTO_INCREMENT,
-  `nombre_prestacion` VARCHAR(150) NULL DEFAULT NULL,
-  `costo_prestacion` FLOAT NULL DEFAULT NULL,
+  `nombre_prestacion` VARCHAR(150) NOT NULL,
   `codigo_prestacion` VARCHAR(450) NULL,
   PRIMARY KEY (`id_prestacion`))
 ENGINE = InnoDB
@@ -1774,6 +1775,42 @@ CREATE TABLE IF NOT EXISTS `clinica`.`doctor_dias` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`mes`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`mes` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`mes` (
+  `id_mes` INT NOT NULL AUTO_INCREMENT,
+  `nombre_mes` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_mes`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`mes_doctor`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`mes_doctor` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`mes_doctor` (
+  `mes_id_mes` INT NOT NULL,
+  `doctor_id_doctor` INT NOT NULL,
+  PRIMARY KEY (`mes_id_mes`, `doctor_id_doctor`),
+  INDEX `fk_mes_has_doctor_doctor1_idx` (`doctor_id_doctor` ASC) ,
+  INDEX `fk_mes_has_doctor_mes1_idx` (`mes_id_mes` ASC) ,
+  CONSTRAINT `fk_mes_has_doctor_mes1`
+    FOREIGN KEY (`mes_id_mes`)
+    REFERENCES `clinica`.`mes` (`id_mes`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_mes_has_doctor_doctor1`
+    FOREIGN KEY (`doctor_id_doctor`)
+    REFERENCES `clinica`.`doctor` (`id_doctor`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

@@ -5,36 +5,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $action = $_POST["action"];
 
     if ($action == "guardar_agenda") {
+        $fecha_desde = $_POST["fecha_desde"];
+        $fecha_hasta = $_POST["fecha_hasta"];
+        $hora_desde = $_POST["hora_desde"];
+        $hora_hasta = $_POST["hora_hasta"]; 
+        $minutos_turnos = $_POST["minutos_turnos"];
+        $dias_id_dias = $_POST["dias_id_dias"];
+        $doctor_id_doctor = $_POST["doctor_id_doctor"];
+
         $agenda = new Agenda(
             null,
-            $_POST["fecha_agenda"],
-            $_POST["hora_desde"],
-            $_POST["hora_hasta"],
-            $_POST["estados_id_estados"],
-            $_POST["doctor_id_doctor"]
+            $fecha_desde,
+            $fecha_hasta,
+            $hora_desde,
+            $hora_hasta,
+            $minutos_turnos,
+            $dias_id_dias,
+            $doctor_id_doctor
         );
+
         $resultado = $agenda->guardar();
-    }
 
-    if ($action == "modificar_agenda") {
-        $agenda = new Agenda(
-            null,
-            $_POST["fecha_agenda"],
-            $_POST["hora_desde"],
-            $_POST["hora_hasta"],
-            $_POST["estados_id_estados"],
-            $_POST["doctor_id_doctor"]
-        );
-        $resultado = $agenda->modificar($_POST["id_agenda"]);
+        if ($resultado) {
+            header("Location: ../vistas/paginas/lista_agenda.php?mensaje=ok");
+            exit();
+        } else {
+            header("Location: ../vistas/paginas/lista_agenda.php?mensaje=error");
+            exit();
+        }
     }
-
-    if ($action == "eliminar_agenda") {
-        $agenda = new Agenda();
-        $resultado = $agenda->cambiarEstado($_POST["id_agenda"], $_POST["estado_inactivo_id"]);
-    }
-
-    $mensaje = $resultado ? "Operación realizada correctamente" : "Error en la operación";
-    $status = $resultado ? "success" : "danger";
-    header("Location: ../index.php?page=agenda_lista&message=$mensaje&status=$status");
-    exit();
 }
+?>

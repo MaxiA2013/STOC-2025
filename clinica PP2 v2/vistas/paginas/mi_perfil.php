@@ -59,7 +59,6 @@ $perfil_id = $_SESSION['id_perfil']; // Este dato se usará con JS
 <body>
 
     <main class="py-5 container">
-        <?php echo $_SESSION['id_perfil']; ?>
         <!--------------------------------- CONTENEDOR DE PACIENTE ---------------------------------->
         <!--------------------------------- CONTENEDOR DE PACIENTE ---------------------------------->
         <!--------------------------------- CONTENEDOR DE PACIENTE ---------------------------------->
@@ -334,7 +333,7 @@ $perfil_id = $_SESSION['id_perfil']; // Este dato se usará con JS
 
     <!-- Esta línea muestra la ruta completa del archivo actual (útil para saber en qué carpeta estoy) echo __FILE__; -->
     <hr>
-    <?php if ($perfil_id == '1'): ?>
+    <?php if ($perfil_id == '3'): ?>
         <h3>Cambiar Contraseña</h3>
         <form action="controladores/contrasena.controlador.php" method="POST">
             <input type="hidden" name="action" value="cambiar_password">
@@ -352,7 +351,7 @@ $perfil_id = $_SESSION['id_perfil']; // Este dato se usará con JS
             </div>
             <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
         </form>
-    <?php else: ($perfil_id == '2' || '3') ?>
+    <?php else: ($perfil_id == '1' || '2') ?>
         <h3>Resetear mi contraseña</h3>
         <form action="controladores/contrasena.controlador.php" method="POST">
             <input type="hidden" name="action" value="resetear_password">
@@ -369,11 +368,11 @@ $perfil_id = $_SESSION['id_perfil']; // Este dato se usará con JS
             const pacienteContainer = document.getElementById('paciente-container');
             const adminContainer = document.getElementById('admin-container');
 
-            if (perfilId == 1) {
+            if (perfilId == 3) {
                 pacienteContainer.style.display = 'block';
-            } else if (perfilId == 2) {
+            } else if (perfilId == 1) {
                 adminContainer.style.display = 'block';
-            } else if (perfilId == 3) {
+            } else if (perfilId == 2) {
                 doctorContainer.style.display = 'block';
             }
         });

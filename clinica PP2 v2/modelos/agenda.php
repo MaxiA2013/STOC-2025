@@ -109,4 +109,124 @@ public function obtenerPorId($id_agenda) {
         }
         return $mapa;
     }
+
+    /**
+     * Get the value of id_agenda
+     */ 
+    public function getId_agenda()
+    {
+        return $this->id_agenda;
+    }
+
+    /**
+     * Set the value of id_agenda
+     *
+     * @return  self
+     */ 
+    public function setId_agenda($id_agenda)
+    {
+        $this->id_agenda = $id_agenda;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of fecha_agenda
+     */ 
+    public function getFecha_agenda()
+    {
+        return $this->fecha_agenda;
+    }
+
+    /**
+     * Set the value of fecha_agenda
+     *
+     * @return  self
+     */ 
+    public function setFecha_agenda($fecha_agenda)
+    {
+        $this->fecha_agenda = $fecha_agenda;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of hora_desde
+     */ 
+    public function getHora_desde()
+    {
+        return $this->hora_desde;
+    }
+
+    /**
+     * Set the value of hora_desde
+     *
+     * @return  self
+     */ 
+    public function setHora_desde($hora_desde)
+    {
+        $this->hora_desde = $hora_desde;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of hora_hasta
+     */ 
+    public function getHora_hasta()
+    {
+        return $this->hora_hasta;
+    }
+
+    /**
+     * Set the value of hora_hasta
+     *
+     * @return  self
+     */ 
+    public function setHora_hasta($hora_hasta)
+    {
+        $this->hora_hasta = $hora_hasta;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estados_id_estados
+     */ 
+    public function getEstados_id_estados()
+    {
+        return $this->estados_id_estados;
+    }
+
+    /**
+     * Set the value of estados_id_estados
+     *
+     * @return  self
+     */ 
+    public function setEstados_id_estados($estados_id_estados)
+    {
+        $this->estados_id_estados = $estados_id_estados;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of doctor_id_doctor
+     */ 
+    public function getDoctor_id_doctor()
+    {
+        return $this->doctor_id_doctor;
+    }
+
+    /**
+     * Set the value of doctor_id_doctor
+     *
+     * @return  self
+     */ 
+    public function setDoctor_id_doctor($doctor_id_doctor)
+    {
+        $this->doctor_id_doctor = $doctor_id_doctor;
+
+        return $this;
+    }
 }

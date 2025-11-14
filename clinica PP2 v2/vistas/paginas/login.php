@@ -1,7 +1,7 @@
-<div class="row align-items-center g-lg-5 py-5">
+<div class="row align-items-center pb-5"> <!-- px-4 pt-5 my-5 -->
 
-    <div class="col-md-10 mx-auto col-lg-5" style="background-color: rgb(79, 100, 139); margin-top: 5%;">
-        <form id="id_form" method="POST" action="controladores/login.controlador.php">
+    <div class="col-lg-4 rounded mx-auto px-3 py-3" style="background-color: rgb(79, 100, 139); margin-top: 5%;">
+        <form class="needs-validation" novalidate id="id_form" method="POST" action="controladores/login.controlador.php">
             <input type="hidden" name="action" value="login" />
             <div class="mb-3 mt-3">
                 <label for="nombre_usuario" class="form-label">Nombre Usuario</label>
@@ -25,17 +25,17 @@
             </div>
             <div class="mb-3">
                 <p style="color: white;">¿No tenés una cuenta?
-                    <a href="vistas/paginas/registro.php" style="color: yellow; text-decoration: underline;">Registrate</a>
+                    <a href="index.php?page=registro" style="color: yellow; text-decoration: underline;">Registrate</a>
                 </p>
             </div>
 
             <div class="d-grid gap-2">
-                <button onclick="validate()" type="submit" class="btn btn-dark" >Entrar</button>
+                <button type="submit" class="btn btn-dark">Entrar</button>
             </div>
         </form>
     </div>
 
-    <div class="col col-lg-7 text-center text-lg-start">
+    <div class="col col-lg-6 text-center text-lg-start p-3 mx-auto">
         <h1 class="diplay-4 fw-bold 1h-1 text-body-emphasis mb-3">¡Agendá tu salud en un clic!</h1>
         <p class="col-lg-10 fs-4">Olvidate de las filas y los llamados eternos. 
             Iniciá sesión y reservá tu turno médico en segundos. 
@@ -44,4 +44,4 @@
 
 </div>
 
-<script src="assets/js/validaciones/login.js"></script>
+<script src="assets/js/validaciones/validaciones_controlador.js"></script>

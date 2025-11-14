@@ -4,11 +4,11 @@
             const pacienteContainer = document.getElementById('paciente-container');
             const adminContainer = document.getElementById('admin-container');
 
-            if (perfilId == 1) {
+            if (perfilId == 3) {
                 pacienteContainer.style.display = 'block';
-            } else if (perfilId == 2) {
+            } else if (perfilId == 1) {
                 adminContainer.style.display = 'block';
-            } else if (perfilId == 3) {
+            } else if (perfilId == 2) {
                 doctorContainer.style.display = 'block';
             }
         });

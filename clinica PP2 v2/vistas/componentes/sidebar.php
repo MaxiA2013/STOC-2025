@@ -68,7 +68,7 @@
       </a>
     </li>
 
-    <?php if ($_SESSION['id_perfil'] == '3' || '2'): #tengo id = 3 como doctor 
+    <?php if ($_SESSION['id_perfil'] == '1' || '2'): #tengo id = 3 como doctor 
     ?>
 
       <li>
@@ -81,7 +81,7 @@
       </li>
     <?php endif; ?>
 
-    <?php if ($_SESSION['id_perfil'] == '2'): #tengo id = 2 como administrador  
+    <?php if ($_SESSION['id_perfil'] == '1'): #tengo id = 2 como administrador  
     ?>
       <li>
         <a href="index.php?page=lista_doctor" class="nav-link text-white">

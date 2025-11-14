@@ -20,7 +20,7 @@ if (!isset($_SESSION['id_usuario'])) {
 <body>
     <?php include 'vistas/componentes/nav_bar.php';
     // Incluye el navbar de usuario administrador/doctor si existe una session (se corrigió el uso de multiples nav a uno solo)
-    if ((isset($_SESSION['id_usuario'])) && (($_SESSION['id_perfil']  == 2) or ($_SESSION['id_perfil'])  == 3)) {
+    if ((isset($_SESSION['id_usuario'])) && (($_SESSION['id_perfil']  == 2) or ($_SESSION['id_perfil'])  == 1)) {
         include 'vistas/componentes/sidebar.php'; //sidebar tiene un controlador para mostrar o no secciones
     }
     ?>
@@ -46,7 +46,7 @@ if (!isset($_SESSION['id_usuario'])) {
             $paginas_publica = ['indexo', 'noticias', 'nosotros', 'biblioteca', 'turnos', 'info_turnos', 'doctores', 'areas', 'login', 'registro'];
             $paginas_comunes = ['mi_perfil', 'salida', 'mis_datos'];
             $paginas_admin = ['lista_usuario', 'lista_doctor', 'lista_paciente', 'registro', 'modulos', 'perfiles', 'tablas', 'tablas_maestras', 'sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','direccion_lista', 'familiar_lista', 'agenda_lista', 'editar_agenda', 'dias_lista', 'turno_lista', 'lista_paciente', 'editar_paciente'];
-            $listas = ['lista_usuario', 'lista_doctor', 'lista_paciente','condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','direccion_lista','sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'familiar_lista', 'agenda_lista', 'dias_lista', 'turno_lista','editar_agenda', 'lista_paciente', 'editar_paciente'];
+            $listas = ['lista_usuario', 'lista_doctor', 'lista_paciente','condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','direccion_lista','sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'familiar_lista', 'agenda_lista', 'dias_lista', 'turno_lista','editar_agenda', 'lista_paciente', 'editar_paciente', 'tablas_maestras'];
 
             if (in_array($peges, $paginas_publica)) {
                 include('vistas/paginas/' . $peges . '.php');

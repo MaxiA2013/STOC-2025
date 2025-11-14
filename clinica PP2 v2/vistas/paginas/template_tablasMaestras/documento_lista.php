@@ -14,17 +14,19 @@ $lista_documentos = $docu->consultarVariosDocumento();
     </div>
     <div class="row">
         <div class="col">
-            <form method="post" action="controladores/documento_controlador.php">
+            <form class="needs-validation" novalidate method="post" action="controladores/documento_controlador.php">
                 <input type="hidden" name="action" value="insertar">
 
                 <div class="mb-3">
                     <label for="tipo_documento" class="form-label">Documento</label>
                     <input type="text" class="form-control" id="tipo_documento" name="tipo_documento" required>
+                    <div class="invalid-feedback">Campo Documento vacío</div>
                 </div>
 
                 <div class="mb-3">
                     <label for="descripcion" class="form-label">Descripción</label>
                     <input type="text" class="form-control" id="descripcion" name="descripcion" required>
+                    <div class="invalid-feedback">Campo Descripción vacío</div>
                 </div>
 
                 <div class="mb-3">
@@ -127,3 +129,4 @@ $lista_documentos = $docu->consultarVariosDocumento();
         </div>
     </div>
 </div>
+<script src="assets/js/validaciones/validaciones_controlador.js"></script>
