@@ -78,5 +78,11 @@ class Obra_Social{
         $query = "SELECT * FROM obra_social WHERE id_obra_social = $id";
         return $con->consultar($query);
     }
+
+    public function existeObraSocial(){
+        $con = new Conexion();
+        $query = "SELECT nombre_obra_social FROM obra_social WHERE nombre_obra_social = '$this->nombre_obra_social' ";
+        return $con->consultar($query);
+    }
     
 }

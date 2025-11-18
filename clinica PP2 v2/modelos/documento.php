@@ -70,5 +70,17 @@ class Documento {
         $query = "SELECT * FROM documento";
         return $conn->consultar($query);
     }
+
+    public function existeDocumento(){
+        $conn = new Conexion();
+        $query = 'SELECT tipo_documento FROM documento WHERE tipo_documento = "'.$this->tipo_documento.'"';
+        return $conn->consultar($query);
+    }
+
+    public function existeIDocumento(){
+        $conn = new Conexion();
+        $query = "SELECT id_documento FROM documento WHERE id_documento = $this->id_documento";
+        return $conn->consultar($query);
+    }
 }
 ?>

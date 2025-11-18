@@ -15,11 +15,12 @@ $lista_dias = $dias->consultarVariosDias();
     <div class="row">
         <div class="col">
             <div class="container">
-                <form method="post" action="controladores/dias_controlador.php">
+                <form class="needs-validation" novalidate method="post" action="controladores/dias_controlador.php">
                     <div class="mb-3">
                         <input type="hidden" name="action" value="insertar">
                         <label for="descripcion" class="form-label">Dias</label>
-                        <input type="text" class="form-control" id="descripcion" placeholder="Ingrese el dia " name="descripcion">
+                        <input type="text" class="form-control" id="descripcion" placeholder="Ingrese el dia " name="descripcion" required> 
+                        <div class="invalid-feedback">Campo vacío</div>
                     </div>
                     <button type="submit" class="btn btn-primary">Agregar</button>
                 </form>
@@ -43,7 +44,7 @@ $lista_dias = $dias->consultarVariosDias();
                             <td><?php echo $row['id_dias'] ?></td>
                             <td><?php echo $row['descripcion'] ?></td>
                             <td>
-                                <form action="controladores/tablas/tabla_controlador.php" method="post">
+                                <form action="controladores/dias_controlador.php" method="post">
                                     <input type="hidden" name="id_dias" value="<?php echo $row['id_dias'] ?>">
                                     <input type="hidden" name="action" value="eliminacion">
                                     <button type="submit"><i class="fa-solid fa-delete-left"></i></button>
@@ -63,14 +64,15 @@ $lista_dias = $dias->consultarVariosDias();
                                                 <h1 class="modal-title fs-5" id="exampleModalLabel<?php echo $row['id_dias'] ?>">Modificar Dia</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form action="controladores/tablas/tabla_controlador.php" method="post">
+                                            <form class="needs-validation" novalidate action="controladores/dias_controlador.php" method="post">
                                                 <div class="modal-body">
                                                     <input type="hidden" name="action" value="actualizacion">
                                                     <input type="hidden" name="id_dias" value="<?php echo $row['id_dias'] ?>">
 
                                                     <div class="mb-3">
                                                         <label for="descripcion<?php echo $row['id_dias'] ?>" class="form-label">Dia</label>
-                                                        <input type="text" class="form-control" id="descripcion<?php echo $row['id_dias'] ?>" name="descripcion" value="<?php echo $row['descripcion'] ?>">
+                                                        <input type="text" class="form-control" id="descripcion<?php echo $row['id_dias'] ?>" name="descripcion" value="<?php echo $row['descripcion'] ?>" required>
+                                                        <div class="invalid-feedback">Campo vacío</div>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -89,3 +91,4 @@ $lista_dias = $dias->consultarVariosDias();
         </div>
     </div>
 </div>
+<script src="assets/js/validaciones/validaciones_controlador.js"></script>

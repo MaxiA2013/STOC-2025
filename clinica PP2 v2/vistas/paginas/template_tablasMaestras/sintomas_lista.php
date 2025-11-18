@@ -15,14 +15,17 @@ $lista_sintomas = $sintoma->consultarVariosSintomas();
     <div class="row">
         <div class="col">
             <div class="container">
-                <form method="post" action="controladores/sintomas_controlador.php">
+                <form class="needs-validation" novalidate method="post" action="controladores/sintomas_controlador.php">
                     <div class="mb-3">
                         <input type="hidden" name="action" value="insertar">
                         <label for="nombre_sintomas" class="form-label">Sintomas</label>
-                        <input type="text" class="form-control" id="nombre_sintomas" placeholder="Ingrese la Tabla " name="nombre_sintomas">
-
+                        <input type="text" class="form-control" id="nombre_sintomas" placeholder="Ingrese la Tabla " name="nombre_sintomas" required>
+                        <div class="invalid-feedback">Campo nombre de sintoma esta vacio</div>
+                    </div>
+                    <div>
                         <label for="descripcion" class="form-label">descripcion</label>
-                        <input type="text" class="form-control" id="descripcion" placeholder="Ingrese la Descripcion " name="descripcion">
+                        <input type="text" class="form-control" id="descripcion" placeholder="Ingrese la Descripcion " name="descripcion" required>
+                        <div class="invalid-feedback" >Campo descripcion vacio</div>
                     </div>
                     <button type="submit" class="btn btn-primary">Agregar</button>
                 </form>
@@ -68,19 +71,21 @@ $lista_sintomas = $sintoma->consultarVariosSintomas();
                                                 <h1 class="modal-title fs-5" id="exampleModalLabel<?php echo $row['id_sintomas'] ?>">Modificar Sintoma</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form action="controladores/sintomas_controlador.php" method="post">
+                                            <form class="needs-validation" novalidate action="controladores/sintomas_controlador.php" method="post">
                                                 <div class="modal-body">
                                                     <input type="hidden" name="action" value="actualizacion">
                                                     <input type="hidden" name="id_sintomas" value="<?php echo $row['id_sintomas'] ?>">
 
                                                     <div class="mb-3">
                                                         <label for="nombre_sintomas<?php echo $row['id_sintomas'] ?>" class="form-label">Sintoma</label>
-                                                        <input type="text" class="form-control" id="nombre_sintomas<?php echo $row['id_sintomas'] ?>" name="nombre_sintomas" value="<?php echo $row['nombre_sintomas'] ?>">
+                                                        <input type="text" class="form-control" id="nombre_sintomas<?php echo $row['id_sintomas'] ?>" name="nombre_sintomas" value="<?php echo $row['nombre_sintomas'] ?>" required>
+                                                        <div class="invalid-feedback">Campo de nombre de sintoma vacio</div>
                                                     </div>
 
                                                     <div class="mb-3">
                                                         <label for="descripcion<?php echo $row['id_sintomas'] ?>" class="form-label">Descripción</label>
-                                                        <input type="text" class="form-control" id="descripcion<?php echo $row['id_sintomas'] ?>" name="descripcion" value="<?php echo $row['descripcion'] ?>">
+                                                        <input type="text" class="form-control" id="descripcion<?php echo $row['id_sintomas'] ?>" name="descripcion" value="<?php echo $row['descripcion'] ?>" required>
+                                                        <div class="invalid-feedback">Campo de descripcion vacio</div>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -99,3 +104,4 @@ $lista_sintomas = $sintoma->consultarVariosSintomas();
         </div>
     </div>
 </div>
+<script src="assets/js/validaciones/validaciones_controlador.js"></script>

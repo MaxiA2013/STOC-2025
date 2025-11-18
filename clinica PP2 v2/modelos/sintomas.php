@@ -75,4 +75,10 @@ class Sintomas{
         return $datos;
     }
 
+    public function existeSintoma(){
+        $con = new Conexion();
+        $query = "SELECT nombre_sintomas FROM sintomas WHERE nombre_sintomas = '$this->nombre_sintomas'";
+        return $con->consultar($query);
+    }
+
 }

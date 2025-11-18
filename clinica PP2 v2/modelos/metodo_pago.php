@@ -38,6 +38,11 @@ class Metodo_Pago{
         return $result;
     }
 
+    public function existeMetodoPago(){
+        $conn= new Conexion();
+        $query = "SELECT nombre_metodo FROM metodo_pago WHERE nombre_metodo = '{$this->nombre_metodo}'";
+        return $conn->consultar($query);
+    }
     
 
 

@@ -15,11 +15,14 @@ $lista_metodo_pago = $metodo_pago->consultarVariosMetodosPago();
     <div class="row">
         <div class="col">
             <div class="container">
-                <form method="post" action="controladores/metodo_pago_controlador.php">
+                <form class="needs-validation" novalidate method="post" action="controladores/metodo_pago_controlador.php">
                     <div class="mb-3">
                         <input type="hidden" name="action" value="insertar">
-                        <label for="nombre_metodo" class="form-label">Metodo de Pago</label>
-                        <input type="text" class="form-control" id="nombre_metodo" placeholder="Ingrese el metodo de pago " name="nombre_metodo">
+                        <div>
+                            <label for="nombre_metodo" class="form-label">Metodo de Pago</label>
+                            <input type="text" class="form-control" id="nombre_metodo" placeholder="Ingrese el metodo de pago " name="nombre_metodo" required>
+                            <div class="invalid-feedback">Campo vacio</div>
+                        </div>
                     <button type="submit" class="btn btn-primary">Agregar</button>
                 </form>
             </div>
@@ -62,14 +65,15 @@ $lista_metodo_pago = $metodo_pago->consultarVariosMetodosPago();
                                                 <h1 class="modal-title fs-5" id="exampleModalLabel<?php echo $row['id_metodo_pago'] ?>">Modificar Metodo de Pago</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form action="controladores/metodo_pago_controlador.php" method="post">
+                                            <form class="needs-validation" novalidate action="controladores/metodo_pago_controlador.php" method="post">
                                                 <div class="modal-body">
                                                     <input type="hidden" name="action" value="actualizacion">
                                                     <input type="hidden" name="id_metodo_pago" value="<?php echo $row['id_metodo_pago'] ?>">
 
                                                     <div class="mb-3">
                                                         <label for="nombre_metodo<?php echo $row['id_metodo_pago'] ?>" class="form-label">Metodo de Pago</label>
-                                                        <input type="text" class="form-control" id="nombre_metodo<?php echo $row['id_metodo_pago'] ?>" name="nombre_metodo" value="<?php echo $row['nombre_metodo'] ?>">
+                                                        <input type="text" class="form-control" id="nombre_metodo<?php echo $row['id_metodo_pago'] ?>" name="nombre_metodo" value="<?php echo $row['nombre_metodo'] ?>" required>
+                                                        <div class="invalid-feedback">Campo vacio</div>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -88,3 +92,4 @@ $lista_metodo_pago = $metodo_pago->consultarVariosMetodosPago();
         </div>
     </div>
 </div>
+<script src="assets/js/validaciones/validaciones_controlador.js"></script>

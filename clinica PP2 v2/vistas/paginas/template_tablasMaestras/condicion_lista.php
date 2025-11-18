@@ -15,14 +15,17 @@ $lista_condicion = $condicion->consultarVariasCondiciones();
     <div class="row">
         <div class="col">
             <div class="container">
-                <form method="post" action="controladores/condicion_controlador.php">
+                <form class="needs-validation" novalidate method="post" action="controladores/condicion_controlador.php">
+                    <input type="hidden" name="action" value="insertar">
                     <div class="mb-3">
-                        <input type="hidden" name="action" value="insertar">
                         <label for="nombre_condicion" class="form-label">Condicion</label>
-                        <input type="text" class="form-control" id="nombre_condicion" placeholder="Ingrese la condicion" name="nombre_condicion">
-
+                        <input type="text" class="form-control" id="nombre_condicion" placeholder="Ingrese la condicion" name="nombre_condicion" required>
+                        <div class="invalid-feedback">Campo Nombre vacío</div>
+                    </div>
+                    <div>
                         <label for="detalle" class="form-label">Detalle</label>
-                        <input type="text" class="form-control" id="detalle" placeholder="Ingrese el detalle " name="detalle">
+                        <input type="text" class="form-control" id="detalle" placeholder="Ingrese el detalle " name="detalle" required>
+                        <div class="invalid-feedback">Campo Detalle vacío</div>
                     </div>
                     <button type="submit" class="btn btn-primary">Agregar</button>
                 </form>
@@ -69,19 +72,21 @@ $lista_condicion = $condicion->consultarVariasCondiciones();
                                                 <h1 class="modal-title fs-5" id="exampleModalLabel<?php echo $row['id_condicion'] ?>">Modificar condicion</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form action="controladores/condicion_controlador.php" method="post">
+                                            <form class="needs-validation" novalidate action="controladores/condicion_controlador.php" method="post">
                                                 <div class="modal-body">
                                                     <input type="hidden" name="action" value="actualizacion">
                                                     <input type="hidden" name="id_condicions" value="<?php echo $row['id_condicion'] ?>">
 
                                                     <div class="mb-3">
                                                         <label for="nombre_condicion<?php echo $row['id_condicion'] ?>" class="form-label">condicion</label>
-                                                        <input type="text" class="form-control" id="nombre_condicion<?php echo $row['id_condicion'] ?>" name="nombre_condicion" value="<?php echo $row['nombre_condicion'] ?>">
+                                                        <input type="text" class="form-control" id="nombre_condicion<?php echo $row['id_condicion'] ?>" name="nombre_condicion" value="<?php echo $row['nombre_condicion'] ?>" required>
+                                                        <div class="invalid-feedback">Campo Nombre vacío</div>
                                                     </div>
 
                                                     <div class="mb-3">
                                                         <label for="detalle<?php echo $row['id_condicion'] ?>" class="form-label">detalle</label>
-                                                        <input type="text" class="form-control" id="detalle<?php echo $row['id_condicion'] ?>" name="detalle" value="<?php echo $row['detalle'] ?>">
+                                                        <input type="text" class="form-control" id="detalle<?php echo $row['id_condicion'] ?>" name="detalle" value="<?php echo $row['detalle'] ?>" required>
+                                                        <div class="invalid-feedback">Campo Detalle vacío</div>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -100,3 +105,4 @@ $lista_condicion = $condicion->consultarVariasCondiciones();
         </div>
     </div>
 </div>
+<script src="assets/js/validaciones/validaciones_controlador.js"></script>

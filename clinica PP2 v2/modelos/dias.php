@@ -61,7 +61,7 @@ class Dias{
 
     public function eliminarDias(){
         $con = new Conexion();
-        $query = "DELETE FROM especialidad WHERE id_especialidad = ". $this->getId_dias();
+        $query = "DELETE FROM dias WHERE id_dias = ". $this->getId_dias();
         $con->eliminar($query);
     }
 
@@ -77,6 +77,12 @@ class Dias{
         $query = "SELECT * FROM dias WHERE id_dias = ". $id;
         $datos = $con->consultar($query);
         return $datos;
+    }
+
+    public function existeDia(){
+        $con = new Conexion();
+        $query = "SELECT descripcion FROM dias WHERE descripcion = '$this->descripcion'";
+        return $con->consultar($query);
     }
 }
 

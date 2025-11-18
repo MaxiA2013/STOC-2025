@@ -89,7 +89,7 @@ class Familiar{
 
     public function consultarFamiliar($id){
         $con = new Conexion();
-        $query = "SELECT * FROM familiar WHERE id_fmailiar={$id}";
+        $query = "SELECT * FROM familiar WHERE id_familiar={$id}";
         $datos = $con->consultar($query);
     }
 
@@ -98,6 +98,12 @@ class Familiar{
         $query = "SELECT * FROM familiar";
         $datos = $con->consultar($query);
         return $datos;
+    }
+
+    public function existeFamiliar(){
+        $con = new Conexion();
+        $query = "SELECT relacion FROM familiar WHERE relacion = '$this->relacion'";
+        return $con->consultar($query);
     }
 }
 

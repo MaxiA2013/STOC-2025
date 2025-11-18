@@ -15,14 +15,17 @@ $lista_obra_social = $obra_social->consultarVariasObrasSociales();
     <div class="row">
         <div class="col">
             <div class="container">
-                <form method="post" action="controladores/obra_social_controlador.php">
+                <form class="needs-validation" novalidate method="post" action="controladores/obra_social_controlador.php">
                     <div class="mb-3">
                         <input type="hidden" name="action" value="insertar">
                         <label for="nombre_obra_social" class="form-label">obra_social</label>
-                        <input type="text" class="form-control" id="nombre_obra_social" placeholder="Ingrese la obra social " name="nombre_obra_social">
-
+                        <input type="text" class="form-control" id="nombre_obra_social" placeholder="Ingrese la obra social " name="nombre_obra_social" required>
+                        <div class="invalid-feedback">Campo Obra Social vacío</div>
+                    </div>
+                    <div>
                         <label for="detalle" class="form-label">Detalle</label>
-                        <input type="text" class="form-control" id="detalle" placeholder="Ingrese el detalle " name="detalle">
+                        <input type="text" class="form-control" id="detalle" placeholder="Ingrese el detalle " name="detalle" required>
+                        <div class="invalid-feedback">Campo Detalle vacío</div>
                     </div>
                     <button type="submit" class="btn btn-primary">Agregar</button>
                 </form>
@@ -68,19 +71,21 @@ $lista_obra_social = $obra_social->consultarVariasObrasSociales();
                                                 <h1 class="modal-title fs-5" id="exampleModalLabel<?php echo $row['id_obra_social'] ?>">Modificar obra_social</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form action="controladores/obra_social_controlador.php" method="post">
+                                            <form class="needs-validation" novalidate action="controladores/obra_social_controlador.php" method="post">
                                                 <div class="modal-body">
                                                     <input type="hidden" name="action" value="actualizacion">
                                                     <input type="hidden" name="id_obra_social" value="<?php echo $row['id_obra_social'] ?>">
 
                                                     <div class="mb-3">
                                                         <label for="nombre_obra_social<?php echo $row['id_obra_social'] ?>" class="form-label">obra_social</label>
-                                                        <input type="text" class="form-control" id="nombre_obra_social<?php echo $row['id_obra_social'] ?>" name="nombre_obra_social" value="<?php echo $row['nombre_obra_social'] ?>">
+                                                        <input type="text" class="form-control" id="nombre_obra_social<?php echo $row['id_obra_social'] ?>" name="nombre_obra_social" value="<?php echo $row['nombre_obra_social'] ?>" required>
+                                                        <div class="invalid-feedback">Campo Obra Social vacío</div>
                                                     </div>
 
                                                     <div class="mb-3">
                                                         <label for="detalle<?php echo $row['id_obra_social'] ?>" class="form-label">detalle</label>
-                                                        <input type="text" class="form-control" id="detalle<?php echo $row['id_obra_social'] ?>" name="detalle" value="<?php echo $row['detalle'] ?>">
+                                                        <input type="text" class="form-control" id="detalle<?php echo $row['id_obra_social'] ?>" name="detalle" value="<?php echo $row['detalle'] ?>" required>
+                                                        <div class="invalid-feedback">Campo detalle vacío</div>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -99,3 +104,4 @@ $lista_obra_social = $obra_social->consultarVariasObrasSociales();
         </div>
     </div>
 </div>
+<script src="assets/js/validaciones/validaciones_controlador.js"></script>

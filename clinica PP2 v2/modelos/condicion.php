@@ -24,7 +24,7 @@ class Condicion{
         return $this->nombre_condicion;
     }
 
-    public function setNombreCondicion(string $nombre_condicion): self
+    public function setNombreCondicion($nombre_condicion): self
     {
         $this->nombre_condicion = $nombre_condicion;
 
@@ -70,13 +70,17 @@ class Condicion{
         return $result;
     }
 
+    public function existeCondicion(){
+        $conn = new Conexion();
+        $query = "SELECT nombre_condicion FROM condicion WHERE nombre_condicion = '{$this->nombre_condicion}'";
+        return $conn->consultar($query);
+    }
+
     public function consultarCondicion($id){
         $conn = new Conexion();
         $query = "SELECT * FROM condicion WHERE id_condicion = ".$id;
         $result = $conn->consultar($query);
         return $result;
     }
-
-
 
 }

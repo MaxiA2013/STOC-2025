@@ -15,14 +15,20 @@ $lista_fam = $fam->consultarVariosFamiliar();
     <div class="row">
         <div class="col">
             <div class="container">
-                <form method="post" action="controladores/familiar_controlador.php">
+                <form class="needs-validation" novalidate method="post" action="controladores/familiar_controlador.php">
                     <div class="mb-3">
                         <input type="hidden" name="action" value="insertar">
-                        <label for="relacion" class="form-label">Relación</label>
-                        <input type="text" class="form-control" id="relacion" placeholder="Ingrese la relacion " name="relacion">
+                        <div>
+                            <label for="relacion" class="form-label">Relación</label>
+                            <input type="text" class="form-control" id="relacion" placeholder="Ingrese la relacion " name="relacion" required>
+                            <div class="invalid-feedback">Campo nombre de la relacion vacio</div>
+                        </div>
+                        <div>
+                            <label for="descripcion" class="form-label">descripcion</label>
+                            <input type="text" class="form-control" id="descripcion" placeholder="Ingrese la Descripcion " name="descripcion" required>
+                            <div class="invalid-feedback">Campo descripcion vacio</div>
+                        </div>
 
-                        <label for="descripcion" class="form-label">descripcion</label>
-                        <input type="text" class="form-control" id="descripcion" placeholder="Ingrese la Descripcion " name="descripcion">
                     </div>
                     <button type="submit" class="btn btn-primary">Agregar</button>
                 </form>
@@ -68,19 +74,21 @@ $lista_fam = $fam->consultarVariosFamiliar();
                                                 <h1 class="modal-title fs-5" id="exampleModalLabel<?php echo $row['id_familiar'] ?>">Modificar Relacion</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form action="controladores/sintomas_controlador.php" method="post">
+                                            <form class="needs-validation" novalidate action="controladores/sintomas_controlador.php" method="post">
                                                 <div class="modal-body">
                                                     <input type="hidden" name="action" value="actualizacion">
                                                     <input type="hidden" name="id_familiar" value="<?php echo $row['id_familiar'] ?>">
 
                                                     <div class="mb-3">
                                                         <label for="relacion<?php echo $row['id_familiar'] ?>" class="form-label">Relacion</label>
-                                                        <input type="text" class="form-control" id="relacion<?php echo $row['id_familiar'] ?>" name="relacion" value="<?php echo $row['relacion'] ?>">
+                                                        <input type="text" class="form-control" id="relacion<?php echo $row['id_familiar'] ?>" name="relacion" value="<?php echo $row['relacion'] ?>" required>
+                                                        <div class="invalid-feedback">Campo nombre de relacion vacio</div>
                                                     </div>
 
                                                     <div class="mb-3">
                                                         <label for="descripcion<?php echo $row['id_familiar'] ?>" class="form-label">Descripción</label>
-                                                        <input type="text" class="form-control" id="descripcion<?php echo $row['id_familiar'] ?>" name="descripcion" value="<?php echo $row['descripcion'] ?>">
+                                                        <input type="text" class="form-control" id="descripcion<?php echo $row['id_familiar'] ?>" name="descripcion" value="<?php echo $row['descripcion'] ?>" required>
+                                                        <div class="invalid-feedback">Campo descripcion vacio</div>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -99,3 +107,4 @@ $lista_fam = $fam->consultarVariosFamiliar();
         </div>
     </div>
 </div>
+<script src="assets/js/validaciones/validaciones_controlador.js"></script>

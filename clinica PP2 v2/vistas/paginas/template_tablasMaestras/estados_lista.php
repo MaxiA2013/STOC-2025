@@ -15,14 +15,17 @@ $lista_estados = $stat->consultarVariosEstados();
     <div class="row">
         <div class="col">
             <div class="container">
-                <form method="post" action="controladores/estados_controlador.php">
+                <form class="needs-validation" novalidate method="post" action="controladores/estados_controlador.php">
                     <div class="mb-3">
                         <input type="hidden" name="action" value="insertar">
                         <label for="tipo_estado" class="form-label">Estado</label>
-                        <input type="text" class="form-control" id="tipo_estado" placeholder="Ingrese el estado " name="tipo_estado">
-
+                        <input type="text" class="form-control" id="tipo_estado" placeholder="Ingrese el estado " name="tipo_estado" required>
+                        <div class="invalid-feedback">Campo de nombre de estado vacio</div>
+                    </div>
+                    <div>
                         <label for="descripcion" class="form-label">descripcion</label>
-                        <input type="text" class="form-control" id="descripcion" placeholder="Ingrese la Descripcion " name="descripcion">
+                        <input type="text" class="form-control" id="descripcion" placeholder="Ingrese la Descripcion " name="descripcion" required>
+                        <div class="invalid-feedback">Campo descripcion vacio</div>
                     </div>
                     <button type="submit" class="btn btn-primary">Agregar</button>
                 </form>
@@ -48,7 +51,7 @@ $lista_estados = $stat->consultarVariosEstados();
                             <td><?php echo $row['tipo_estado'] ?></td>
                             <td><?php echo $row['descripcion'] ?></td>
                             <td>
-                                <form action="controladores/sintomas_controlador.php" method="post">
+                                <form action="controladores/estados_controlador.php" method="post">
                                     <input type="hidden" name="id_estados" value="<?php echo $row['id_estados'] ?>">
                                     <input type="hidden" name="action" value="eliminacion">
                                     <button type="submit"><i class="fa-solid fa-delete-left"></i></button>
@@ -68,19 +71,21 @@ $lista_estados = $stat->consultarVariosEstados();
                                                 <h1 class="modal-title fs-5" id="exampleModalLabel<?php echo $row['id_estados'] ?>">Modificar Estado</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form action="controladores/sintomas_controlador.php" method="post">
+                                            <form class="needs-validation" novalidate action="controladores/estados_controlador.php" method="post">
                                                 <div class="modal-body">
                                                     <input type="hidden" name="action" value="actualizacion">
                                                     <input type="hidden" name="id_estados" value="<?php echo $row['id_estados'] ?>">
 
                                                     <div class="mb-3">
                                                         <label for="tipo_estado<?php echo $row['id_estados'] ?>" class="form-label">Estado</label>
-                                                        <input type="text" class="form-control" id="tipo_estado<?php echo $row['id_estados'] ?>" name="tipo_estado" value="<?php echo $row['tipo_estado'] ?>">
+                                                        <input type="text" class="form-control" id="tipo_estado<?php echo $row['id_estados'] ?>" name="tipo_estado" value="<?php echo $row['tipo_estado'] ?>" required>
+                                                        <div class="invalid-feedback">Campo de nombre de estado vacio</div>
                                                     </div>
 
                                                     <div class="mb-3">
                                                         <label for="descripcion<?php echo $row['id_estados'] ?>" class="form-label">Descripción</label>
-                                                        <input type="text" class="form-control" id="descripcion<?php echo $row['id_estados'] ?>" name="descripcion" value="<?php echo $row['descripcion'] ?>">
+                                                        <input type="text" class="form-control" id="descripcion<?php echo $row['id_estados'] ?>" name="descripcion" value="<?php echo $row['descripcion'] ?>" required>
+                                                        <div class="invalid-feedback">Campo descripcion vacio</div>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -99,3 +104,4 @@ $lista_estados = $stat->consultarVariosEstados();
         </div>
     </div>
 </div>
+<script src="assets/js/validaciones/validaciones_controlador.js"></script>

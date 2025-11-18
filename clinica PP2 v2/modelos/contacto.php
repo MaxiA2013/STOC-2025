@@ -73,5 +73,11 @@ require_once 'conexion.php';
         $datos = $con->consultar($query);
         return $datos;
     }
+
+    public function existeContacto(){
+        $con = new Conexion();
+        $query = "SELECT tipo_contacto FROM contacto WHERE tipo_contacto LIKE '$this->tipo_contacto'";
+        return $con->consultar($query);
+    }
  }
 ?>

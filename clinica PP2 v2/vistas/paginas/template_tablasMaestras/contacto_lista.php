@@ -68,19 +68,21 @@ $lista_contacto = $contac->consultarVariosContactos();
                                                 <h1 class="modal-title fs-5" id="exampleModalLabel<?php echo $row['id_contacto'] ?>">Modificar Contacto</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form action="controladores/sintomas_controlador.php" method="post">
+                                            <form  class="needs-validation" novalidate action="controladores/sintomas_controlador.php" method="post">
                                                 <div class="modal-body">
                                                     <input type="hidden" name="action" value="actualizacion">
                                                     <input type="hidden" name="id_contacto" value="<?php echo $row['id_contacto'] ?>">
 
                                                     <div class="mb-3">
                                                         <label for="tipo_contacto<?php echo $row['id_contacto'] ?>" class="form-label">Contacto</label>
-                                                        <input type="text" class="form-control" id="tipo_contacto<?php echo $row['id_contacto'] ?>" name="tipo_contacto" value="<?php echo $row['tipo_contacto'] ?>">
+                                                        <input type="text" class="form-control" id="tipo_contacto<?php echo $row['id_contacto'] ?>" name="tipo_contacto" value="<?php echo $row['tipo_contacto'] ?>" required>
+                                                        <div class="invalid-feedback">Campo contacto vacio</div>
                                                     </div>
 
                                                     <div class="mb-3">
                                                         <label for="descripcion<?php echo $row['id_contacto'] ?>" class="form-label">Descripción</label>
-                                                        <input type="text" class="form-control" id="descripcion<?php echo $row['id_contacto'] ?>" name="descripcion" value="<?php echo $row['descripcion'] ?>">
+                                                        <input type="text" class="form-control" id="descripcion<?php echo $row['id_contacto'] ?>" name="descripcion" value="<?php echo $row['descripcion'] ?>" required>
+                                                        <div class="invalid-feedback">Campo descripcion vacio</div>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -99,3 +101,4 @@ $lista_contacto = $contac->consultarVariosContactos();
         </div>
     </div>
 </div>
+<script src="assets/js/validaciones/validaciones_controlador.js"></script>
