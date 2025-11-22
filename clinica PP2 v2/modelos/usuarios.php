@@ -24,7 +24,6 @@ class Usuario
     $conexion = new Conexion();
     $password = password_hash($this->password, PASSWORD_DEFAULT);
     $query = "INSERT INTO clinica.usuario (nombre_usuario, email, password, persona_id_persona) VALUES ('$this->nombre_usuario', '$this->email', '$password', '$this->persona_id_persona')";
-    echo $query;
     return $conexion->insertar($query);
   }
 

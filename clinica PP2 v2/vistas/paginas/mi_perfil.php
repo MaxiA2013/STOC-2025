@@ -7,6 +7,10 @@ if (!isset($_SESSION['id_usuario'])) {
 $nombre_usuario = $_SESSION['nombre_usuario'];
 $email = $_SESSION['email'];
 $perfil_id = $_SESSION['id_perfil']; // Este dato se usará con JS
+
+require_once 'modelos/doctor.php';
+$docs = new Doctor();
+$doctores_no_disponibles = $docs->all_doctores();
 ?>
 
 <!DOCTYPE html>
@@ -16,6 +20,7 @@ $perfil_id = $_SESSION['id_perfil']; // Este dato se usará con JS
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil de Usuario</title>
+    <link rel="stylesheet" href="assets/css/adminStyle.css">
     <style>
         header,
         h1,
@@ -269,63 +274,106 @@ $perfil_id = $_SESSION['id_perfil']; // Este dato se usará con JS
         <!--------------------------------- CONTENEDOR DE ADMINISTRADOR ---------------------------------->
         <!--------------------------------- CONTENEDOR DE ADMINISTRADOR ---------------------------------->
 
-        <div id="admin-container" style="background-color: #024296;">
-            <header class="mb-4">
+
+        <div id="admin-container">
+            <header class="mb-4 text-center">
                 <h1>Bienvenido Administrador, <?= htmlspecialchars($nombre_usuario) ?></h1>
             </header>
 
-            <div class="container text-center">
-                <div class="row">
+            <!-- PRIMER BLOQUE -->
+            <div class="container text-center mb-5">
+                <div class="row g-4">
 
-                    <div class="col-5" style="background-image: url('assets/images/6511c213dadb6.jpg'); background-size: cover ;height: 180px; width: 600px;">
-                        <h5>Cuadro con imagen de fondo y horario</h5>
+                    <!-- Imagen grande con horario -->
+                    <div class="col-12 col-md-5 admin-image-box"
+                        style="background-image: url('assets/images/6511c213dadb6.jpg'); height: 180px;">
+
+                        <div class="admin-datetime-box">
+                            <span id="fecha"><?= date("d/m/Y") ?></span> —
+                            <span id="hora"></span>
+                        </div>
                     </div>
 
-                    <div class="col">
+                    <!-- Tarjetas funcionales -->
+                    <div class="col-12 col-md-7">
+                        <div class="row row-cols-1 row-cols-md-2 g-4">
 
-                        <div class="container text-center">
-                            <div class="row row-cols-2">
-                                <div class="col">
+                            <div class="col">
+                                <div class="admin-card">
                                     <h4>ns</h4>
                                 </div>
+                            </div>
 
-                                <div class="col">
+                            <div class="col">
+                                <div class="admin-card">
                                     <h4>Gestión de Usuarios</h4>
                                     <p>Aquí podrá gestionar los perfiles de usuarios.</p>
                                 </div>
+                            </div>
 
-                                <div class="col">
+                            <div class="col">
+                                <div class="admin-card">
                                     <h4>Reportes</h4>
                                     <p>Visualice reportes del sistema clínico.</p>
                                 </div>
-
-                                <div class="col">
-                                    <a href="index.php?page=tablas_maestras">
-                                        <h4>Tablas Maestras</h4>
-                                    </a>
-                                    <p>Visualice las tablas maestras del sistema.</p>
-                                </div>
                             </div>
+
+                            <div class="col">
+                                <a href="index.php?page=tablas_maestras" style="text-decoration: none;">
+                                    <div class="admin-card">
+                                        <h4>Tablas Maestras</h4>
+                                        <p>Visualice las tablas maestras del sistema.</p>
+                                    </div>
+                                </a>
+                            </div>
+
                         </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="container text-center">
-                <div class="row">
-
-                    <div class="col" style="background-color: #b0b0b1ff; height: 480px; ">
-                        <h1>Grafico estadistico</h1>
-                    </div>
-                    <div class="col-md-auto">
-                        <H4>Doctores No Disponibles</H4>
                     </div>
 
                 </div>
             </div>
 
+            <!-- SEGUNDO BLOQUE -->
+            <div class="container text-center mt-4">
+                <div class="row g-4">
 
+                    <!-- Gráfico estadístico -->
+                    <div class="col graph-container">
+                        <h2>Gráfico Estadístico</h2>
+                    </div>
+
+                    <!-- Información lateral -->
+                    <div class="col-md-auto side-info">
+                        <div class="doctores-offline">
+                            <h4 class="doctores-title">Doctores No Disponibles</h4>
+
+                            <!-- Loop dinámico -->
+                            <?php foreach ($doctores_no_disponibles as $doc): ?>
+                                <div class="doctor-card">
+                                    <div class="doctor-icon">
+                                        <?= strtoupper(substr($doc['nombre'], 0, 1)) ?>
+                                    </div>
+
+                                    <div class="doctor-name">
+                                        <?= htmlspecialchars($doc['nombre']) ?>
+                                    </div>
+
+                                    <span class="status-badge">No disponible</span>
+                                </div>
+                            <?php endforeach; ?>
+
+                            <!-- Si no hay doctores fuera de servicio -->
+                            <?php if (empty($doctores_no_disponibles)): ?>
+                                <div class="doctor-card" style="background: rgba(255,255,255,0.15); cursor: default;">
+                                    <div class="doctor-icon">✓</div>
+                                    <div class="doctor-name">Todos los doctores están disponibles</div>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
 
         </div>
 
@@ -385,7 +433,26 @@ $perfil_id = $_SESSION['id_perfil']; // Este dato se usará con JS
             calendar.render();
         });
     </script>
+    <script>
+        function actualizarHora() {
+            const ahora = new Date();
+
+            // Formato HH:MM:SS
+            const hora = ahora.getHours().toString().padStart(2, '0');
+            const minutos = ahora.getMinutes().toString().padStart(2, '0');
+            const segundos = ahora.getSeconds().toString().padStart(2, '0');
+
+            document.getElementById("hora").textContent = `${hora}:${minutos}:${segundos}`;
+        }
+
+        // Actualiza al cargar
+        actualizarHora();
+
+        // Actualiza cada 1 segundo
+        setInterval(actualizarHora, 1000);
+    </script>
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
 </body>
+
 </html>

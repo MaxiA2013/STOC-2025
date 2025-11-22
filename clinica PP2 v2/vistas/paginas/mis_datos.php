@@ -2,7 +2,8 @@
 require_once "modelos/obra_social.php";
 require_once "modelos/paciente_obra_social.php";
 require_once "modelos/doctor_obra_social.php";
-require_once "modelos/Doctor_Dias.php";
+require_once "modelos/doctor_Dias.php";
+require_once "modelos/franja_horaria.php";
 
 $doctor = [
     "nombre" => "Silvia Beatriz Mazzaglia",
@@ -27,8 +28,23 @@ if ($_SESSION['nombre_perfil'] === "paciente") {
 
 $dd = new Doctor_Dias();
 $id_doctor = $dd->obtenerIdDoctorPorUsuario($_SESSION['id_usuario']);
-$diasAsignados = $dd->consultarDiasPorDoctor($id_doctor);
+
+// PREVENCIÓN DE ERROR
+$diasAsignados = [];
+if ($id_doctor !== null) {
+    $diasAsignados = $dd->consultarDiasPorDoctor($id_doctor);
+}
+
 $diasSemana = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
+
+// obtener todas las franjas para el select
+$franjaModel = new Franja();
+$todasFranjas = $franjaModel->consultarVariasFranjas();
+// construir mapa id_franja => etiqueta (para mostrar en lista)
+$mapFranjas = [];
+foreach ($todasFranjas as $f) {
+    $mapFranjas[$f['id_franja']] = "{$f['tipo_franja']} ({$f['inicio_franja']} - {$f['fin_franja']})";
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -91,7 +107,7 @@ $diasSemana = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
                 <div class="tab-pane fade" id="cons" role="tabpanel">
                     <p>Consultorio privado - <?= $doctor['ubicacion'] ?></p>
                 </div>
-                <div class="tab-pane fade" id="serv" role="tabpanel">
+                 <div class="tab-pane fade" id="serv" role="tabpanel">
                     <h4>Trabaja:</h4>
                     <p>Consulta particular: $5000</p>
                     <p>Consulta con Obra Social</p>
@@ -142,10 +158,13 @@ $diasSemana = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
                 <h4>Días Laborales:</h4>
 
                     <h5>Días laborales asignados:</h5>
-                    <?php if (!empty($diasAsignados)): ?>
+                    <?php if (!empty($diasConFranjas)): ?>
                         <ul>
-                            <?php foreach ($diasAsignados as $dia): ?>
-                                <li><?= $dia ?></li>
+                            <?php foreach ($diasConFranjas as $diaDesc => $franjaId): ?>
+                                <li>
+                                    <?= $diaDesc ?> -
+                                    <?= isset($mapFranjas[$franjaId]) ? $mapFranjas[$franjaId] : 'Franja no asignada' ?>
+                                </li>
                             <?php endforeach; ?>
                         </ul>
                     <?php else: ?>
@@ -156,18 +175,35 @@ $diasSemana = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
                         <input type="hidden" name="id_usuario" value="<?= $_SESSION['id_usuario'] ?>">
 
                         <label for="dias">Selecciona tus días laborales:</label>
-                        <small class="text-muted d-block mb-2">Marcá los días en los que atendés.</small>
+                        <small class="text-muted d-block mb-2">Marcá los días en los que atendés y elegí la franja horaria por día.</small>
 
-                        <?php foreach ($diasSemana as $dia): ?>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="dias[]" value="<?= $dia ?>" id="dia_<?= $dia ?>" <?= in_array($dia, $diasAsignados) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="dia_<?= $dia ?>"><?= $dia ?></label>
+                        <?php foreach ($diasSemana as $dia): 
+                            $checked = in_array($dia, $diasAsignados);
+                            $selectedFranja = $diasConFranjas[$dia] ?? '';
+                        ?>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="form-check me-3">
+                                    <input class="form-check-input dia-checkbox" type="checkbox" name="dias[]" value="<?= $dia ?>" id="dia_<?= $dia ?>" <?= $checked ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="dia_<?= $dia ?>"><?= ucfirst($dia) ?></label>
+                                </div>
+
+                                <div>
+                                    <select name="franjas[<?= $dia ?>]" id="franja_<?= $dia ?>" class="form-select form-select-sm" style="width: 280px;" <?= $checked ? '' : 'disabled' ?>>
+                                        <option value="">-- Seleccioná franja --</option>
+                                        <?php foreach ($todasFranjas as $fr): ?>
+                                            <option value="<?= $fr['id_franja'] ?>" <?= ($selectedFranja == $fr['id_franja']) ? 'selected' : '' ?>>
+                                                <?= $fr['tipo_franja'] ?> (<?= $fr['inicio_franja'] ?> - <?= $fr['fin_franja'] ?>)
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                             </div>
                         <?php endforeach; ?>
 
                         <button type="submit" class="btn btn-primary mt-3">Guardar Días Laborales</button>
                     </form>
                 </div>
+
                 <div class="tab-pane fade" id="user" role="tabpanel">
                     <h5>Información</h5>
                     <ul class="list-unstyled">
@@ -199,5 +235,19 @@ $diasSemana = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.dia-checkbox').forEach(function(chk) {
+        chk.addEventListener('change', function() {
+            var id = this.id.replace('dia_', '');
+            var select = document.getElementById('franja_' + id);
+            if (select) {
+                select.disabled = !this.checked;
+            }
+        });
+    });
+});
+</script>
+
 </body>
 </html>

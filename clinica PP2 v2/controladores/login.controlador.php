@@ -186,19 +186,25 @@ class LoginControlador
         // ------------------------------------------------------
         // PERFIL ESPECÍFICO: DOCTOR O PACIENTE
         // ------------------------------------------------------
+        // PERFIL ESPECÍFICO: DOCTOR O PACIENTE
         if ($perfil_id == 2) {
             $numero_matricula_profesional = $_POST['numero_matricula_profesional'] ?? '';
             $salario = floatval($_POST['salario'] ?? 0);
-            $doctor = new Doctor($numero_matricula_profesional, 'Activo', $id_usuario, $salario);
+
+            $doctor = new Doctor('', $numero_matricula_profesional, $id_usuario, $salario);
             $doctor->guardar();
         }
+
 
         if ($perfil_id == 3) {
             $conn->insertar("INSERT INTO paciente (usuario_id_usuario) VALUES ($id_usuario)");
         }
 
-        header('Location: ../index.php?message=Usuario registrado correctamente&status=success');
-        //aca hay que agregar mensaje sweetalert
+        if (($_GET['page'] == 'lista_doctor')) {
+            header('Location: ../index.php?page=' . $_GET['page']);
+        } else {
+            header('Location: ../index.php?message=Usuario registrado correctamente&status=success');
+            //aca hay que agregar mensaje sweetalert}
+        }
     }
 }
-?>

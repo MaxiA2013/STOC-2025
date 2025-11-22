@@ -81,7 +81,7 @@ class Obra_Social{
 
     public function existeObraSocial(){
         $con = new Conexion();
-        $query = "SELECT nombre_obra_social FROM obra_social WHERE nombre_obra_social = '$this->nombre_obra_social' ";
+        $query = "SELECT nombre_obra_social FROM obra_social WHERE nombre_obra_social LIKE '$this->nombre_obra_social' ";
         return $con->consultar($query);
     }
     

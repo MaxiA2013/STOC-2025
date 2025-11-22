@@ -1,27 +1,31 @@
-<?php 
+<?php
 require_once "conexion.php";
 
-class Doctor {
+class Doctor
+{
     private $id_doctor;
     private $numero_matricula_profesional;
     private $usuario_id_usuario;
     private $precio_consulta;
 
-    public function __construct($id_doctor = '', $numero_matricula_profesional = '', $usuario_id_usuario = '', $precio_consulta = '') {
+    public function __construct($id_doctor = '', $numero_matricula_profesional = '', $usuario_id_usuario = '', $precio_consulta = '')
+    {
         $this->id_doctor = $id_doctor;
         $this->numero_matricula_profesional = $numero_matricula_profesional;
         $this->usuario_id_usuario = $usuario_id_usuario;
         $this->precio_consulta = $precio_consulta;
     }
 
-    public function guardar() {
+    public function guardar()
+    {
         $conexion = new Conexion();
         $query = "INSERT INTO doctor (numero_matricula_profesional, usuario_id_usuario, precio_consulta) 
                   VALUES ('$this->numero_matricula_profesional', '$this->usuario_id_usuario', '$this->precio_consulta')";
         return $conexion->insertar($query);
     }
 
-    public function actualizar() {
+    public function actualizar()
+    {
         $conexion = new Conexion();
         $query = "UPDATE doctor 
                   SET numero_matricula_profesional = '$this->numero_matricula_profesional', 
@@ -37,7 +41,8 @@ class Doctor {
      * luego borra las agendas del doctor,
      * y finalmente borra el registro en doctor.
      */
-    public function eliminar($id) {
+    public function eliminar($id)
+    {
         $conexion = new Conexion();
 
         // 1) Eliminar turnos asociados a las agendas de este doctor
@@ -57,7 +62,8 @@ class Doctor {
     }
 
     //busca los doctores relacionando la tabla personas para obtener atributos de nombre y apellido
-    public function all_doctores() {
+    public function all_doctores()
+    {
         $conexion = new Conexion();
         $query = "SELECT d.id_doctor, d.numero_matricula_profesional, d.precio_consulta,
                         d.usuario_id_usuario,
@@ -68,10 +74,29 @@ class Doctor {
         return $conexion->consultar($query);
     }
     //busca los doctores directamente de la tabla doctores
-    public function todos_docs(){
+    public function todos_docs()
+    {
         $conexion = new Conexion();
         $query = "SELECT * FROM doctor";
         return $conexion->consultar($query);
+    }
+
+    // Obtener usuarios disponibles para asignar doctor (sin doctor aún) y traer sus perfiles
+    public function userDisp()
+    {
+        $conexion = new Conexion();
+        $query = "
+            SELECT u.id_usuario, p.nombre, p.apellido, u.nombre_usuario,
+                GROUP_CONCAT(IFNULL(per.nombre_perfil,'') SEPARATOR ', ') AS perfiles
+            FROM usuario u
+            JOIN persona p ON u.persona_id_persona = p.id_persona
+            LEFT JOIN usuario_has_perfil up ON up.usuario_id_usuario = u.id_usuario
+            LEFT JOIN perfil per ON per.id_perfil = up.perfil_id_perfil
+            WHERE u.id_usuario NOT IN (SELECT usuario_id_usuario FROM doctor)
+            GROUP BY u.id_usuario
+            ORDER BY p.nombre, p.apellido ";
+        return $conexion->consultar($query);
+
     }
 
     // getters / setters (sin cambios)

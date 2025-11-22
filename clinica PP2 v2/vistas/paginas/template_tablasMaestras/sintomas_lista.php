@@ -1,107 +1,129 @@
-<?php
+<?php  
 include_once "modelos/sintomas.php";
 
 $sintoma = new Sintomas();
 $lista_sintomas = $sintoma->consultarVariosSintomas();
 ?>
+<h2 class="text-center">Gestión de Síntomas</h2>
 
-<div class="py-5 container">
-    <div class="row">
-        <div class="col">
-            <h2>Sintomas</h2>
-            <p>Ingresa un nuevo Sintoma</p>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <div class="container">
-                <form class="needs-validation" novalidate method="post" action="controladores/sintomas_controlador.php">
-                    <div class="mb-3">
-                        <input type="hidden" name="action" value="insertar">
-                        <label for="nombre_sintomas" class="form-label">Sintomas</label>
-                        <input type="text" class="form-control" id="nombre_sintomas" placeholder="Ingrese la Tabla " name="nombre_sintomas" required>
-                        <div class="invalid-feedback">Campo nombre de sintoma esta vacio</div>
-                    </div>
-                    <div>
-                        <label for="descripcion" class="form-label">descripcion</label>
-                        <input type="text" class="form-control" id="descripcion" placeholder="Ingrese la Descripcion " name="descripcion" required>
-                        <div class="invalid-feedback" >Campo descripcion vacio</div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Agregar</button>
-                </form>
-            </div>
-        </div>
+<button class="btn btn-primary mb-3" onclick="abrirModal()">Nuevo síntoma</button>
 
-        <div class="col">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Sintoma</th>
-                        <th scope="col">Descripcion</th>
-                        <th scope="col">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    foreach ($lista_sintomas as $row) {
-                    ?>
-                        <tr>
-                            <td><?php echo $row['id_sintomas'] ?></td>
-                            <td><?php echo $row['nombre_sintomas'] ?></td>
-                            <td><?php echo $row['descripcion'] ?></td>
-                            <td>
-                                <form action="controladores/sintomas_controlador.php" method="post">
-                                    <input type="hidden" name="id_sintomas" value="<?php echo $row['id_sintomas'] ?>">
-                                    <input type="hidden" name="action" value="eliminacion">
-                                    <button type="submit"><i class="fa-solid fa-delete-left"></i></button>
-                                </form>
-                            </td>
-                            <td>
-                                <!-- Botón que abre el modal -->
-                                <button type="button" data-bs-toggle="modal" data-bs-target="#modal<?php echo $row['id_sintomas'] ?>">
-                                    <i class="fa-solid fa-pen-nib"></i>
-                                </button>
+<table class="table table-bordered" id="tablaSintomas">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre del síntoma</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody id="bodyTabla">
+        <?php
+        require_once "modelos/sintomas.php";
+        $s = new Sintomas();
+        $lista = $s->consultarVariosSintomas();
+        while ($fila = $lista->fetch_assoc()):
+        ?>
+        <tr id="fila<?= $fila["id_sintomas"] ?>">
+            <td><?= $fila["id_sintomas"] ?></td>
+            <td><?= $fila["nombre_sintomas"] ?></td>
+            <td><?= $fila["descripcion"] ?></td>
+            <td>
+                <button class="btn btn-warning btn-sm"
+                        onclick="editar(<?= $fila['id_sintomas'] ?>,'<?= $fila['nombre_sintomas'] ?>','<?= $fila['descripcion'] ?>')">
+                    Editar
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="eliminar(<?= $fila['id_sintomas'] ?>)">Eliminar</button>
+            </td>
+        </tr>
+        <?php endwhile; ?>
+    </tbody>
+</table>
 
-                                <!-- Modal dinámico -->
-                                <div class="modal fade" id="modal<?php echo $row['id_sintomas'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel<?php echo $row['id_sintomas'] ?>" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="exampleModalLabel<?php echo $row['id_sintomas'] ?>">Modificar Sintoma</h1>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <form class="needs-validation" novalidate action="controladores/sintomas_controlador.php" method="post">
-                                                <div class="modal-body">
-                                                    <input type="hidden" name="action" value="actualizacion">
-                                                    <input type="hidden" name="id_sintomas" value="<?php echo $row['id_sintomas'] ?>">
+<!-- Modal -->
+<div class="modal" id="modalForm" style="display:none;">
+    <div class="modal-dialog">
+        <div class="modal-content p-3">
 
-                                                    <div class="mb-3">
-                                                        <label for="nombre_sintomas<?php echo $row['id_sintomas'] ?>" class="form-label">Sintoma</label>
-                                                        <input type="text" class="form-control" id="nombre_sintomas<?php echo $row['id_sintomas'] ?>" name="nombre_sintomas" value="<?php echo $row['nombre_sintomas'] ?>" required>
-                                                        <div class="invalid-feedback">Campo de nombre de sintoma vacio</div>
-                                                    </div>
+            <input type="hidden" id="id_sintomas">
 
-                                                    <div class="mb-3">
-                                                        <label for="descripcion<?php echo $row['id_sintomas'] ?>" class="form-label">Descripción</label>
-                                                        <input type="text" class="form-control" id="descripcion<?php echo $row['id_sintomas'] ?>" name="descripcion" value="<?php echo $row['descripcion'] ?>" required>
-                                                        <div class="invalid-feedback">Campo de descripcion vacio</div>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                                    <button type="submit" class="btn btn-success">Guardar</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        <?php } ?>
-                        </tr>';
-                </tbody>
-            </table>
+            <label>Nombre del síntoma</label>
+            <input type="text" id="nombre_sintomas" class="form-control">
+
+            <label>Descripción</label>
+            <textarea id="descripcion" class="form-control"></textarea>
+
+            <button class="btn btn-success mt-3" onclick="guardar()">Guardar</button>
+            <button class="btn btn-secondary mt-3" onclick="cerrarModal()">Cancelar</button>
         </div>
     </div>
 </div>
-<script src="assets/js/validaciones/validaciones_controlador.js"></script>
+
+<script>
+// abrir modal vacío
+function abrirModal() {
+    document.getElementById("id_sintomas").value = "";
+    document.getElementById("nombre_sintomas").value = "";
+    document.getElementById("descripcion").value = "";
+    document.getElementById("modalForm").style.display = "block";
+}
+
+function cerrarModal() {
+    document.getElementById("modalForm").style.display = "none";
+}
+
+function editar(id, nombre, descripcion) {
+    document.getElementById("id_sintomas").value = id;
+    document.getElementById("nombre_sintomas").value = nombre;
+    document.getElementById("descripcion").value = descripcion;
+    document.getElementById("modalForm").style.display = "block";
+}
+
+function guardar() {
+
+    let id = document.getElementById("id_sintomas").value;
+    let nombre = document.getElementById("nombre_sintomas").value;
+    let descripcion = document.getElementById("descripcion").value;
+
+    let form = new FormData();
+    form.append("nombre_sintomas", nombre);
+    form.append("descripcion", descripcion);
+
+    if (id === "") {
+        form.append("action", "insertar");
+    } else {
+        form.append("action", "actualizar");
+        form.append("id_sintomas", id);
+    }
+
+    fetch("controladores/sintomas_controlador.php", {
+        method: "POST",
+        body: form
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === "ok") location.reload();
+        else alert(data.message);
+    });
+}
+
+function eliminar(id) {
+
+    if (!confirm("¿Eliminar síntoma?")) return;
+
+    let form = new FormData();
+    form.append("action", "eliminar");
+    form.append("id_sintomas", id);
+
+    fetch("controladores/sintomas_controlador.php", {
+        method: "POST",
+        body: form
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === "ok") {
+            document.getElementById("fila" + id).remove();
+        }
+    });
+}
+</script>

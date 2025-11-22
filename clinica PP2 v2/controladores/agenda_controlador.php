@@ -1,38 +1,72 @@
 <?php
 require_once "../modelos/agenda.php";
+require_once "../modelos/turno.php";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $action = $_POST["action"];
+$accion = $_POST["accion"] ?? "";
 
-    if ($action == "guardar_agenda") {
-        $fecha_desde = $_POST["fecha_desde"];
-        $fecha_hasta = $_POST["fecha_hasta"];
-        $hora_desde = $_POST["hora_desde"];
-        $hora_hasta = $_POST["hora_hasta"]; 
-        $minutos_turnos = $_POST["minutos_turnos"];
-        $dias_id_dias = $_POST["dias_id_dias"];
-        $doctor_id_doctor = $_POST["doctor_id_doctor"];
+switch ($accion) {
 
-        $agenda = new Agenda(
-            null,
-            $fecha_desde,
-            $fecha_hasta,
-            $hora_desde,
-            $hora_hasta,
-            $minutos_turnos,
-            $dias_id_dias,
-            $doctor_id_doctor
+    case "guardar":
+
+        $agenda = new Agenda();
+        $agenda->setFecha_desde($_POST['fecha_desde']);
+        $agenda->setFecha_hasta($_POST['fecha_hasta']);
+        $agenda->setHora_desde($_POST['hora_desde']);
+        $agenda->setHora_hasta($_POST['hora_hasta']);
+        $agenda->setDoctor_id_doctor($_POST['doctor_id']);
+        $agenda->setEstados_id_estados($_POST['estados_id_estados']);
+
+        $minutos = $_POST["minutos_turnos"];
+
+        $idAgenda = $agenda->guardar();
+
+        if (!$idAgenda) {
+            echo json_encode(["success" => false]);
+            exit;
+        }
+
+        // Generar turnos
+        $turno = new Turno();
+        $turno->generarTurnosParaAgenda(
+            $idAgenda,
+            $_POST["fecha_desde"],
+            $_POST["hora_desde"],
+            $_POST["hora_hasta"],
+            $minutos
         );
 
-        $resultado = $agenda->guardar();
+        echo json_encode(["success" => true]);
+        break;
 
-        if ($resultado) {
-            header("Location: ../vistas/paginas/lista_agenda.php?mensaje=ok");
-            exit();
-        } else {
-            header("Location: ../vistas/paginas/lista_agenda.php?mensaje=error");
-            exit();
-        }
-    }
+
+    case "eliminar":
+
+        $id = $_POST["id"];
+
+        $turno = new Turno();
+        $turno->eliminarPorAgenda($id);
+
+        $agenda = new Agenda();
+        $agenda->eliminar($id);
+
+        echo json_encode(["success" => true]);
+        break;
+
+
+    case "editar":
+
+        $id = $_POST["id"];
+
+        $agenda = new Agenda();
+        $agenda->setFecha_desde($_POST['fecha_desde']);
+        $agenda->setFecha_hasta($_POST['fecha_hasta']);
+        $agenda->setHora_desde($_POST['hora_desde']);
+        $agenda->setHora_hasta($_POST['hora_hasta']);
+        $agenda->setDoctor_id_doctor($_POST['doctor_id']);
+        $agenda->setEstados_id_estados($_POST['estados_id_estados']);
+
+        $agenda->modificar($id);
+
+        echo json_encode(["success" => true]);
+        break;
 }
-?>

@@ -1753,6 +1753,20 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
+-- Table `clinica`.`franja_horaria`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`franja_horaria` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`franja_horaria` (
+  `id_franja` INT NOT NULL AUTO_INCREMENT,
+  `tipo_franja` VARCHAR(45) NOT NULL,
+  `inicio_franja` TIME NOT NULL,
+  `fin_franja` TIME NOT NULL,
+  PRIMARY KEY (`id_franja`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `clinica`.`doctor_dias`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `clinica`.`doctor_dias` ;
@@ -1760,9 +1774,11 @@ DROP TABLE IF EXISTS `clinica`.`doctor_dias` ;
 CREATE TABLE IF NOT EXISTS `clinica`.`doctor_dias` (
   `doctor_id_doctor` INT NOT NULL,
   `dias_id_dias` INT NOT NULL,
+  `franja_horaria_id_franja` INT NOT NULL,
   PRIMARY KEY (`doctor_id_doctor`, `dias_id_dias`),
   INDEX `fk_doctor_has_dias_dias1_idx` (`dias_id_dias` ASC) ,
   INDEX `fk_doctor_has_dias_doctor1_idx` (`doctor_id_doctor` ASC) ,
+  INDEX `fk_doctor_dias_franja_horaria1_idx` (`franja_horaria_id_franja` ASC) ,
   CONSTRAINT `fk_doctor_has_dias_doctor1`
     FOREIGN KEY (`doctor_id_doctor`)
     REFERENCES `clinica`.`doctor` (`id_doctor`)
@@ -1771,6 +1787,11 @@ CREATE TABLE IF NOT EXISTS `clinica`.`doctor_dias` (
   CONSTRAINT `fk_doctor_has_dias_dias1`
     FOREIGN KEY (`dias_id_dias`)
     REFERENCES `clinica`.`dias` (`id_dias`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_doctor_dias_franja_horaria1`
+    FOREIGN KEY (`franja_horaria_id_franja`)
+    REFERENCES `clinica`.`franja_horaria` (`id_franja`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB

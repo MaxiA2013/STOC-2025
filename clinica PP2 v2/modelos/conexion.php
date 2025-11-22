@@ -73,7 +73,12 @@ class Conexion {
         $this->_con->commit();
         $this->desconectar();
         return true;
-      }
+    }
+
+    public function getConexion(){
+        $this->conectar();
+        return $this->_con;
+    }
 
 
 }

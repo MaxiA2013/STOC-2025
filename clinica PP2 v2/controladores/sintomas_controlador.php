@@ -1,53 +1,69 @@
 <?php
 require_once "../modelos/sintomas.php";
-if (isset($_POST['action'])){
-    $accion= $_POST['action'];
-    switch ($accion){
-        case 'insertar':
-            //Validacion previa al registro
 
-            //Validacion de campos vacios
-            if (empty($_POST['nombre_sintomas'])) {
-                header('Location: ../index.php?page=sintomas_lista');
-                exit();
-            }
+header('Content-Type: application/json');
 
-            //Validacion de duplicado
-            $sintomaTemp = new Sintomas();
-            $sintomaTemp->setNombreSintomas($_POST['nombre_sintomas']);
-            $existeSintoma = $sintomaTemp->existeSintoma();
-            if ($existeSintoma->num_rows > 0) {
-                header('Location: ../index.php?page=sintomas_lista');
-                exit();
-            }
+$response = ["status" => "error", "message" => "Acción no válida"];
 
-            //Validacion previa al registro
-
-            $sintom = new Sintomas();
-            $sintom->setNombreSintomas($_POST['nombre_sintomas']);
-            $sintom->setDescripcion($_POST['descripcion']);
-            $sintom->guardarsintoma();
-            header('Location: ../index.php?page=sintomas_lista');
-            break;
-        case 'eliminacion':
-            $sintom = new Sintomas();
-            $sintom->setIdSintomas($_POST['id_sintomas']);
-            $sintom->eliminarSintoma();
-            header('Location: ../index.php?page=sintomas_lista');
-            break;
-        case 'actualizacion':
-            //validacion de campos vacios
-            if (empty($_POST['nombre_sintomas']) or empty($_POST['descripcion'])) {
-                header('Location: ../index.php?page=sintomas_lista');
-                exit();
-            }
-            //Validacion de campos vacios
-            $sintom = new Sintomas();
-            $sintom->setIdSintomas($_POST['id_sintomas']);
-            $sintom->setNombreSintomas($_POST['nombre_sintomas']);
-            $sintom->setDescripcion($_POST['descripcion']);
-            $sintom->actualizarSintoma();
-            header('Location: ../index.php?page=sintomas_lista');
-            break;
-    }
+if (!isset($_POST['action'])) {
+    echo json_encode($response);
+    exit;
 }
+
+$accion = $_POST['action'];
+
+switch ($accion) {
+
+    case "insertar":
+
+        if (empty($_POST["nombre_sintomas"]) || empty($_POST["descripcion"])) {
+            echo json_encode(["status" => "error", "message" => "Complete los campos"]);
+            exit;
+        }
+
+        $temp = new Sintomas();
+        $temp->setNombreSintomas($_POST["nombre_sintomas"]);
+        $existe = $temp->existeSintoma();
+
+        if ($existe->num_rows > 0) {
+            echo json_encode(["status" => "error", "message" => "El síntoma ya existe"]);
+            exit;
+        }
+
+        $s = new Sintomas();
+        $s->setNombreSintomas($_POST["nombre_sintomas"]);
+        $s->setDescripcion($_POST["descripcion"]);
+        $s->guardarSintoma();
+
+        echo json_encode(["status" => "ok"]);
+        break;
+
+
+    case "actualizar":
+
+        if (empty($_POST["nombre_sintomas"]) || empty($_POST["descripcion"])) {
+            echo json_encode(["status" => "error", "message" => "Complete los campos"]);
+            exit;
+        }
+
+        $s = new Sintomas();
+        $s->setIdSintomas($_POST["id_sintomas"]);
+        $s->setNombreSintomas($_POST["nombre_sintomas"]);
+        $s->setDescripcion($_POST["descripcion"]);
+        $s->actualizarSintoma();
+
+        echo json_encode(["status" => "ok"]);
+        break;
+
+
+    case "eliminar":
+
+        $s = new Sintomas();
+        $s->setIdSintomas($_POST["id_sintomas"]);
+        $s->eliminarSintoma();
+
+        echo json_encode(["status" => "ok"]);
+        break;
+
+}
+

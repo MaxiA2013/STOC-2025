@@ -9,7 +9,7 @@ class Doctor_Obra_Social {
         $this->conexion = new Conexion();
     }
 
-    // ✅ Asignar obra social a un doctor
+    // doctor✅ Asignar obra social a un 
     public function asignar($id_doctor, $id_obra_social) {
         $sql = "INSERT INTO doctor_obra_social (doctor_id_doctor, obra_social_id_obra_social)
                 VALUES ('$id_doctor', '$id_obra_social')";
