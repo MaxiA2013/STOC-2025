@@ -32,3 +32,4 @@ if ($action === "generar_turnos") {
     echo "ok";
     exit;
 }
+?>

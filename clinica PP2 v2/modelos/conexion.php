@@ -1,20 +1,23 @@
 <?php
 
-class Conexion {
+class Conexion
+{
     private $_con;
     private $servidor;
     private $usuarios;
     private $password;
     private $base_datos;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->servidor = "localhost";
         $this->usuarios = "root";
         $this->password = "";
         $this->base_datos = "clinica";
     }
 
-    public function conectar() {
+    public function conectar()
+    {
         $this->_con = new mysqli($this->servidor, $this->usuarios, $this->password, $this->base_datos);
         if ($this->_con->connect_error) {
             die("Conexión fallida: " . $this->_con->connect_error);
@@ -23,39 +26,45 @@ class Conexion {
         }
     }
 
-    public function desconectar() {
+    public function desconectar()
+    {
         $this->_con->close();
     }
 
-    public function consultar($query) {
+    public function consultar($query)
+    {
         $this->conectar();
         $resultado = $this->_con->query($query);
         $this->desconectar();
         return $resultado;
     }
 
-    public function consultarArray($query) {
-    $this->conectar();
-    $resultado = $this->_con->query($query);
-    $datos = [];
-    if ($resultado) {
-        while ($fila = $resultado->fetch_assoc()) {
-            $datos[] = $fila;
+    public function consultarArray($query)
+    {
+        $this->conectar();
+        $resultado = $this->_con->query($query);
+        $datos = [];
+        if ($resultado) {
+            while ($fila = $resultado->fetch_assoc()) {
+                $datos[] = $fila;
+            }
         }
+        $this->desconectar();
+        return $datos;
     }
-    $this->desconectar();
-    return $datos;
-}
 
 
-    public function insertar($query) {
+    public function insertar($query)
+    {
         $this->conectar();
         $this->_con->query($query);
         $id = $this->_con->insert_id;
         $this->desconectar();
         return $id;
     }
-    public function actualizar($query) {
+    
+    public function actualizar($query)
+    {
         $this->conectar();
         $resultado = $this->_con->query($query);
         if (!$resultado) {
@@ -67,7 +76,8 @@ class Conexion {
         return true;
     }
 
-    public function eliminar($query){
+    public function eliminar($query)
+    {
         $this->conectar();
         $this->_con->query($query);
         $this->_con->commit();
@@ -75,11 +85,9 @@ class Conexion {
         return true;
     }
 
-    public function getConexion(){
+    public function getConexion()
+    {
         $this->conectar();
         return $this->_con;
     }
-
-
 }
-?>

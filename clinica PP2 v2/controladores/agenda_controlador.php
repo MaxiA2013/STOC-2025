@@ -6,17 +6,34 @@ $accion = $_POST["accion"] ?? "";
 
 switch ($accion) {
 
+    // ====================================================
+    // LISTAR AGENDAS
+    // ====================================================
+    case "listar":
+        $doctor = $_POST["doctor_id"] ?? "";
+        $agenda = new Agenda();
+        $datos = $agenda->listarAgendasFiltradas($doctor);
+        echo json_encode($datos);
+    break;
+
+    // ====================================================
+    // GUARDAR NUEVA AGENDA
+    // ====================================================
     case "guardar":
 
         $agenda = new Agenda();
+        $agenda->setDoctor_id_doctor($_POST['doctor_id']);
         $agenda->setFecha_desde($_POST['fecha_desde']);
         $agenda->setFecha_hasta($_POST['fecha_hasta']);
         $agenda->setHora_desde($_POST['hora_desde']);
         $agenda->setHora_hasta($_POST['hora_hasta']);
-        $agenda->setDoctor_id_doctor($_POST['doctor_id']);
         $agenda->setEstados_id_estados($_POST['estados_id_estados']);
 
-        $minutos = $_POST["minutos_turnos"];
+        // Validación de superposición
+        if ($agenda->existeSuperposicion($_POST['doctor_id'], $_POST['fecha_desde'], $_POST['fecha_hasta'], $_POST['hora_desde'], $_POST['hora_hasta'])) {
+            echo json_encode(["success" => false, "error" => "superposicion"]);
+            exit;
+        }
 
         $idAgenda = $agenda->guardar();
 
@@ -32,13 +49,40 @@ switch ($accion) {
             $_POST["fecha_desde"],
             $_POST["hora_desde"],
             $_POST["hora_hasta"],
-            $minutos
+            intval($_POST["minutos_turnos"])
         );
 
         echo json_encode(["success" => true]);
-        break;
+    break;
 
+    // ====================================================
+    // EDITAR AGENDA
+    // ====================================================
+    case "editar":
 
+        $id = $_POST["id"];
+
+        $agenda = new Agenda();
+        $agenda->setDoctor_id_doctor($_POST['doctor_id']);
+        $agenda->setFecha_desde($_POST['fecha_desde']);
+        $agenda->setFecha_hasta($_POST['fecha_hasta']);
+        $agenda->setHora_desde($_POST['hora_desde']);
+        $agenda->setHora_hasta($_POST['hora_hasta']);
+        $agenda->setEstados_id_estados($_POST['estados_id_estados']);
+
+        if ($agenda->existeSuperposicion($_POST['doctor_id'], $_POST['fecha_desde'], $_POST['fecha_hasta'], $_POST['hora_desde'], $_POST['hora_hasta'], $id)) {
+            echo json_encode(["success" => false, "error" => "superposicion"]);
+            exit;
+        }
+
+        $agenda->modificar($id);
+
+        echo json_encode(["success" => true]);
+    break;
+
+    // ====================================================
+    // ELIMINAR AGENDA + TURNOS
+    // ====================================================
     case "eliminar":
 
         $id = $_POST["id"];
@@ -50,23 +94,7 @@ switch ($accion) {
         $agenda->eliminar($id);
 
         echo json_encode(["success" => true]);
-        break;
+    break;
 
-
-    case "editar":
-
-        $id = $_POST["id"];
-
-        $agenda = new Agenda();
-        $agenda->setFecha_desde($_POST['fecha_desde']);
-        $agenda->setFecha_hasta($_POST['fecha_hasta']);
-        $agenda->setHora_desde($_POST['hora_desde']);
-        $agenda->setHora_hasta($_POST['hora_hasta']);
-        $agenda->setDoctor_id_doctor($_POST['doctor_id']);
-        $agenda->setEstados_id_estados($_POST['estados_id_estados']);
-
-        $agenda->modificar($id);
-
-        echo json_encode(["success" => true]);
-        break;
 }
+?>

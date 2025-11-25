@@ -1,5 +1,4 @@
 <?php
-// vistas/paginas/turno_lista.php
 require_once "modelos/turno.php";
 require_once "modelos/agenda.php";
 
