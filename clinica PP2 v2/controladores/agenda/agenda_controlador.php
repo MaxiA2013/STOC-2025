@@ -1,6 +1,6 @@
 <?php
-require_once "../modelos/agenda.php";
-require_once "../modelos/turno.php";
+require_once "../../modelos/agenda.php";
+require_once "../../modelos/turno.php";
 
 $accion = $_POST["accion"] ?? "";
 

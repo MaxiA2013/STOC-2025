@@ -281,8 +281,7 @@
         <div class="calendar-section">
             <div class="calendar-container">
                 <h2>Calendario de Turnos</h2>
-                <!-- Puedes reemplazar este iframe con un calendario dinámico real -->
-                <iframe src="https://calendar.google.com/calendar/embed?src=es.argentine%23holiday%40group.v.calendar.google.com&ctz=America%2FArgentina%2FBuenos_Aires"></iframe>
+                <div id="calendario"></div>
             </div>
         </div>
     </div>
@@ -337,7 +336,16 @@
     </div>
 
 
+    <script src="assets\js\index.global.min"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendario');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth'
+            });
+            calendar.render();
+        });
+
         const overlay = document.getElementById("formOverlay");
         const step1 = document.getElementById("step1");
         const step2 = document.getElementById("step2");

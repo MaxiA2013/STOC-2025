@@ -13,9 +13,7 @@ class Agenda
 
     public function __construct() {}
 
-    // ===========================
-    // INSERTAR
-    // ===========================
+
     public function guardar()
     {
         $con = new Conexion();
@@ -33,9 +31,6 @@ class Agenda
         return $con->insertar($sql);
     }
 
-    // ===========================
-    // EDITAR
-    // ===========================
     public function modificar($id_agenda)
     {
         $con = new Conexion();
@@ -51,9 +46,6 @@ class Agenda
         return $con->actualizar($sql);
     }
 
-    // ===========================
-    // ELIMINAR
-    // ===========================
     public function eliminar($id_agenda)
     {
         $con = new Conexion();
@@ -68,9 +60,7 @@ class Agenda
         return $result[0] ?? null;
     }
 
-    // ===========================
-    // LISTAR COMPLETO
-    // ===========================
+
     public function listarAgendas()
     {
         $con = new Conexion();
@@ -98,9 +88,19 @@ class Agenda
         return $con->consultarArray($sql);
     }
 
-    // ===========================
+    public function listarAgendaXDoctor($doctorId){
+        $con = new Conexion();
+        $sql= "SELECT id_agenda, 
+                    fecha_desde, 
+                    fecha_hasta, 
+                    hora_desde, 
+                    hora_hasta, 
+                    doctor_id_doctor 
+        FROM agenda WHERE doctor_id_doctor = $doctorId";
+        return $con->consultarArray($sql);
+    }
+
     // LISTAR FILTRADO
-    // ===========================
     public function listarAgendasFiltradas($doctorId)
     {
         $con = new Conexion();
@@ -120,9 +120,7 @@ class Agenda
         return $con->consultarArray($sql);
     }
 
-    // ===========================
     // VALIDACIÓN DE SUPERPOSICIÓN
-    // ===========================
     public function existeSuperposicion($doctorId, $fechaDesde, $fechaHasta, $horaDesde, $horaHasta, $idAgenda = null)
     {
         $con = new Conexion();
@@ -149,7 +147,20 @@ class Agenda
         return $fila["total"] > 0;
     }
 
-    // Setters
+    public function obtenerDoctores() {
+    $conexion = new Conexion();
+    $query = "SELECT 
+                d.id_doctor,
+                per.nombre AS nombre_persona,
+                u.nombre_usuario
+            FROM doctor d
+            INNER JOIN usuario u ON d.usuario_id_usuario = u.id_usuario
+            INNER JOIN persona per ON u.persona_id_persona = per.id_persona
+            ORDER BY per.nombre ASC";
+    return $conexion->consultar($query);
+}
+
+
     public function setFecha_desde($v)
     {
         $this->fecha_desde = $v;

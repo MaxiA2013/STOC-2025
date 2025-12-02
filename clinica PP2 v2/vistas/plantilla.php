@@ -97,13 +97,13 @@ if (!isset($_SESSION['id_usuario'])) {
 
     <?php include 'componentes/footer.php'; ?>
 
-    <!-- Scripts -->
-
 </body>
 
 <script src="assets/js/jquery-3.7.1.min.js"></script>
 <script src="assets/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/all.min.js"></script>
+<script src="assets/js/select2.min.js"></script>
+
 <!-- <script src="assets/js/controlador_perfil.js"></script>  hay que arreglar el por que no se estaría encontrando el archivo -->
 
 </html>

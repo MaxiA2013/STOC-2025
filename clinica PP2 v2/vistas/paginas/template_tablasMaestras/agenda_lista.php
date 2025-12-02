@@ -11,10 +11,9 @@ $doctores = $doctor->all_doctores();
 
 $estados = Estado::consultarVariosEstados();
 ?>
-
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="assets/css/select2.min.css" rel="stylesheet" />
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="assets/js/select2.min.js"></script>
 
 <div class="container mt-4">
 
@@ -210,7 +209,7 @@ $estados = Estado::consultarVariosEstados();
         e.preventDefault();
 
         $.ajax({
-            url: "controladores/agenda_controlador.php",
+            url: "controladores/agenda/agenda_controlador.php",
             type: "POST",
             data: $(this).serialize(),
             success: function(r) {
@@ -250,7 +249,7 @@ $estados = Estado::consultarVariosEstados();
         e.preventDefault();
 
         $.ajax({
-            url: "controladores/agenda_controlador.php",
+            url: "controladores/agenda/agenda_controlador.php",
             method: "POST",
             data: $(this).serialize(),
             dataType: "json",
@@ -275,7 +274,7 @@ $estados = Estado::consultarVariosEstados();
         if (!confirm("¿Desea eliminar esta agenda? Se eliminarán también los turnos.")) return;
 
         $.ajax({
-            url: "controladores/agenda_controlador.php",
+            url: "controladores/agenda/agenda_controlador.php",
             method: "POST",
             data: {
                 accion: "eliminar",

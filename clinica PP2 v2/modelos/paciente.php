@@ -15,7 +15,9 @@ class Paciente {
         $query = "SELECT p.id_paciente, per.nombre, per.apellido, u.nombre_usuario, u.email 
                   FROM paciente p
                   INNER JOIN usuario u ON p.usuario_id_usuario = u.id_usuario
-                  INNER JOIN persona per ON u.persona_id_persona = per.id_persona";
+                  INNER JOIN persona per ON u.persona_id_persona = per.id_persona
+                  inner join usuario_has_perfil up on u.id_usuario = up.usuario_id_usuario
+                  where up.perfil_id_perfil = 3";
         return $conexion->consultar($query);
     }
 
