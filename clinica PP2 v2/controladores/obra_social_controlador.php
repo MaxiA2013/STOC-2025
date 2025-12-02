@@ -1,76 +1,57 @@
 <?php
 require_once "../modelos/obra_social.php";
+if (isset($_POST['action'])){
+    $accion= $_POST['action'];
+    switch ($accion){
+        case 'insertar':
+            //Validaciones antes de guardar
+            if (empty($_POST['nombre_obra_social'])) {
+                header('Location: ../index.php?page=obra_social_lista');
+                exit;
+            }
 
-/*class Validar {
+            //valida campo vacio
+            $obraTemp = new Obra_Social();
+            $obraTemp->setNombreObraSocial($_POST['nombre_obra_social']);
+            $existeObra = $obraTemp->existeObraSocial();
+            if ($existeObra->num_rows > 0) {
+                header('Location: ../index.php?page=obra_social_lista');
+                exit;
+            }
+            //valida duplicado
 
-    function validarCamposVacios() {  //valida campos vacios
-        if (isset($_POST['obra']) || isset($_POST['descripcion_obra'])) { // si hay algo
-            echo "<script>alert('Registrado con éxito');</script>";
-            header("Location: ../template/obra_social_lista.php");
-            exit(); // exit() después de header() para detener la ejecución del script
-        } 
-        else { // si no hay nada
-            echo "<script>alert('Complete los campos vacíos');</script>";
-            header("Location: ../template/obra_social_lista.php");
-            exit();
-        }
+            if (empty($_POST['detalle'])) {
+                header('Location: ../index.php?page=obra_social_lista');
+                exit;
+            }
+            //Validaciones antes de guardar
+
+            $obra = new Obra_Social();
+            $obra->setNombreObraSocial($_POST['nombre_obra_social']);
+            $obra->setDetalle($_POST['detalle']);
+            $obra->guardarObraSocial();
+            header('Location: ../index.php?page=obra_social_lista');
+            break;
+        case 'eliminacion':
+            $obra = new Obra_Social();
+            $obra->setIdObraSocial($_POST['id_obra_social']);
+            $obra->eliminarObraSocial();
+            header('Location: ../index.php?page=obra_social_lista');
+            break;
+        case 'actualizacion':
+
+            //Validacion de campos vacios
+            if (empty($_POST['nombre_obra_social']) or empty($_POST['detalle']) ) {
+                header('Location: ../index.php?page=obra_social_lista');
+                exit;
+            }
+
+            $obra = new Obra_Social();
+            $obra->setIdObraSocial($_POST['id_obra_social']);
+            $obra->setDetalle($_POST['detalle']);
+            $obra->setNombreObraSocial($_POST['nombre_obra_social']);
+            $obra->actualizarObraSocial();
+            header('Location: ../index.php?page=obra_social_lista');
+            break;
     }
-} */
-
-if (isset($_POST["registro"])) {
-    if (!empty($_POST['nombre_obra_social']) && !empty($_POST['detalle'])) {
-        $nombre_obra_social = $_POST['nombre_obra_social'];
-        $detalle = $_POST['detalle'];
-
-
-
-        $obraSocial = new Obra_Social("", "");
-        $obraSocial->setNombreObraSocial($nombre_obra_social);
-        $obraSocial->setDetalle($detalle);
-        $obraSocial->guardarObraSocial();
-    } else {
-        echo "Por favor, rellena los campos obligatorios (nombre y apellido).";
-    };
-    
-};
-
-if (isset($_POST['eliminar'])) {
-    $id = $_POST['id_obra_social'];
-
-    $obraSocial = new Obra_Social("", "");
-    $obraSocial->setIdObraSocial($id);
-
-    $obraSocial->eliminarObraSocial();
-
-    if ($obraSocial) {  //mensajes de alertaS
-        echo '<script> 
-                alert("Obra Social eliminada exitosamente de la tabla.");
-                window.location.href="http://localhost/Es-este-Bianca-main/clinica%20PP2%20v2/template/obra_social_lista.php";
-              </script>';
-    } else {
-        echo '<script>
-                alert("Hubo un error al eliminar la Obra Social de la tabla.");
-                window.location.href="http://localhost/Es-este-Bianca-main/clinica%20PP2%20v2/template/obra_social_lista.php";
-              </script>';
-    };
-};
-
-if (isset($_POST["modificar"])) {
-    // Validación de campos no vacios
-    if (!empty($_POST["nombre_obra_social"]) && !empty($_POST["detalle"])) {
-        $nombre_obra_social = $_POST["nombre_obra_social"];
-        $detalle = $_POST["detalle"];
-        $obraSocial = new Obra_Social();
-        $obraSocial->setNombreObraSocial($nombre_obra_social);
-        $obraSocial->setDetalle($detalle);
-
-        $obraSpcial->actualizarObraSocial();
-
-        echo '<script
-        >alert("Obra Social modificado exitosamente"); 
-        window.location = "http://localhost/Es-este-Bianca-main/clinica%20PP2%20v2/template/obra_social_lista.php";
-        </script>';
-    } else {
-        echo "<div class = 'alert alert-warning'>campo vacio</div>";
-    };
-};
+}

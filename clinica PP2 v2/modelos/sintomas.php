@@ -5,14 +5,14 @@ class Sintomas{
 
     private int $id_sintomas;
     private string $nombre_sintomas;
-    private string $decsripcion;
+    private string $descripcion;
 
     public function getIdSintomas(): int
     {
         return $this->id_sintomas;
     }
 
-    public function setIdSintomas(int $id_sintomas): self
+    public function setIdSintomas($id_sintomas): self
     {
         $this->id_sintomas = $id_sintomas;
 
@@ -24,36 +24,36 @@ class Sintomas{
         return $this->nombre_sintomas;
     }
 
-    public function setNombreSintomas(string $nombre_sintomas): self
+    public function setNombreSintomas($nombre_sintomas): self
     {
         $this->nombre_sintomas = $nombre_sintomas;
 
         return $this;
     }
 
-    public function getDecsripcion(): string
+    public function getDescripcion(): string
     {
-        return $this->decsripcion;
+        return $this->descripcion;
     }
 
-    public function setDecsripcion(string $decsripcion): self
+    public function setDescripcion($descripcion): self
     {
-        $this->decsripcion = $decsripcion;
+        $this->descripcion = $descripcion;
 
         return $this;
     }
 
     public function guardarSintoma(){
         $con = new Conexion();
-        $query = "INSERT INTO sintomas (nombre_sintomas, decsripcion) VALUES ('{$this->nombre_sintomas}', '{$this->decsripcion}')";
+        $query = "INSERT INTO sintomas (nombre_sintomas, descripcion) VALUES ('{$this->nombre_sintomas}', '{$this->descripcion}')";
         $id = $con->insertar($query);
         $this->id_sintomas = $id;
     }
 
     public function actualizarSintoma(){
         $con = new Conexion();
-        $query = "UPDATE sintomas SET nombre_sintomas='{$this->nombre_sintomas}', decsripcion='{$this->decsripcion}' WHERE id_sintomas={$this->id_sintomas}";
-        $con->modificar($query);
+        $query = "UPDATE sintomas SET nombre_sintomas='{$this->nombre_sintomas}', descripcion='{$this->descripcion}' WHERE id_sintomas={$this->id_sintomas}";
+        $con->actualizar($query);
     }
 
     public function eliminarSintoma(){
@@ -66,7 +66,6 @@ class Sintomas{
         $con = new Conexion();
         $query = "SELECT * FROM sintomas WHERE id_sintomas={$id}";
         $datos = $con->consultar($query);
-
     }
 
     public function consultarVariosSintomas(){
@@ -74,6 +73,12 @@ class Sintomas{
         $query = "SELECT * FROM sintomas";
         $datos = $con->consultar($query);
         return $datos;
+    }
+
+    public function existeSintoma(){
+        $con = new Conexion();
+        $query = "SELECT nombre_sintomas FROM sintomas WHERE nombre_sintomas = '$this->nombre_sintomas'";
+        return $con->consultar($query);
     }
 
 }

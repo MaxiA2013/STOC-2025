@@ -1,5 +1,5 @@
 <?php
-require_once "../modelos/conexion.php";
+require_once "conexion.php";
 
 class Obra_Social{
     private int $id_obra_social;
@@ -17,7 +17,7 @@ class Obra_Social{
         return $this->id_obra_social;
     }
 
-    public function setIdObraSocial(int $id_obra_social): self
+    public function setIdObraSocial($id_obra_social): self
     {
         $this->id_obra_social = $id_obra_social;
 
@@ -29,7 +29,7 @@ class Obra_Social{
         return $this->nombre_obra_social;
     }
 
-    public function setNombreObraSocial(string $nombre_obra_social): self
+    public function setNombreObraSocial($nombre_obra_social): self
     {
         $this->nombre_obra_social = $nombre_obra_social;
 
@@ -41,7 +41,7 @@ class Obra_Social{
         return $this->detalle;
     }
 
-    public function setDetalle(string $detalle): self
+    public function setDetalle( $detalle): self
     {
         $this->detalle = $detalle;
 
@@ -51,10 +51,8 @@ class Obra_Social{
 
     public function guardarObraSocial(){
         $con = new Conexion();
-        $query = "INSERT INTO obra_social (nombre_obra_social,detalle) VALUES ('$this->nombre_obra_social','$this->detalle')";
-        $id = $con->insertar($query);
-        $this->setIdObraSocial($id);
-
+        $query = "INSERT INTO obra_social (nombre_obra_social, detalle) VALUES ('$this->nombre_obra_social','$this->detalle')";
+        $con->insertar($query);
     }
 
     public function actualizarObraSocial(){
@@ -78,6 +76,12 @@ class Obra_Social{
     public function consultarObraSocial($id){
         $con = new Conexion();
         $query = "SELECT * FROM obra_social WHERE id_obra_social = $id";
+        return $con->consultar($query);
+    }
+
+    public function existeObraSocial(){
+        $con = new Conexion();
+        $query = "SELECT nombre_obra_social FROM obra_social WHERE nombre_obra_social LIKE '$this->nombre_obra_social' ";
         return $con->consultar($query);
     }
     

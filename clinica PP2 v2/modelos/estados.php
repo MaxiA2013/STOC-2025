@@ -38,6 +38,12 @@ class Estado{
         return $datos;
     }
 
+    public function existeEstado(){
+        $conn = new Conexion();
+        $query = "SELECT tipo_estado FROM estados WHERE tipo_estado = '$this->tipo_estado'";
+        return $conn->consultar($query);
+    }
+
     /**
      * Get the value of id_estados
      */ 

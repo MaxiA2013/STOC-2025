@@ -38,6 +38,12 @@ class Especialidad{
         return $datos;
     }
 
+    public function existeEspecialidad(){
+        $con = new Conexion();
+        $query = "SELECT nombre_especialidad FROM especialidad WHERE nombre_especialidad = '$this->nombre_especialidad'";
+        return $con->consultar($query);
+    }
+
     public function getIdEspecialidad(): int
     {
         return $this->id_especialidad;

@@ -1,0 +1,18 @@
+{
+    "name": "maxi-a/clinicapp2v2",
+    "autoload": {
+        "psr-4": {
+            "MaxiA\\Clinicapp2v2\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Maxi",
+            "email": "MaxiAvalos2013@gmail.com"
+        }
+    ],
+    "require": {
+        "phpmailer/phpmailer": "^7.0",
+        "dompdf/dompdf": "^3.1"
+    }
+}
