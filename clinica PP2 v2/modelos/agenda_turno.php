@@ -9,7 +9,7 @@ class AgendaTurno
     private $turno_id_turnos;
     private $estados_id_estados;
 
-    public function __construct( $paciente_id_paciente = '', $turno_id_turnos = '', $estados_id_estados = '') {
+    public function __construct( $paciente_id_paciente = '', $turno_id_turnos = '', $estados_id_estados = "") {
         $this->paciente_id_paciente = $paciente_id_paciente;
         $this->turno_id_turnos = $turno_id_turnos;
         $this->estados_id_estados = $estados_id_estados;

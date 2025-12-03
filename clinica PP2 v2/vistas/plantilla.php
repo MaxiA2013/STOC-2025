@@ -13,11 +13,14 @@ if (!isset($_SESSION['id_usuario'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Usuario</title>
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/all.min.css" rel="stylesheet">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/select2.min.css" rel="stylesheet" />
+    <link href="assets/css/dataTables.dataTables.min.css" rel="stylesheet" />
 </head>
 
 <body>
+
     <?php include 'vistas/componentes/nav_bar.php';
     // Incluye el navbar de usuario administrador/doctor si existe una session (se corrigió el uso de multiples nav a uno solo)
     if ((isset($_SESSION['id_usuario'])) && (($_SESSION['id_perfil']  == 2) or ($_SESSION['id_perfil'])  == 1)) {
@@ -34,7 +37,7 @@ if (!isset($_SESSION['id_usuario'])) {
               </div>';
     }
     ?>
-
+ 
     <div>
         <?php
         // Aquí se define qué páginas puede ver cada perfil
@@ -43,10 +46,10 @@ if (!isset($_SESSION['id_usuario'])) {
         if (isset($_GET['page'])) {
             $peges = $_GET['page'];
 
-            $paginas_publica = ['indexo', 'noticias', 'nosotros', 'biblioteca', 'turnos', 'info_turnos', 'doctores', 'areas', 'login', 'registro'];
+            $paginas_publica = ['indexo', 'noticias', 'nosotros', 'biblioteca', 'turnos', 'info_turnos', 'doctores', 'areas', 'login', 'registro', 'recuperar', 'resetear'];
             $paginas_comunes = ['mi_perfil', 'salida', 'mis_datos'];
-            $paginas_admin = ['lista_usuario', 'lista_doctor', 'lista_paciente', 'registro', 'modulos', 'perfiles', 'tablas', 'tablas_maestras', 'sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','direccion_lista', 'familiar_lista', 'agenda_lista', 'editar_agenda', 'dias_lista', 'turno_lista', 'lista_paciente', 'editar_paciente', 'mes_lista', 'franja_lista'];
-            $listas = ['lista_usuario', 'lista_doctor', 'lista_paciente','condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','direccion_lista','sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'familiar_lista', 'agenda_lista', 'dias_lista', 'turno_lista','editar_agenda', 'lista_paciente', 'editar_paciente', 'tablas_maestras', 'mes_lista', 'franja_lista'];
+            $paginas_admin = ['lista_usuario', 'lista_doctor', 'lista_paciente', 'registro', 'modulos', 'perfiles', 'tablas', 'tablas_maestras', 'sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','direccion_lista', 'familiar_lista', 'agenda_lista', 'editar_agenda', 'dias_lista', 'turno_lista', 'lista_paciente', 'editar_paciente', 'mes_lista', 'franja_lista', 'reporte_usuarios', 'reporte', 'reporte_pacientes'];
+            $listas = ['lista_usuario', 'lista_doctor', 'lista_paciente','condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','direccion_lista','sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'familiar_lista', 'agenda_lista', 'dias_lista', 'turno_lista','editar_agenda', 'lista_paciente', 'editar_paciente', 'tablas_maestras', 'mes_lista', 'franja_lista', 'reporte_usuarios', 'reporte', 'reporte_pacientes'];
 
             if (in_array($peges, $paginas_publica)) {
                 include('vistas/paginas/' . $peges . '.php');
@@ -99,10 +102,11 @@ if (!isset($_SESSION['id_usuario'])) {
 
 </body>
 
+<script src="assets/js/all.min.js"></script>
 <script src="assets/js/jquery-3.7.1.min.js"></script>
 <script src="assets/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/all.min.js"></script>
 <script src="assets/js/select2.min.js"></script>
+<script src="assets/js/dataTables.min.js"></script>
 
 <!-- <script src="assets/js/controlador_perfil.js"></script>  hay que arreglar el por que no se estaría encontrando el archivo -->
 

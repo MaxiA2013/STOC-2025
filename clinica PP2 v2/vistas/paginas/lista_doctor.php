@@ -1,4 +1,4 @@
-<?php
+    <?php
 require_once __DIR__ . "/../../modelos/conexion.php";
 require_once __DIR__ . "/../../modelos/doctor.php";
 
@@ -7,7 +7,10 @@ $doctores = $doctor->all_doctores();
 
 // Obtener usuarios disponibles para asignar doctor (sin doctor aún) y traer sus perfiles
 $users = new Conexion();
-$usuariosDisponibles = $users->consultar();
+//$usuariosDisponibles = $users->consultar("SELECT * FROM doctor;");
+
+$resUsuariosModal = $users->consultar("SELECT u.id_usuario, p.nombre, p.apellido FROM usuario u JOIN persona p ON u.persona_id_persona = p.id_persona");
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -17,6 +20,7 @@ $usuariosDisponibles = $users->consultar();
     <title>Lista de Doctores</title>
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/select2.min.css">
+    <link rel="stylesheet" href="assets/css/modal_registro.css">
     <style>
         .select2-container--default .select2-selection--single {
             height: 42px;
@@ -130,9 +134,8 @@ $usuariosDisponibles = $users->consultar();
 
                                                     <div class="mb-3">
                                                         <label for="usuario_id_usuario<?= $fila['id_doctor'] ?>" class="form-label">Usuario</label>
-                                                        <select class="form-control" id="usuario_id_usuario<?= $fila['id_doctor'] ?>" name="usuario_id_usuario" required>
+                                                          <select class="form-control" id="usuario_id_usuario<?= $fila['id_doctor'] ?>" name="usuario_id_usuario" required>
                                                             <?php
-                                                            $resUsuariosModal = $conn->consultar("SELECT u.id_usuario, p.nombre, p.apellido FROM usuario u JOIN persona p ON u.persona_id_persona = p.id_persona");
                                                             while ($um = $resUsuariosModal->fetch_assoc()):
                                                             ?>
                                                                 <option value="<?= $um['id_usuario'] ?>" <?= $um['id_usuario'] == $fila['usuario_id_usuario'] ? 'selected' : '' ?>>
@@ -193,7 +196,7 @@ $usuariosDisponibles = $users->consultar();
 
             // Interceptar envío del formulario de registro cuando el modal está abierto
             // y ejecutar la creación persona->usuario->doctor vía AJAX.
-            $('#modalNewUser').on('shown.bs.modal', function() {
+              $('#modalNewUser').on('shown.bs.modal', function() {
                 // Capturamos el submit del formulario incluido (registro.php)
                 var $registroForm = $('#registroForm');
 
@@ -201,7 +204,7 @@ $usuariosDisponibles = $users->consultar();
                 $registroForm.off('submit.registrarDoctorModal');
 
                 $registroForm.on('submit.registrarDoctorModal', function(e) {
-                    e.preventDefault();
+                    //e.preventDefault();
 
                     // recoger datos del modal (form de registro)
                     // dentro del handler submit.registrarDoctorModal (en lista_doctor.php)
@@ -255,6 +258,7 @@ $usuariosDisponibles = $users->consultar();
 
                 }); // end submit handler
             }); // end on shown.bs.modal
+          
 
         })();
     </script>
@@ -268,8 +272,8 @@ $usuariosDisponibles = $users->consultar();
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body" id="modalNewUserBody">
-                    <form id="registroForm" class="needs-validation" novalidate action="controladores/login.controlador.php" method="POST">
-                    <input type="hidden" name="action" value="registro" />
+                    <form id="" class="needs-validation" novalidate action="controladores/doctor_ajax_controlador.php" method="POST">
+                    <input type="hidden" name="action" value="registrarCompleto" />
 
                     <h2>Registro de Nuevos Usuarios</h2>
 
@@ -336,7 +340,7 @@ $usuariosDisponibles = $users->consultar();
                             <div class="error-message" id="error-password"></div>
                         </div>
 
-                        <input type="hidden" name="perfil_id_perfil" value="3">
+                        <input type="hidden" name="perfil_id_perfil" value="2">
 
                         <div class="d-flex justify-content-between">
                             <button type="button" class="btn btn-secondary" onclick="mostrarPaso(1)">Anterior</button>

@@ -312,10 +312,12 @@ $doctores_no_disponibles = $docs->all_doctores();
                             </div>
 
                             <div class="col">
-                                <div class="admin-card">
-                                    <h4>Reportes</h4>
-                                    <p>Visualice reportes del sistema clínico.</p>
-                                </div>
+                                <a href="index.php?page=reporte">
+                                    <div class="admin-card">
+                                        <h4>Reportes</h4>
+                                        <p>Visualice reportes del sistema clínico.</p>
+                                    </div>
+                                </a>
                             </div>
 
                             <div class="col">

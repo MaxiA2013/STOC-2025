@@ -1,11 +1,10 @@
-<div class="col-md-3 columna_filtros p-4">
+<div class="col-md-3 columna_filtros p-4" style="background-color: white">
     <h2 class="h5 mb-4 text-dark">Filtros</h2>
 
     <div class="mb-3">
         <label for="fecha" class="form-label fw-semibold">Fecha</label>
         <input type="date" id="fecha" name="fecha" class="form-control">
     </div>
-
     <div class="mb-3">
         <label for="especialidad" class="form-label fw-semibold">Especialidad</label>
         <select id="especialidad" name="especialidad" class="form-select">

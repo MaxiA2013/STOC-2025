@@ -122,9 +122,7 @@ $(function(){
         }
     });
 
-    // ============================
-    // Modal y selección paciente
-    // ============================
+    // selección paciente
     $('#div_select_paciente').on('click', function(){
         // abrir modal y cargar pacientes por AJAX si está vacío
         const $select = $('#select_pacientes');
