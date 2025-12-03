@@ -53,3 +53,18 @@
     </div>
   </div>
 </div>
+
+<div class="container my-5">
+  <div class="row justify-content-center g-4">
+    <div class="col-12 col-md-6">
+      <div class="card card-glass gradient-reportes text-center h-100">
+        <div class="card-body">
+          <i class="bi bi-bar-chart-line card-icon"></i>
+          <h4 class="card-title fw-bold">Reporte de Obra Social</h4>
+          <p class="card-text">Acceso rápido a los reportes diarios, semanales y mensuales del sistema.</p>
+          <a href="index.php?page=reporte_obras_sociales" class="btn btn-light fw-bold w-100">Ver Reportes</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

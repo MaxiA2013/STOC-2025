@@ -340,9 +340,50 @@ $doctores_no_disponibles = $docs->all_doctores();
                 <div class="row g-4">
 
                     <!-- Gráfico estadístico -->
+
                     <div class="col graph-container">
                         <h2>Gráfico Estadístico</h2>
+                        <!-- Botones para alternar -->
+                        <div class="btn-group mb-3" role="group">
+                            <button class="btn btn-primary" id="btnUsuarios">Usuarios</button>
+                            <button class="btn btn-secondary" id="btnGenero">Pacientes por Género</button>
+                            <button class="btn btn-primary" id="btnObras">Obras Sociales</button>
+                        </div>
+
+                        <!-- Contenedor de gráfico de Usuarios -->
+                        <div id="graficoUsuariosContainer">
+                            <label for="periodoUsuarios">Registro de Usuarios</label>
+                            <select id="periodoUsuarios" class="form-select mb-2">
+                            <option value="diario">Diario</option>
+                            <option value="semanal">Semanal</option>
+                            <option value="mensual" selected>Mensual</option>
+                            </select>
+                            <canvas id="graficoUsuarios" height="140"></canvas>
+                        </div>
+
+                        <!-- Contenedor de gráfico de Género (oculto al inicio) -->
+                        <div id="graficoGeneroContainer" style="display:none;">
+                            <label for="periodoGenero">Pacientes por Género</label>
+                            <select id="periodoGenero" class="form-select mb-2">
+                            <option value="diario">Diario</option>
+                            <option value="semanal">Semanal</option>
+                            <option value="mensual" selected>Mensual</option>
+                            </select>
+                            <canvas id="graficoGenero" height="140"></canvas>
+                        </div>
+                        
+                        <!-- Contenedor de gráfico de Obras Sociales (oculto al inicio) -->
+                        <div id="graficoObrasContainer" style="display:none;" >
+                            <label for="periodoObras">Uso de Obras Sociales</label>
+                            <select id="periodoObras" class="form-select mb-2">
+                            <option value="diario">Diario</option>
+                            <option value="semanal">Semanal</option>
+                            <option value="mensual" selected>Mensual</option>
+                            </select>
+                            <canvas id="graficoObras" height="140"></canvas>
+                        </div>
                     </div>
+
 
                     <!-- Información lateral -->
                     <div class="col-md-auto side-info">
@@ -453,6 +494,170 @@ $doctores_no_disponibles = $docs->all_doctores();
         // Actualiza cada 1 segundo
         setInterval(actualizarHora, 1000);
     </script>
+
+
+    <!-- Script de gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Script de alternar entre gráficos -->
+    <script>
+    document.getElementById('btnUsuarios').addEventListener('click', () => {
+    document.getElementById('graficoUsuariosContainer').style.display = 'block';
+    document.getElementById('graficoGeneroContainer').style.display = 'none';
+    });
+
+    document.getElementById('btnGenero').addEventListener('click', () => {
+    document.getElementById('graficoUsuariosContainer').style.display = 'none';
+    document.getElementById('graficoGeneroContainer').style.display = 'block';
+    });
+
+    document.getElementById('btnObras').addEventListener('click', () => {
+    document.getElementById('graficoUsuariosContainer').style.display = 'none';
+    document.getElementById('graficoGeneroContainer').style.display = 'none';
+    document.getElementById('graficoObrasContainer').style.display = 'block';
+    });
+    </script>
+
+    <script>
+        const ctxUsuarios = document.getElementById('graficoUsuarios');
+
+        const chartUsuarios = new Chart(ctxUsuarios, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+            label: 'Registros de Usuarios',
+            data: [],
+            borderColor: '#42a5f5',
+            backgroundColor: 'rgba(66,165,245,0.15)',
+            tension: 0.3
+            }]
+        },
+        options: {
+            plugins: { legend: { display: true } },
+            scales: { y: { beginAtZero: true } }
+        }
+        });
+
+        async function cargarUsuarios(periodo = 'mensual') {
+        try {
+            const res = await fetch('controladores/reporte_grafico_usuarios.php?periodo=' + periodo);
+            const json = await res.json();
+            chartUsuarios.data.labels = json.labels;
+            chartUsuarios.data.datasets[0].data = json.data;
+            chartUsuarios.update();
+        } catch (e) {
+            console.error('Error cargando datos de usuarios:', e);
+        }
+        }
+
+        // Selector de período
+        document.getElementById('periodoUsuarios').addEventListener('change', e => {
+        cargarUsuarios(e.target.value);
+        });
+
+        // Carga inicial
+        cargarUsuarios('mensual');
+    </script>
+
+    <script>
+    const ctxGenero = document.getElementById('graficoGenero');
+
+    const chartGenero = new Chart(ctxGenero, {
+    type: 'pie',
+    data: {
+        labels: [],
+        datasets: [{
+        label: 'Pacientes por Género',
+        data: [],
+        backgroundColor: ['#42a5f5', '#ef5350', '#66bb6a'] // Colores para cada género
+        }]
+    },
+    options: {
+        plugins: { legend: { position: 'bottom' } }
+    }
+    });
+
+    // 👉 función para agrupar y sumar por género
+    function agruparPorGenero(json) {
+    const agrupado = {};
+    json.labels.forEach((label, i) => {
+        agrupado[label] = (agrupado[label] || 0) + json.data[i];
+    });
+    return {
+        labels: Object.keys(agrupado),
+        data: Object.values(agrupado)
+    };
+    }
+
+    async function cargarGenero(periodo = 'mensual') {
+    try {
+        const res = await fetch('controladores/reporte_grafico_pacientes.php?periodo=' + periodo);
+        const json = await res.json();
+
+        // 🔹 Agrupamos antes de graficar
+        const agrupado = agruparPorGenero(json);
+
+        chartGenero.data.labels = agrupado.labels;
+        chartGenero.data.datasets[0].data = agrupado.data;
+        chartGenero.update();
+    } catch (e) {
+        console.error('Error cargando datos de género:', e);
+    }
+    }
+
+    // Selector de período
+    document.getElementById('periodoGenero').addEventListener('change', e => {
+    cargarGenero(e.target.value);
+    });
+
+    // Carga inicial
+    cargarGenero('mensual');
+    </script>
+
+    <script>
+    const ctxObras = document.getElementById('graficoObras');
+
+    const chartObras = new Chart(ctxObras, {
+        type: 'pie', // ✅ ahora es torta
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Uso de Obras Sociales',
+                data: [],
+                backgroundColor: [
+                    '#42a5f5', '#ef5350', '#66bb6a', '#ffa726',
+                    '#ab47bc', '#26c6da', '#8d6e63', '#29b6f6'
+                ] // ✅ varios colores para cada obra social
+            }]
+        },
+        options: {
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    async function cargarObras(periodo = 'mensual') {
+        try {
+            const res = await fetch('controladores/reporte_grafico_obras_sociales.php?periodo=' + periodo);
+            const json = await res.json();
+            chartObras.data.labels = json.labels;
+            chartObras.data.datasets[0].data = json.data;
+            chartObras.update();
+        } catch (e) {
+            console.error('Error cargando datos de obras sociales:', e);
+        }
+    }
+
+    // Selector de período
+    document.getElementById('periodoObras').addEventListener('change', e => {
+        cargarObras(e.target.value);
+    });
+
+    // Carga inicial
+    cargarObras('mensual');
+    </script>
+
+
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
 </body>
