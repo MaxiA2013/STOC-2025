@@ -38,6 +38,14 @@
         $query = "SELECT * FROM clinica.persona WHERE nombre = '$this->nombre' AND apellido = '$this->apellido' AND sexo = '$this->sexo' AND fecha_nacimiento = '$this->fecha_nacimiento'";
         return $conexion->consultar($query);
     }
+
+    public function calcular_edad($fecha_nacimiento)
+    {
+        $nacimiento = new DateTime($fecha_nacimiento);
+        $ahora = new DateTime(date("Y-m-d"));
+        $diferencia = $ahora->diff($nacimiento);
+        return $diferencia->format("%y");
+    }
     
 
     /**

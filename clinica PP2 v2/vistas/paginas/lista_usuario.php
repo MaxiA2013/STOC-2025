@@ -91,10 +91,10 @@ $lista_usuarios = $con->all_usuarios();
                     </td>
                     <td>
                     <form action="controladores/usuarios/usuarios_controlador.php" method="post">
-                            <input type="hidden" name="id_usuario" value="<?php echo $row['id_usuario']?>">
-                            <input type="hidden" name="action" value="actualizacion">
-                            <button type="submit"><i class="fa-solid fa-pen-nib"></i></button>
-                        </form>
+                        <input type="hidden" name="id_usuario" value="<?php echo $row['id_usuario']?>">
+                        <input type="hidden" name="action" value="actualizacion">
+                        <button type="submit"><i class="fa-solid fa-pen-nib"></i></button>
+                    </form>
         
                     </td>
                 <?php } ?>

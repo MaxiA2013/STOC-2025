@@ -9,11 +9,7 @@
 </style>
 
 <body>
-    <header>
-        <?php include '../componentes/nav_bar.php'; ?>
-    </header>
     <main>
-
         <section>
             <div class="nosotros">
                 <h1>Nosotros</h1>
@@ -21,25 +17,21 @@
             </div>
         </section>
 
-        <?php include '../componentes/separador.php'; ?> <!--separador -->
+        <?php include 'vistas/componentes/separador.php'; ?> <!--separador -->
 
         <section>
-            <?php require_once '../componentes/mision.php'; ?> <!-- seccion de mision-->
+            <?php require_once 'vistas/componentes/mision.php'; ?> <!-- seccion de mision-->
             <div class="row mb-2">
                 <div class="col-md-6">
-                    <?php require_once '../componentes/valores.php'; ?> <!-- seccion de valores-->
+                    <?php require_once 'vistas/componentes/valores.php'; ?> <!-- seccion de valores-->
                 </div>
                 <div class="col-md-6">
-                    <?php require_once '../componentes/vision.php'; ?> <!-- seccion de vision-->
+                    <?php require_once 'vistas/componentes/vision.php'; ?> <!-- seccion de vision-->
                 </div>
             </div>
         </section>
-
-        <?php include '../componentes/separador.php'; ?> <!--separador -->
+        <?php include 'vistas/componentes/separador.php'; ?> <!--separador -->
 
     </main>
-    <footer>
-        <?php include '../componentes/footer.php'; ?> <!-- seccion footer-->
-    </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
