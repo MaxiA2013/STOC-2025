@@ -5,7 +5,10 @@ require_once('../modelos/perfil.php');
 require_once('../modelos/doctor.php');
 require_once('../modelos/conexion.php');
 require_once('../controladores/funciones_control.php');
+<<<<<<< HEAD
 require_once('../controladores/notificador.php');
+=======
+>>>>>>> origin/mi-ramita
 
 if (isset($_POST['action'])) {
     $login_controlador = new LoginControlador();
@@ -37,9 +40,12 @@ class LoginControlador
                     $_SESSION['nombre_usuario'] = $row['nombre_usuario'];
                     $_SESSION['email'] = $row['email'];
 
+<<<<<<< HEAD
                     // 🔔 Enviar notificación de login
                     enviarNotificacionLogin($_SESSION['email'], $_SESSION['nombre_usuario']);
 
+=======
+>>>>>>> origin/mi-ramita
                     $perfil = new Perfil();
                     $resultado_perfil = $perfil->traer_perfil_por_usuario($row['id_usuario']);
                     if ($resultado_perfil->num_rows > 0) {
@@ -57,6 +63,7 @@ class LoginControlador
                         header('Location: ../index.php?message=Perfil no reconocido&status=warning');
                     }
                 } else {
+<<<<<<< HEAD
                     mostrarAlerta(
                         'error',
                         'Contraseña incorrecta',
@@ -72,6 +79,14 @@ class LoginControlador
                 'Verificá tu nombre de usuario e intentá nuevamente.',
                 '../index.php?page=login'
             );
+=======
+                    header('Location: ../index.php?message=Contraseña incorrecta&status=danger');
+                }
+            }
+        } else {
+            header('Location: ../index.php?message=Usuario no encontrado&status=danger');
+            //aca hay que agregar mensaje sweetalert
+>>>>>>> origin/mi-ramita
         }
     }
 
@@ -112,6 +127,7 @@ class LoginControlador
         $usuarioTemp->setNombre_usuario($_POST['nombre_usuario']);
         $existeUsuario = $usuarioTemp->usuarioExiste();
         if ($existeUsuario->num_rows > 0) {
+<<<<<<< HEAD
             mostrarAlerta(
                 'error',
                 'El nombre de usuario ya está en uso',
@@ -131,6 +147,13 @@ class LoginControlador
         }
 
 
+=======
+            header('Location: ../index.php?message=El nombre de usuario ya está en uso&status=danger');
+            //aca hay que agregar mensaje sweetalert
+            exit();
+        }
+
+>>>>>>> origin/mi-ramita
         // Validar formato de correo
         if (!verificar_cadenas('/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/', $_POST['email'])) {
             header('Location: ../index.php?message=El correo electrónico no tiene un formato válido&status=danger');
@@ -141,6 +164,7 @@ class LoginControlador
         $usuarioTemp->setEmail($_POST['email']);
         $existeEmail = $usuarioTemp->buscar_cohincidencias();
         if ($existeEmail->num_rows > 0) {
+<<<<<<< HEAD
             mostrarAlerta(
                 'error',
                 'Correo electrónico ya registrado',
@@ -149,6 +173,12 @@ class LoginControlador
             );
         }
         
+=======
+            header('Location: ../index.php?message=El correo electrónico ya está registrado&status=danger');
+            //aca hay que agregar mensaje sweetalert
+            exit();
+        }
+>>>>>>> origin/mi-ramita
 
         // ------------------------------------------------------
         // GUARDAR PERSONA
@@ -168,12 +198,18 @@ class LoginControlador
 
         $id_persona = $persona->guardar();
         if (!$id_persona) {
+<<<<<<< HEAD
             mostrarAlerta(
                 'error',
                 'Error al registrar persona',
                 'Ocurrió un problema al guardar los datos de la persona.',
                 '../index.php?page=registro'
             );
+=======
+            header('Location: ../index.php?message=Error al registrar persona&status=danger');
+            //aca hay que agregar mensaje sweetalert
+            exit();
+>>>>>>> origin/mi-ramita
         }
 
         // ------------------------------------------------------
@@ -183,18 +219,27 @@ class LoginControlador
         $usuario->setNombre_usuario($_POST['nombre_usuario']);
         $usuario->setEmail($_POST['email']);
         $usuario->setPassword($_POST['password']);
+<<<<<<< HEAD
         $usuario->setFecha_alta(date('Y-m-d H:i:s'));
 
+=======
+>>>>>>> origin/mi-ramita
         $usuario->setPersona_id_persona($id_persona);
 
         $id_usuario = $usuario->guardarUsuario();
         if (!$id_usuario) {
+<<<<<<< HEAD
             mostrarAlerta(
                 'error',
                 'Error al registrar usuario',
                 'Ocurrió un problema al guardar los datos del usuario.',
                 '../index.php?page=registro'
             );
+=======
+            header('Location: ../index.php?message=Error al registrar usuario&status=danger');
+            //aca hay que agregar mensaje sweetalert
+            exit();
+>>>>>>> origin/mi-ramita
         }
 
         // ------------------------------------------------------
@@ -239,6 +284,7 @@ class LoginControlador
             $conn->insertar("INSERT INTO paciente (usuario_id_usuario) VALUES ($id_usuario)");
         }
 
+<<<<<<< HEAD
        if (isset($_GET['page']) && $_GET['page'] == 'lista_doctor') {
             header('Location: ../index.php?page=' . $_GET['page']);
         } else {
@@ -248,6 +294,13 @@ class LoginControlador
                 'Tu cuenta fue creada con éxito. Ya podés iniciar sesión.',
                 '../index.php?page=login'
             );
+=======
+        if (($_GET['page'] == 'lista_doctor')) {
+            header('Location: ../index.php?page=' . $_GET['page']);
+        } else {
+            header('Location: ../index.php?message=Usuario registrado correctamente&status=success');
+            //aca hay que agregar mensaje sweetalert}
+>>>>>>> origin/mi-ramita
         }
     }
 }

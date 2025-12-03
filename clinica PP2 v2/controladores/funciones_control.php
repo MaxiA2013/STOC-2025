@@ -11,6 +11,7 @@ function verificar_cadenas($filtro, $cadena){
     }
 }
 
+<<<<<<< HEAD
 /* Función para mostrar mensajes con SweetAlert2 */
 function mostrarAlerta($icon, $title, $text, $redirect) {
     echo "<!DOCTYPE html>
@@ -36,4 +37,6 @@ function mostrarAlerta($icon, $title, $text, $redirect) {
 }
 ?>
 
+=======
+>>>>>>> origin/mi-ramita
 ?>

@@ -34,4 +34,8 @@
     <h1 class="diplay-4 fw-bold 1h-1 text-body-emphasis mb-3">Restablecé tu clave</h1>
     <p class="col-lg-10 fs-4">Ingresá tu nueva contraseña y confirmala para completar el proceso.</p>
   </div>
+<<<<<<< HEAD
 </div>
+=======
+</div>
+>>>>>>> origin/mi-ramita

@@ -35,4 +35,8 @@
     <h1 class="diplay-4 fw-bold 1h-1 text-body-emphasis mb-3">¿Olvidaste tu clave?</h1>
     <p class="col-lg-10 fs-4">Ingresá tu correo y te enviaremos un enlace para que la restablezcas de forma segura.</p>
   </div>
+<<<<<<< HEAD
 </div>
+=======
+</div>
+>>>>>>> origin/mi-ramita

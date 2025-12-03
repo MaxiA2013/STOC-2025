@@ -13,6 +13,7 @@
                 <input type="email" class="form-control" id="email" placeholder="Ingresar Correo Electrónico" name="email">
                 <p id="id_email_parrafo" style="color: red; display:none;">Email Requerido</p>
             </div>
+<<<<<<< HEAD
             
         <div class="mb-3 position-relative">
             <label for="password" class="form-label">Contraseña:</label>
@@ -25,18 +26,31 @@
             <p id="id_contraseña_parrafo" style="color: red; display:none;">Contraseña Requerido</p>
         </div>
 
+=======
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña:</label>
+                <input type="password" class="form-control" id="password" placeholder="Ingresar Contraseña" name="password">
+                <p id="id_contraseña_parrafo" style="color: red; display:none;">Contraseña Requerido</p>
+            </div>
+>>>>>>> origin/mi-ramita
             <div class="form-check mb-3" id="id_remember">
                 <label class="form-check-label">
                     <input class="form-check-input" type="checkbox" name="remember"> Recordarme
                 </label>
             </div>
             <div class="mb-3">
+<<<<<<< HEAD
             <p style="color: white;">¿No tenés una cuenta?
                 <a href="index.php?page=registro" style="color: yellow; text-decoration: underline;">Registrate</a>
             </p>
             <p style="color: white;">¿Olvidaste tu contraseña?
                 <a href="index.php?page=recuperar" style="color: yellow; text-decoration: underline;">Recuperar</a>
             </p>
+=======
+                <p style="color: white;">¿No tenés una cuenta?
+                    <a href="index.php?page=registro" style="color: yellow; text-decoration: underline;">Registrate</a>
+                </p>
+>>>>>>> origin/mi-ramita
             </div>
 
             <div class="d-grid gap-2">

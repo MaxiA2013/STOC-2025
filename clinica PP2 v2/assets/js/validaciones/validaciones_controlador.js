@@ -16,6 +16,7 @@
       form.classList.add('was-validated')
     }, false)
   })
+<<<<<<< HEAD
 })()
 
 // 👁️ Toggle de visibilidad de contraseña
@@ -35,3 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+=======
+})()
+>>>>>>> origin/mi-ramita

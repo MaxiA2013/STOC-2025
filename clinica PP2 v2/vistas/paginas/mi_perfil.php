@@ -340,6 +340,7 @@ $doctores_no_disponibles = $docs->all_doctores();
                 <div class="row g-4">
 
                     <!-- Gráfico estadístico -->
+<<<<<<< HEAD
 
                     <div class="col graph-container">
                         <h2>Gráfico Estadístico</h2>
@@ -385,6 +386,12 @@ $doctores_no_disponibles = $docs->all_doctores();
                     </div>
 
 
+=======
+                    <div class="col graph-container">
+                        <h2>Gráfico Estadístico</h2>
+                    </div>
+
+>>>>>>> origin/mi-ramita
                     <!-- Información lateral -->
                     <div class="col-md-auto side-info">
                         <div class="doctores-offline">
@@ -494,6 +501,7 @@ $doctores_no_disponibles = $docs->all_doctores();
         // Actualiza cada 1 segundo
         setInterval(actualizarHora, 1000);
     </script>
+<<<<<<< HEAD
 
 
     <!-- Script de gráficos -->
@@ -658,6 +666,8 @@ $doctores_no_disponibles = $docs->all_doctores();
     </script>
 
 
+=======
+>>>>>>> origin/mi-ramita
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
 </body>

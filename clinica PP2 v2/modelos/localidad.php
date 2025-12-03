@@ -1,5 +1,9 @@
 <?php
+<<<<<<< HEAD
 require_once("conexion.php");
+=======
+require_once "conexion.php";
+>>>>>>> origin/mi-ramita
 
 class Localidad{
     private int $id_localidad;
@@ -17,13 +21,21 @@ class Localidad{
     public function modificarLocalidad(){
         $conn= new Conexion();
         $query = "UPDATE localidad SET descripcion = '$this->descripcion' WHERE id_localidad = $this->id_localidad";
+<<<<<<< HEAD
         $conn->modificar($query);
+=======
+        $conn->actualizar($query);
+>>>>>>> origin/mi-ramita
     }
 
     public function eliminarLocalidad(){
         $conn= new Conexion();
         $query = "UPDATE localidad SET activo = 0 WHERE id_localidad = $this->id_localidad";
+<<<<<<< HEAD
         $conn->modificar($query);
+=======
+        $conn->actualizar($query);
+>>>>>>> origin/mi-ramita
     }
 
     public function consultarLocalidad($id){

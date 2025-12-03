@@ -2,7 +2,67 @@
 $is_admin = isset($_SESSION['nombre_perfil']) && $_SESSION['nombre_perfil'] === 'administrador';
 $page = $_GET['page'] ?? '';
 ?>
+<<<<<<< HEAD
 <link rel="stylesheet" href="assets/css/modal_registro.css">
+=======
+<style>
+    /* ======= ESTILOS GENERALES ======= */
+    .form-container {
+        background: #fff;
+        border-radius: 12px;
+        padding: 1.6rem;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        max-width: 640px;
+        margin: 0 auto;
+    }
+
+    body {
+        background: #f5f7fb;
+    }
+
+    h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    .progreso-container {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .progreso-item {
+        height: 44px;
+        width: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        background: #cfd8dc;
+        font-weight: 700;
+        transition: all .25s ease;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .progreso-item.active { background: #0d6efd; transform: scale(1.05); }
+    .progreso-item.completed { background: #198754; }
+
+    .pagina { display: none; }
+    .pagina.active { display: block; animation: fadeIn .35s ease; }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .error-input { border-color: #dc3545 !important; background: #fff5f6; }
+    .error-message { color: #dc3545; font-size: .85rem; min-height: 18px; }
+</style>
+
+>>>>>>> origin/mi-ramita
 <div class="row align-items-center py-5">
     <div class="col-12">
 
@@ -79,12 +139,15 @@ $page = $_GET['page'] ?? '';
                             <div class="error-message" id="error-password"></div>
                         </div>
 
+<<<<<<< HEAD
                         <div class="mb-3">
                             <label for="password_repeat">Repetir Contraseña</label>
                             <input type="password" class="form-control" id="password_repeat" name="password_repeat" required minlength="6">
                             <div class="error-message" id="error-password_repeat"></div>
                         </div>
 
+=======
+>>>>>>> origin/mi-ramita
                         <input type="hidden" name="perfil_id_perfil" value="3">
 
                         <div class="d-flex justify-content-between">

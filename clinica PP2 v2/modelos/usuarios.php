@@ -8,16 +8,25 @@ class Usuario
   private $nombre_usuario;
   private $email;
   private $password;
+<<<<<<< HEAD
   private $fecha_alta;
   private $persona_id_persona;
 
   public function __construct($id_usuario = '', $nombre_usuario = '', $email = '', $password = '',$fecha_alta = '', $persona_id_persona = '', $clinica_id_clinica = '')
+=======
+  private $persona_id_persona;
+
+  public function __construct($id_usuario = '', $nombre_usuario = '', $email = '', $password = '', $persona_id_persona = '', $clinica_id_clinica = '')
+>>>>>>> origin/mi-ramita
   {
     $this->id_usuario = $id_usuario;
     $this->nombre_usuario = $nombre_usuario;
     $this->email = $email;
     $this->password = $password;
+<<<<<<< HEAD
     $this->fecha_alta = $fecha_alta;
+=======
+>>>>>>> origin/mi-ramita
     $this->persona_id_persona = $persona_id_persona;
   }
 
@@ -25,10 +34,14 @@ class Usuario
   {
     $conexion = new Conexion();
     $password = password_hash($this->password, PASSWORD_DEFAULT);
+<<<<<<< HEAD
 
     $fecha_alta = $this->fecha_alta ?? date('Y-m-d H:i:s');
 
     $query = "INSERT INTO clinica.usuario (nombre_usuario, email, password, fecha_alta, persona_id_persona) VALUES ('$this->nombre_usuario', '$this->email', '$password', '$fecha_alta','$this->persona_id_persona')";
+=======
+    $query = "INSERT INTO clinica.usuario (nombre_usuario, email, password, persona_id_persona) VALUES ('$this->nombre_usuario', '$this->email', '$password', '$this->persona_id_persona')";
+>>>>>>> origin/mi-ramita
     return $conexion->insertar($query);
   }
 
@@ -215,6 +228,7 @@ class Usuario
 
     return $this;
   }
+<<<<<<< HEAD
 
   /**
    * Get the value of fecha_alta
@@ -235,4 +249,6 @@ class Usuario
 
     return $this;
   }
+=======
+>>>>>>> origin/mi-ramita
 }

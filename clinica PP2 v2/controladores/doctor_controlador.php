@@ -34,4 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("Location: ../index.php?page=lista_doctor");
         exit();
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/mi-ramita

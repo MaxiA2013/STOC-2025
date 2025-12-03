@@ -44,4 +44,8 @@ function enviarNotificacionLogin($email, $nombre_usuario) {
         error_log("Error al enviar notificación de login: " . $mail->ErrorInfo);
         return false;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/mi-ramita

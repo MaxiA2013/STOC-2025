@@ -1,5 +1,9 @@
 <?php
+<<<<<<< HEAD
 require_once('controladores/reportes_usuarios.controlador.php');
+=======
+require_once('controladores/reportes/reportes_usuarios.controlador.php');
+>>>>>>> origin/mi-ramita
 $ctrl = new ReportesUsuariosControlador();
 
 $diarioAgrupado = $ctrl->diarioAgrupado();
@@ -138,4 +142,8 @@ $mensualAgrupado = $ctrl->mensualAgrupado();
     </div>
 
   </div>
+<<<<<<< HEAD
 </div>
+=======
+</div>
+>>>>>>> origin/mi-ramita

@@ -144,4 +144,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: ../index.php?page=login');
         exit;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/mi-ramita
