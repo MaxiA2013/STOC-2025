@@ -3,6 +3,7 @@ require_once "modelos/turno.php";
 require_once "modelos/paciente.php";
 require_once "modelos/agenda.php";
 require_once "modelos/agenda_turno.php";
+require_once "modelos/estados.php";
 
 $turnoObj = new Turno();
 $lista_turnos = $turnoObj->consultarVariosTurnos();
@@ -12,9 +13,13 @@ $doctores = $agendaObj->obtenerDoctores();
 
 $pacien = new Paciente();
 $lista_paciente = $pacien->listarPacientes();
+$pacientes = $lista_paciente;
 
 $agendaTurnoObj = new AgendaTurno();
 $turnos_pacientes = $agendaTurnoObj->listar(); // obtiene todos los turnos asignados/relacionados a pacientes
+
+$est= new Estado();
+$estados= $est->consultarVariosEstados();
 ?>
 <style>
     .form-box {
@@ -358,7 +363,6 @@ $turnos_pacientes = $agendaTurnoObj->listar(); // obtiene todos los turnos asign
                                                                 <?php endforeach ?>
                                                             </select>
                                                         </div>
-
                                                     </div>
 
                                                     <div class="modal-footer">

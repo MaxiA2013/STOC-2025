@@ -1,7 +1,5 @@
 <?php
-// ===============================
 //   VALIDACIÓN DEL ID
-// ===============================
 if (!isset($_GET['id'])) {
     die("No se seleccionó ningún turno");
 }

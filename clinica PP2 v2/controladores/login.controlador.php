@@ -64,9 +64,7 @@ class LoginControlador
 
     public function registrar()
     {
-        // ------------------------------------------------------
         // VALIDACIONES PREVIAS A LA INSERCIÓN
-        // ------------------------------------------------------
 
         // Validar que exista la fecha de nacimiento y calcular edad correctamente
         if (!isset($_POST['fecha_nacimiento']) || empty($_POST['fecha_nacimiento'])) {
@@ -89,7 +87,7 @@ class LoginControlador
         }
 
         // Validar formato de nombre_usuario
-        if (verificar_cadenas('/^[a-zA-Z0-9_]{3,16}$/', $_POST['nombre_usuario'])) {
+        if (verificar_cadenas('/^[a-zA-Z]{3,16}$/', $_POST['nombre_usuario'])) {
             header('Location: ../index.php?message=El nombre de usuario debe tener entre 3 y 20 caracteres alfanuméricos&status=danger');
             exit();
         }
@@ -199,6 +197,7 @@ class LoginControlador
         if ($perfil_id == 3) {
             $conn->insertar("INSERT INTO paciente (usuario_id_usuario) VALUES ($id_usuario)");
         }
+        echo $perfil_id;
 
         if (($_GET['page'] == 'lista_doctor')) {
             header('Location: ../index.php?page=' . $_GET['page']);
@@ -206,5 +205,6 @@ class LoginControlador
             header('Location: ../index.php?message=Usuario registrado correctamente&status=success');
             //aca hay que agregar mensaje sweetalert}
         }
+        
     }
 }

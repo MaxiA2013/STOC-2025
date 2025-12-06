@@ -1,16 +1,7 @@
-<?php
-$is_admin = isset($_SESSION['nombre_perfil']) && $_SESSION['nombre_perfil'] === 'administrador';
-$page = $_GET['page'] ?? '';
-?>
 <link rel="stylesheet" href="assets/css/modal_registro.css">
 
 
-<div class="row align-items-center py-5">
-    <div class="col-12">
-
-        <!-- ========================== FORMULARIO MULTIPASOS (page=registro) ====================== -->
-        <?php if ($page === "registro"): ?>
-            <div class="form-container">
+<div class="form-container">
                 <form id="registroForm" class="needs-validation" novalidate action="controladores/login.controlador.php" method="POST">
                     <input type="hidden" name="action" value="registro" />
 
@@ -88,8 +79,3 @@ $page = $_GET['page'] ?? '';
                     </div>
                 </form>
             </div>
-        <?php endif; ?>
-    </div>
-</div>
-
-<script src="assets/js/validaciones/form_multipasos.js"></script>

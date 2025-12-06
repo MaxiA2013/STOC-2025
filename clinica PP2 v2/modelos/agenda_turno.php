@@ -48,21 +48,21 @@ class AgendaTurno
     {
         $conexion = new Conexion();
         $query = "SELECT 
-                    at.id_agenda_turno,
-                    p.id_paciente,
-                    per.nombre AS paciente_nombre,
-                    per.apellido AS paciente_apellido,
-                    t.id_turnos,
-                    t.fecha_hora,
-                    t.minutos_turnos,
-                    e.id_estados,
-                    e.tipo_estado
-                  FROM agenda_turno at
-                  INNER JOIN paciente p ON at.paciente_id_paciente = p.id_paciente
-                  INNER JOIN usuario u ON p.usuario_id_usuario = u.id_usuario
-                  INNER JOIN persona per ON u.persona_id_persona = per.id_persona
-                  INNER JOIN turno t ON at.turno_id_turnos = t.id_turnos
-                  INNER JOIN estados e ON at.estados_id_estados = e.id_estados";
+                at.id_agenda_turno,
+                p.id_paciente,
+                per.nombre AS paciente_nombre,
+                per.apellido AS paciente_apellido,
+                t.id_turnos AS turno_id_turnos,
+                t.fecha_hora,
+                t.minutos_turnos,
+                e.id_estados AS estados_id_estados,
+                e.tipo_estado
+              FROM agenda_turno at
+              INNER JOIN paciente p ON at.paciente_id_paciente = p.id_paciente
+              INNER JOIN usuario u ON p.usuario_id_usuario = u.id_usuario
+              INNER JOIN persona per ON u.persona_id_persona = per.id_persona
+              INNER JOIN turno t ON at.turno_id_turnos = t.id_turnos
+              INNER JOIN estados e ON at.estados_id_estados = e.id_estados";
         return $conexion->consultar($query);
     }
 
