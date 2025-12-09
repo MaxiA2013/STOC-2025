@@ -43,6 +43,43 @@ class Turno
         return $con->eliminar("DELETE FROM turno WHERE agenda_id_agenda = '$this->agenda_id_agenda'");
     }
 
+    public function eliminarPorAgendaAsignados($agenda_id_agenda)
+    {
+        $con = new Conexion();
+        $agenda_id_agenda = intval($agenda_id_agenda);
+
+        // 1) Eliminar primero las asignaciones en agenda_turno para los turnos de esta agenda
+        $sqlAgendaTurno = "
+        DELETE at
+        FROM agenda_turno at
+        INNER JOIN turno t ON at.turno_id_turnos = t.id_turnos
+        WHERE t.agenda_id_agenda = $agenda_id_agenda
+    ";
+        $con->eliminar($sqlAgendaTurno);
+
+        // 2) Ahora sí, eliminar los turnos de esa agenda
+        $sqlTurnos = "DELETE FROM turno WHERE agenda_id_agenda = $agenda_id_agenda";
+        return $con->eliminar($sqlTurnos);
+    }
+
+    public function eliminarNoAsignadosPorAgenda($agenda_id_agenda)
+    {
+        $con = new Conexion();
+        $agenda_id_agenda = intval($agenda_id_agenda);
+
+        // Borra solo los turnos de esa agenda que NO tengan registro en agenda_turno
+        $sql = "
+        DELETE t
+        FROM turno t
+        LEFT JOIN agenda_turno at 
+            ON at.turno_id_turnos = t.id_turnos
+        WHERE t.agenda_id_agenda = $agenda_id_agenda
+          AND at.id_agenda_turno IS NULL
+    ";
+
+        return $con->eliminar($sql);
+    }
+
     public function consultarVariosTurnos()
     {
         $conexion = new Conexion();
@@ -133,11 +170,11 @@ class Turno
         return $con->consultar($query);
     }
 
-public function consultarTurnosDisponiblesPaginado($offset, $porPagina)
-{
-    $con = new Conexion();
+    public function consultarTurnosDisponiblesPaginado($offset, $porPagina)
+    {
+        $con = new Conexion();
 
-    $query = "SELECT 
+        $query = "SELECT 
                 t.id_turnos,
                 t.fecha_hora,
                 t.minutos_turnos,
@@ -156,42 +193,38 @@ public function consultarTurnosDisponiblesPaginado($offset, $porPagina)
             ORDER BY t.fecha_hora ASC
             LIMIT $offset, $porPagina";
 
-    $res = $con->consultar($query);
+        $res = $con->consultar($query);
 
-    // Convertimos el mysqli_result en array
-    $datos = [];
-    if ($res) {
-        while ($fila = $res->fetch_assoc()) {
-            $datos[] = $fila;
+        // Convertimos el mysqli_result en array
+        $datos = [];
+        if ($res) {
+            while ($fila = $res->fetch_assoc()) {
+                $datos[] = $fila;
+            }
         }
+        return $datos;
     }
-    return $datos;
-}
-    
+    public function contarTurnosDisponibles()
+    {
 
-public function contarTurnosDisponibles()
-{
+        $con = new Conexion();
+        $query = "SELECT COUNT(*) AS total FROM turno WHERE disponible = 1";
 
-    $con = new Conexion();
-    $query = "SELECT COUNT(*) AS total FROM turno WHERE disponible = 1";
+        $res = $con->consultar($query);
 
-    $res = $con->consultar($query);
+        if ($res) {
+            $fila = $res->fetch_assoc(); // Convertimos el resultado en un array asociativo
+            return $fila['total'];       // Devolvemos el número
+        }
 
-    if ($res) {
-        $fila = $res->fetch_assoc(); // Convertimos el resultado en un array asociativo
-        return $fila['total'];       // Devolvemos el número
+        return 0; // si hay error
+
     }
+    public function obtenerTurnoPorId($id_turno)
+    {
+        $con = new Conexion();
 
-    return 0; // si hay error
-
-}
-
-
-public function obtenerTurnoPorId($id_turno)
-{
-    $con = new Conexion();
-
-    $query = "SELECT 
+        $query = "SELECT 
                 t.id_turnos,
                 t.fecha_hora,
                 t.minutos_turnos,
@@ -209,15 +242,14 @@ public function obtenerTurnoPorId($id_turno)
             WHERE t.id_turnos = $id_turno
             LIMIT 1";
 
-    $res = $con->consultar($query); // retorna mysqli_result
+        $res = $con->consultar($query); // retorna mysqli_result
 
-    if ($res && $res->num_rows > 0) {
-        return $res->fetch_assoc(); // ✅ convertir a array asociativo
-    } else {
-        return null;
+        if ($res && $res->num_rows > 0) {
+            return $res->fetch_assoc(); // convertir a array asociativo
+        } else {
+            return null;
+        }
     }
-}
-
 
 
     // Setters
@@ -240,7 +272,7 @@ public function obtenerTurnoPorId($id_turno)
 
     /**
      * Get the value of id_turnos
-     */ 
+     */
     public function getId_turnos()
     {
         return $this->id_turnos;
@@ -250,7 +282,7 @@ public function obtenerTurnoPorId($id_turno)
      * Set the value of id_turnos
      *
      * @return  self
-     */ 
+     */
     public function setId_turnos($id_turnos)
     {
         $this->id_turnos = $id_turnos;

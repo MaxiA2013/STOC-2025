@@ -7,7 +7,6 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema clinica
 -- -----------------------------------------------------
-DROP SCHEMA IF EXISTS `clinica` ;
 
 -- -----------------------------------------------------
 -- Schema clinica
@@ -609,6 +608,27 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `clinica`.`confirmacion`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`confirmacion` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`confirmacion` (
+  `id_confirmacion` INT NOT NULL AUTO_INCREMENT,
+  `confirmacion_paciente` TINYINT(1) NULL DEFAULT 0,
+  `confirmacion_doctor` TINYINT(1) NULL DEFAULT 0,
+  `agenda_turno_id_agenda_turno` INT NOT NULL,
+  PRIMARY KEY (`id_confirmacion`, `agenda_turno_id_agenda_turno`),
+  INDEX `fk_confirmacion_agenda_turno1_idx` (`agenda_turno_id_agenda_turno` ASC) ,
+  CONSTRAINT `fk_confirmacion_agenda_turno1`
+    FOREIGN KEY (`agenda_turno_id_agenda_turno`)
+    REFERENCES `clinica`.`agenda_turno` (`id_agenda_turno`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
 -- Table `clinica`.`cita`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `clinica`.`cita` ;
@@ -618,12 +638,13 @@ CREATE TABLE IF NOT EXISTS `clinica`.`cita` (
   `razon` VARCHAR(500) NOT NULL,
   `asistencia_doctor` TINYINT(1) NOT NULL DEFAULT 1,
   `asistencia_paciente` TINYINT(1) NOT NULL DEFAULT 1,
-  `agenda_turno_id_agenda_turno` INT NOT NULL,
+  `confirmacion_id_confirmacion` INT NOT NULL,
+  `confirmacion_agenda_turno_id_agenda_turno` INT NOT NULL,
   PRIMARY KEY (`id_cita`),
-  INDEX `fk_cita_agenda_turno1_idx` (`agenda_turno_id_agenda_turno` ASC) ,
-  CONSTRAINT `fk_cita_agenda_turno1`
-    FOREIGN KEY (`agenda_turno_id_agenda_turno`)
-    REFERENCES `clinica`.`agenda_turno` (`id_agenda_turno`)
+  INDEX `fk_cita_confirmacion1_idx` (`confirmacion_id_confirmacion` ASC, `confirmacion_agenda_turno_id_agenda_turno` ASC) ,
+  CONSTRAINT `fk_cita_confirmacion1`
+    FOREIGN KEY (`confirmacion_id_confirmacion` , `confirmacion_agenda_turno_id_agenda_turno`)
+    REFERENCES `clinica`.`confirmacion` (`id_confirmacion` , `agenda_turno_id_agenda_turno`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -691,27 +712,6 @@ CREATE TABLE IF NOT EXISTS `clinica`.`condicion-sintoma_analisis-procedimiento-b
   CONSTRAINT `fk_condicion-sintoma_analisis-procedimiento-banner_con-sin_ha1`
     FOREIGN KEY (`con-sin_has_an-pro_id_condicion-analisis`)
     REFERENCES `clinica`.`con-sin_has_an-pro` (`id_condicion-analisis`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
--- Table `clinica`.`confirmacion`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `clinica`.`confirmacion` ;
-
-CREATE TABLE IF NOT EXISTS `clinica`.`confirmacion` (
-  `id_confirmacion` INT NOT NULL AUTO_INCREMENT,
-  `confirmacion_paciente` TINYINT(1) NULL DEFAULT 0,
-  `confirmacion_doctor` TINYINT(1) NULL DEFAULT 0,
-  `agenda_turno_id_agenda_turno` INT NOT NULL,
-  PRIMARY KEY (`id_confirmacion`, `agenda_turno_id_agenda_turno`),
-  INDEX `fk_confirmacion_agenda_turno1_idx` (`agenda_turno_id_agenda_turno` ASC) ,
-  CONSTRAINT `fk_confirmacion_agenda_turno1`
-    FOREIGN KEY (`agenda_turno_id_agenda_turno`)
-    REFERENCES `clinica`.`agenda_turno` (`id_agenda_turno`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -874,15 +874,18 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `clinica`.`diagnostico`
+-- Table `clinica`.`ficha_medica`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `clinica`.`diagnostico` ;
+DROP TABLE IF EXISTS `clinica`.`ficha_medica` ;
 
-CREATE TABLE IF NOT EXISTS `clinica`.`diagnostico` (
-  `id_diagnostico` INT NOT NULL AUTO_INCREMENT,
-  `detalle` VARCHAR(150) NULL DEFAULT NULL,
+CREATE TABLE IF NOT EXISTS `clinica`.`ficha_medica` (
+  `id_ficha_medica` INT NOT NULL AUTO_INCREMENT,
+  `altura` VARCHAR(45) NOT NULL,
+  `peso` VARCHAR(45) NOT NULL,
+  `medicacion_actual` VARCHAR(500) NOT NULL,
+  `observaciones` VARCHAR(500) NOT NULL,
   `cita_id_cita` INT NOT NULL,
-  PRIMARY KEY (`id_diagnostico`),
+  PRIMARY KEY (`id_ficha_medica`),
   INDEX `fk_diagnostico_cita1_idx` (`cita_id_cita` ASC) ,
   CONSTRAINT `fk_diagnostico_cita1`
     FOREIGN KEY (`cita_id_cita`)
@@ -1125,12 +1128,12 @@ CREATE TABLE IF NOT EXISTS `clinica`.`turno_pago` (
   `estado` INT NULL DEFAULT NULL,
   `importe` FLOAT NULL DEFAULT NULL,
   `fecha_pago` DATETIME NULL DEFAULT NULL,
-  `turnos_id_turnos` INT NOT NULL,
+  `agenda_turno_id_agenda_turno` INT NOT NULL,
   PRIMARY KEY (`id_turno_pago`),
-  INDEX `fk_turno-pago_turnos1_idx` (`turnos_id_turnos` ASC) ,
-  CONSTRAINT `fk_turno-pago_turnos1`
-    FOREIGN KEY (`turnos_id_turnos`)
-    REFERENCES `clinica`.`turno` (`id_turnos`)
+  INDEX `fk_turno_pago_agenda_turno1_idx` (`agenda_turno_id_agenda_turno` ASC) ,
+  CONSTRAINT `fk_turno_pago_agenda_turno1`
+    FOREIGN KEY (`agenda_turno_id_agenda_turno`)
+    REFERENCES `clinica`.`agenda_turno` (`id_agenda_turno`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -1501,12 +1504,33 @@ CREATE TABLE IF NOT EXISTS `clinica`.`persona_condicion` (
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_persona-condicion_diagnostico1`
     FOREIGN KEY (`diagnostico_id_diagnostico`)
-    REFERENCES `clinica`.`diagnostico` (`id_diagnostico`)
+    REFERENCES `clinica`.`ficha_medica` (`id_ficha_medica`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_persona-condicion_persona1`
     FOREIGN KEY (`persona_id_persona`)
     REFERENCES `clinica`.`persona` (`id_persona`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`razon`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`razon` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`razon` (
+  `id_razon` INT NOT NULL AUTO_INCREMENT,
+  `titulo` VARCHAR(500) NULL DEFAULT NULL,
+  `descripcion` VARCHAR(500) NULL DEFAULT NULL,
+  `analisis_procedimiento_id_analisis_procedimiento` INT NOT NULL,
+  PRIMARY KEY (`id_razon`),
+  INDEX `fk_razon_analisis-procedimiento1_idx` (`analisis_procedimiento_id_analisis_procedimiento` ASC) ,
+  CONSTRAINT `fk_razon_analisis-procedimiento1`
+    FOREIGN KEY (`analisis_procedimiento_id_analisis_procedimiento`)
+    REFERENCES `clinica`.`analisis_procedimiento` (`id_analisis_procedimiento`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -1533,53 +1557,6 @@ CREATE TABLE IF NOT EXISTS `clinica`.`recibo` (
   CONSTRAINT `fk_recibo_turno-pago1`
     FOREIGN KEY (`turno-pago_id_turno-pago`)
     REFERENCES `clinica`.`turno_pago` (`id_turno_pago`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
--- Table `clinica`.`prestecion_recibo`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `clinica`.`prestecion_recibo` ;
-
-CREATE TABLE IF NOT EXISTS `clinica`.`prestecion_recibo` (
-  `id_prestacion_recibo` INT NOT NULL AUTO_INCREMENT,
-  `recibo_id_recibo` INT NOT NULL,
-  `doctor_prestacion_id_doctor_prestacion` INT NOT NULL,
-  PRIMARY KEY (`id_prestacion_recibo`),
-  INDEX `fk_tratamiento-recibo_recibo1_idx` (`recibo_id_recibo` ASC) ,
-  INDEX `fk_prestecion_recibo_doctor_prestacion1_idx` (`doctor_prestacion_id_doctor_prestacion` ASC) ,
-  CONSTRAINT `fk_tratamiento-recibo_recibo1`
-    FOREIGN KEY (`recibo_id_recibo`)
-    REFERENCES `clinica`.`recibo` (`id_recibo`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_prestecion_recibo_doctor_prestacion1`
-    FOREIGN KEY (`doctor_prestacion_id_doctor_prestacion`)
-    REFERENCES `clinica`.`doctor_prestacion` (`id_doctor_prestacion`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
--- Table `clinica`.`razon`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `clinica`.`razon` ;
-
-CREATE TABLE IF NOT EXISTS `clinica`.`razon` (
-  `id_razon` INT NOT NULL AUTO_INCREMENT,
-  `titulo` VARCHAR(500) NULL DEFAULT NULL,
-  `descripcion` VARCHAR(500) NULL DEFAULT NULL,
-  `analisis_procedimiento_id_analisis_procedimiento` INT NOT NULL,
-  PRIMARY KEY (`id_razon`),
-  INDEX `fk_razon_analisis-procedimiento1_idx` (`analisis_procedimiento_id_analisis_procedimiento` ASC) ,
-  CONSTRAINT `fk_razon_analisis-procedimiento1`
-    FOREIGN KEY (`analisis_procedimiento_id_analisis_procedimiento`)
-    REFERENCES `clinica`.`analisis_procedimiento` (`id_analisis_procedimiento`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -1758,11 +1735,11 @@ DEFAULT CHARACTER SET = utf8;
 DROP TABLE IF EXISTS `clinica`.`franja_horaria` ;
 
 CREATE TABLE IF NOT EXISTS `clinica`.`franja_horaria` (
-  `id_franja` INT NOT NULL AUTO_INCREMENT,
-  `tipo_franja` VARCHAR(45) NOT NULL,
+  `id_franja_horaria` INT NOT NULL AUTO_INCREMENT,
+  `tipo_franja` VARCHAR(45) BINARY NOT NULL,
   `inicio_franja` TIME NOT NULL,
   `fin_franja` TIME NOT NULL,
-  PRIMARY KEY (`id_franja`))
+  PRIMARY KEY (`id_franja_horaria`))
 ENGINE = InnoDB;
 
 
@@ -1774,11 +1751,11 @@ DROP TABLE IF EXISTS `clinica`.`doctor_dias` ;
 CREATE TABLE IF NOT EXISTS `clinica`.`doctor_dias` (
   `doctor_id_doctor` INT NOT NULL,
   `dias_id_dias` INT NOT NULL,
-  `franja_horaria_id_franja` INT NOT NULL,
+  `franja_horaria_id_franja_horaria` INT NOT NULL,
   PRIMARY KEY (`doctor_id_doctor`, `dias_id_dias`),
   INDEX `fk_doctor_has_dias_dias1_idx` (`dias_id_dias` ASC) ,
   INDEX `fk_doctor_has_dias_doctor1_idx` (`doctor_id_doctor` ASC) ,
-  INDEX `fk_doctor_dias_franja_horaria1_idx` (`franja_horaria_id_franja` ASC) ,
+  INDEX `fk_doctor_dias_franja_horaria1_idx` (`franja_horaria_id_franja_horaria` ASC) ,
   CONSTRAINT `fk_doctor_has_dias_doctor1`
     FOREIGN KEY (`doctor_id_doctor`)
     REFERENCES `clinica`.`doctor` (`id_doctor`)
@@ -1790,8 +1767,8 @@ CREATE TABLE IF NOT EXISTS `clinica`.`doctor_dias` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_doctor_dias_franja_horaria1`
-    FOREIGN KEY (`franja_horaria_id_franja`)
-    REFERENCES `clinica`.`franja_horaria` (`id_franja`)
+    FOREIGN KEY (`franja_horaria_id_franja_horaria`)
+    REFERENCES `clinica`.`franja_horaria` (`id_franja_horaria`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -1817,7 +1794,7 @@ DROP TABLE IF EXISTS `clinica`.`mes_doctor` ;
 
 CREATE TABLE IF NOT EXISTS `clinica`.`mes_doctor` (
   `mes_id_mes` INT NOT NULL,
-  `doctor_id_doctor` INT NOT NULL,
+  `doctor_id_doctor` INT GENERATED ALWAYS AS () VIRTUAL,
   PRIMARY KEY (`mes_id_mes`, `doctor_id_doctor`),
   INDEX `fk_mes_has_doctor_doctor1_idx` (`doctor_id_doctor` ASC) ,
   INDEX `fk_mes_has_doctor_mes1_idx` (`mes_id_mes` ASC) ,
@@ -1832,6 +1809,80 @@ CREATE TABLE IF NOT EXISTS `clinica`.`mes_doctor` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`grupo_sanguineo`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`grupo_sanguineo` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`grupo_sanguineo` (
+  `id_grupo_sanguineo` INT NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_grupo_sanguineo`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`grupo_has_persona`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`grupo_has_persona` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`grupo_has_persona` (
+  `grupo_sanguineo_id_grupo_sanguineo` INT NOT NULL,
+  `persona_id_persona` INT NOT NULL,
+  PRIMARY KEY (`grupo_sanguineo_id_grupo_sanguineo`, `persona_id_persona`),
+  INDEX `fk_grupo_sanguineo_has_persona_persona1_idx` (`persona_id_persona` ASC) ,
+  INDEX `fk_grupo_sanguineo_has_persona_grupo_sanguineo1_idx` (`grupo_sanguineo_id_grupo_sanguineo` ASC) ,
+  CONSTRAINT `fk_grupo_sanguineo_has_persona_grupo_sanguineo1`
+    FOREIGN KEY (`grupo_sanguineo_id_grupo_sanguineo`)
+    REFERENCES `clinica`.`grupo_sanguineo` (`id_grupo_sanguineo`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_grupo_sanguineo_has_persona_persona1`
+    FOREIGN KEY (`persona_id_persona`)
+    REFERENCES `clinica`.`persona` (`id_persona`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`alergias`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`alergias` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`alergias` (
+  `id_alergias` INT NOT NULL AUTO_INCREMENT,
+  `nombre_alergia` VARCHAR(45) NOT NULL,
+  `descripcion` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_alergias`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`persona_has_alergias`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`persona_has_alergias` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`persona_has_alergias` (
+  `persona_id_persona` INT NOT NULL,
+  `alergias_id_alergias` INT NOT NULL,
+  PRIMARY KEY (`persona_id_persona`, `alergias_id_alergias`),
+  INDEX `fk_persona_has_alergias_alergias1_idx` (`alergias_id_alergias` ASC) ,
+  INDEX `fk_persona_has_alergias_persona1_idx` (`persona_id_persona` ASC) ,
+  CONSTRAINT `fk_persona_has_alergias_persona1`
+    FOREIGN KEY (`persona_id_persona`)
+    REFERENCES `clinica`.`persona` (`id_persona`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_persona_has_alergias_alergias1`
+    FOREIGN KEY (`alergias_id_alergias`)
+    REFERENCES `clinica`.`alergias` (`id_alergias`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

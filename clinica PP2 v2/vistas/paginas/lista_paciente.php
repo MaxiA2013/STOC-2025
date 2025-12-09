@@ -28,6 +28,7 @@ $resultado = $paciente->listarPacientes();
                         <a href="controladores/paciente_controlador.php?action=eliminar&id=<?php echo $row['id_paciente']; ?>" 
                            class="btn btn-danger btn-sm" 
                            onclick="return confirm('¿Seguro que deseas eliminar este paciente?');">Eliminar</a>
+                        <a class="btn btn-primary btn-sm">Citas</a>
                     </td>
                 </tr>
             <?php } ?>

@@ -1,6 +1,5 @@
 <?php
 require_once "../../modelos/agenda.php";
-
 header("Content-Type: application/json; charset=UTF-8");
 
 try {

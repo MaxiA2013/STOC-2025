@@ -16,7 +16,6 @@ $estados = Estado::consultarVariosEstados();
 <script src="assets/js/select2.min.js"></script>
 
 <div class="container mt-4">
-
     <h3>Registrar Nueva Agenda</h3>
 
     <form id="formAgenda" class="border p-3 rounded">
@@ -194,13 +193,68 @@ $estados = Estado::consultarVariosEstados();
     </div>
 </div>
 
-
+<script src="assets/js/sweetalert2@11.js"></script>
 <script>
+    // ==============================
+    // Select2 inicial
+    // ==============================
     $(".select2").select2();
 
     $("#edit_doctor").select2({
         dropdownParent: $("#modalEditar")
     });
+
+    // ==============================
+    // datatables
+    // ==============================
+    $(document).ready(function() {
+        $('#tablaAgendas').DataTable();
+    });
+    // ==============================
+    // Helpers: Toast + SweetAlert2
+    // ==============================
+
+    /**
+     * Muestra un toast de Bootstrap en la esquina inferior derecha
+     * @param {string} message
+     * @param {'success'|'danger'|'warning'|'info'} type
+     */
+    function showToast(message, type = 'success') {
+        let $container = $('#toastContainer');
+        if ($container.length === 0) {
+            $container = $('<div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>');
+            $('body').append($container);
+        }
+
+        const id = 'toast_' + Date.now();
+        const $toast = $(`
+            <div id="${id}" class="toast align-items-center text-bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        `);
+
+        $container.append($toast);
+
+        const toastEl = document.getElementById(id);
+        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+        toast.show();
+    }
+
+    /**
+     * SweetAlert2 de error
+     */
+    function showErrorAlert(message) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: message || 'Ocurrió un error al procesar la operación.'
+        });
+    }
 
     // ==============================
     // GUARDAR NUEVA AGENDA
@@ -212,23 +266,42 @@ $estados = Estado::consultarVariosEstados();
             url: "controladores/agenda/agenda_controlador.php",
             type: "POST",
             data: $(this).serialize(),
-            success: function(r) {
-                let resp = JSON.parse(r);
+            dataType: "json",
+            success: function(resp) {
+                console.log('resp guardar agenda:', resp);
+
+                if (!resp) {
+                    showErrorAlert("Respuesta vacía del servidor.");
+                    return;
+                }
 
                 if (resp.error === "superposicion") {
-                    alert("❌ La agenda se superpone con otra existente.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Agenda superpuesta',
+                        text: '❌ La agenda se superpone con otra existente para ese doctor.'
+                    });
                     return;
                 }
 
                 if (resp.success) {
-                    alert("Agenda registrada correctamente.");
-                    location.reload();
+                    showToast("Agenda registrada correctamente.", "success");
+                    // recargamos para ver la nueva agenda en la tabla
+                    setTimeout(() => location.reload(), 800);
+                } else {
+                    showErrorAlert(resp.error || "No se pudo registrar la agenda.");
                 }
+            },
+            error: function(xhr, status, err) {
+                console.error("Error AJAX guardar agenda:", status, err, xhr.responseText);
+                showErrorAlert("Error al guardar la agenda. Revisá la consola para más detalles.");
             }
         });
     });
 
-    // ░░░░░░░░░░ BOTÓN EDITAR ░░░░░░░░░░
+    // ==============================
+    // BOTÓN EDITAR → abrir modal
+    // ==============================
     $(document).on("click", ".btnEditar", function() {
         $("#edit_id").val($(this).data("id"));
         $("#edit_doctor").val($(this).data("doctor")).trigger("change");
@@ -239,12 +312,12 @@ $estados = Estado::consultarVariosEstados();
         $("#edit_hhasta").val($(this).data("hhasta"));
         $("#edit_minutos").val($(this).data("minutos"));
 
-
         new bootstrap.Modal(document.getElementById("modalEditar")).show();
     });
 
-
-    // ░░░░░░░░░░ GUARDAR EDICIÓN ░░░░░░░░░░
+    // ==============================
+    // GUARDAR EDICIÓN DE AGENDA
+    // ==============================
     $("#formEditar").on("submit", function(e) {
         e.preventDefault();
 
@@ -254,41 +327,92 @@ $estados = Estado::consultarVariosEstados();
             data: $(this).serialize(),
             dataType: "json",
             success: function(res) {
-                if (!res.success) {
-                    alert(res.error ?? "Error al modificar.");
+                console.log('resp editar agenda:', res);
+
+                if (!res) {
+                    showErrorAlert("Respuesta vacía del servidor.");
                     return;
                 }
-                alert("Agenda modificada correctamente");
-                location.reload();
+
+                if (res.error === "superposicion") {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Agenda superpuesta',
+                        text: '❌ La agenda se superpone con otra existente para ese doctor.'
+                    });
+                    return;
+                }
+
+                if (!res.success) {
+                    showErrorAlert(res.error ?? "Error al modificar la agenda.");
+                    return;
+                }
+
+                // Cerrar modal
+                const modalEl = document.getElementById("modalEditar");
+                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modal.hide();
+
+                showToast("Agenda modificada correctamente.", "success");
+                setTimeout(() => location.reload(), 800);
             },
-            error: function(xhr) {
-                alert("Error en la solicitud:\n" + xhr.responseText);
+            error: function(xhr, status, err) {
+                console.error("Error AJAX editar agenda:", status, err, xhr.responseText);
+                showErrorAlert("Error en la solicitud al modificar la agenda.");
             }
         });
     });
 
-
-
-    // ░░░░░░░░░░ BOTÓN ELIMINAR ░░░░░░░░░░
+    // ==============================
+    // ELIMINAR AGENDA (SweetAlert2)
+    // ==============================
     $(document).on("click", ".btnEliminar", function() {
-        if (!confirm("¿Desea eliminar esta agenda? Se eliminarán también los turnos.")) return;
+        const id = $(this).data("id");
+        const $row = $(this).closest("tr");
 
-        $.ajax({
-            url: "controladores/agenda/agenda_controlador.php",
-            method: "POST",
-            data: {
-                accion: "eliminar",
-                id: $(this).data("id")
-            },
-            dataType: "json",
-            success: function(res) {
-                if (!res.success) {
-                    alert("No se pudo eliminar.");
-                    return;
+        Swal.fire({
+            title: '¿Desea eliminar esta agenda?',
+            text: 'Se eliminarán también sus turnos y asignaciones relacionadas.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            $.ajax({
+                url: "controladores/agenda/agenda_controlador.php",
+                method: "POST",
+                data: {
+                    accion: "eliminar",
+                    id: id
+                },
+                dataType: "json",
+                success: function(res) {
+                    console.log('resp eliminar agenda:', res);
+
+                    if (!res) {
+                        showErrorAlert("Respuesta vacía del servidor.");
+                        return;
+                    }
+
+                    if (!res.success) {
+                        showErrorAlert(res.error || "No se pudo eliminar la agenda.");
+                        return;
+                    }
+
+                    // Quitar fila de la tabla sin recargar
+                    if ($row.length) {
+                        $row.remove();
+                    }
+
+                    showToast("Agenda eliminada correctamente.", "success");
+                },
+                error: function(xhr, status, err) {
+                    console.error("Error AJAX eliminar agenda:", status, err, xhr.responseText);
+                    showErrorAlert("Error al eliminar la agenda. Revisá la consola para más detalles.");
                 }
-                alert("Agenda eliminada correctamente");
-                location.reload();
-            }
+            });
         });
     });
 </script>

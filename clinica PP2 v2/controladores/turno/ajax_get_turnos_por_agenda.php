@@ -31,8 +31,6 @@ try {
         ];
     }
    
-
-
     echo json_encode([
         "status" => "success",
         "data" => $data

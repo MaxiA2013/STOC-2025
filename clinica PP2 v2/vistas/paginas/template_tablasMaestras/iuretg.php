@@ -19,293 +19,7 @@ $turnos_pacientes = $agendaTurnoObj->listar(); // obtiene todos los turnos asign
     .form-box { border:1px solid #e3e3e3; padding:18px; border-radius:8px; }
     .select2-container { width:100% !important; }
 </style>
-
-<div
- class="container-fluid">
-
-    <h4 class="mt-3 mb-4">Gestión de Turnos</h4>
-
-    <!-- ==============================
-        OPCIÓN / MODO DE OPERACIÓN
-    =============================== -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <label for="modo_operacion"><strong>Modo de operación:</strong></label>
-            <select id="modo_operacion" class="form-select w-auto">
-                <option value="agregar">Agregar turno (manual)</option>
-                <option value="asignar">Asignar turno (elegir horario disponible)</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- =====================================================================
-        FORMULARIO A – REGISTRAR TURNO MANUAL  (Tabla TURNOS)
-    ====================================================================== -->
-    <div id="form_agregar" class="card mb-4">
-        <div class="card-header bg-primary text-white">Registrar turno manual</div>
-        <div class="card-body">
-
-            <form method="POST" action="controladores/turno/turno_controlador.php?op=registrar">
-
-                <div class="row mb-3">
-
-                    <div class="col-md-4">
-                        <label class="form-label">Doctor</label>
-                        <select name="doctor_id" id="doctor_id_manual" class="form-select" required>
-                            <option value="">Seleccione</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Agenda</label>
-                        <select name="agenda_id" id="agenda_id_manual" class="form-select" required>
-                            <option value="">Seleccione un doctor primero</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Fecha del turno</label>
-                        <input type="date" name="fecha_turno" class="form-control" required>
-                    </div>
-
-                </div>
-
-                <div class="row mb-3">
-
-                    <div class="col-md-6">
-                        <label class="form-label">Hora desde</label>
-                        <input type="time" name="hora_desde" class="form-control" required>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Hora hasta</label>
-                        <input type="time" name="hora_hasta" class="form-control" required>
-                    </div>
-
-                </div>
-
-                <button class="btn btn-success" type="submit">Registrar turno</button>
-
-            </form>
-
-        </div>
-    </div>
-
-    <!-- ======================================================================
-        FORMULARIO B – ASIGNAR TURNO A PACIENTE (Tabla AGENDA_TURNO)
-    ======================================================================= -->
-    <div id="form_asignar" class="card mb-4" style="display:none;">
-        <div class="card-header bg-success text-white">Asignar turno a paciente</div>
-        <div class="card-body">
-
-            <form method="POST" action="controladores/turno/agenda_turno_controlador.php?op=asignar">
-
-                <div class="row mb-3">
-
-                    <div class="col-md-4">
-                        <label class="form-label">Doctor</label>
-                        <select name="doctor_id" id="doctor_id_asignar" class="form-select" required>
-                            <option value="">Seleccione</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Agenda</label>
-                        <select name="agenda_id" id="agenda_id_asignar" class="form-select" required>
-                            <option value="">Seleccione un doctor primero</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Paciente</label>
-                        <select name="paciente_id" id="paciente_id" class="form-select" required>
-                            <option value="">Cargando...</option>
-                        </select>
-                    </div>
-
-                </div>
-
-                <div class="row mb-3">
-
-                    <div class="col-md-6">
-                        <label class="form-label">Horarios disponibles</label>
-                        <select name="turno_id" id="turno_disponible" class="form-select" required>
-                            <option value="">Seleccione agenda</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Estado</label>
-                        <select name="estado_id" class="form-select" required>
-                            <option value="1">Pendiente</option>
-                            <option value="2">Confirmado</option>
-                            <option value="3">Cancelado</option>
-                        </select>
-                    </div>
-
-                </div>
-
-                <button class="btn btn-primary" type="submit">Asignar turno</button>
-
-            </form>
-
-        </div>
-    </div>
-
-
-    <!-- ==========================================
-        TABLA DE TURNOS DISPONIBLES (TURNOS)
-    =========================================== -->
-    <div class="card mb-4">
-        <div class="card-header bg-secondary text-white">Turnos disponibles (manuales)</div>
-        <div class="card-body">
-            <table class="table table-bordered table-striped" id="tabla_turnos">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Agenda</th>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Doctor</th>
-                        <th>Opciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tbody_turnos">
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-</div>
-
-<!-- ======================================================
-    JAVASCRIPT – CARGA DE DATOS Y FUNCIONES
-====================================================== -->
-<script>
-// =====================================================
-// CAMBIAR MODO
-// =====================================================
-document.getElementById("modo_operacion").addEventListener("change", function() {
-    const modo = this.value;
-
-    document.getElementById("form_agregar").style.display = (modo === "agregar") ? "block" : "none";
-    document.getElementById("form_asignar").style.display = (modo === "asignar") ? "block" : "none";
-});
-
-// =====================================================
-// CARGAR DOCTORES EN AMBOS FORMULARIOS
-// =====================================================
-function cargarDoctores() {
-    fetch("controladores/turno/ajax_get_pacientes.php?doctores=1") 
-    .then(r => r.json())
-    .then(data => {
-        document.querySelectorAll("#doctor_id_manual, #doctor_id_asignar").forEach(sel => {
-            sel.innerHTML = '<option value="">Seleccione</option>';
-            data.data.forEach(d => {
-                sel.innerHTML += `<option value="${d.id_doctor}">${d.nombre}</option>`;
-            });
-        });
-    });
-}
-cargarDoctores();
-
-// =====================================================
-// CARGAR AGENDAS EN AMBOS FORMULARIOS
-// =====================================================
-function cargarAgendas(doctorId, select) {
-    fetch("controladores/turno/ajax_get_agenda.php?doctor_id=" + doctorId)
-    .then(r => r.json())
-    .then(data => {
-        select.innerHTML = '<option value="">Seleccione agenda</option>';
-        data.data.forEach(a => {
-            select.innerHTML += `
-                <option value="${a.id_agenda}">
-                    ${a.id_agenda} - (${a.fecha_desde} a ${a.fecha_hasta})
-                </option>
-            `;
-        });
-    });
-}
-
-document.querySelector("#doctor_id_manual").addEventListener("change", function() {
-    cargarAgendas(this.value, document.getElementById("agenda_id_manual"));
-});
-document.querySelector("#doctor_id_asignar").addEventListener("change", function() {
-    cargarAgendas(this.value, document.getElementById("agenda_id_asignar"));
-});
-
-// =====================================================
-// CARGAR PACIENTES
-// =====================================================
-function cargarPacientes() {
-    fetch("controladores/turno/ajax_get_pacientes.php")
-    .then(r => r.json())
-    .then(data => {
-        const sel = document.getElementById("paciente_id");
-        sel.innerHTML = '<option value="">Seleccione</option>';
-        data.data.forEach(p => {
-            sel.innerHTML += `<option value="${p.id_paciente}">${p.nombre}</option>`;
-        });
-    });
-}
-cargarPacientes();
-
-// =====================================================
-// CARGAR TURNOS DISPONIBLES POR AGENDA
-// =====================================================
-document.querySelector("#agenda_id_asignar").addEventListener("change", function() {
-    const idAgenda = this.value;
-    const sel = document.getElementById("turno_disponible");
-
-    fetch("controladores/turno/ajax_get_turnos_por_agenda.php?id_agenda=" + idAgenda)
-    .then(r => r.json())
-    .then(data => {
-        sel.innerHTML = '<option value="">Seleccione</option>';
-        data.data.forEach(t => {
-            sel.innerHTML += `<option value="${t.id_turno}">
-                ${t.hora_desde} - ${t.hora_hasta}
-            </option>`;
-        });
-    });
-});
-
-// =====================================================
-// CARGAR TABLA DE TURNOS
-// =====================================================
-function cargarTablaTurnos() {
-    fetch("controladores/turno/ajax_get_turnos_por_agenda.php?all=1")
-    .then(r => r.json())
-    .then(data => {
-        let html = "";
-        data.data.forEach(t => {
-            html += `
-                <tr>
-                    <td>${t.id_turno}</td>
-                    <td>${t.agenda_id}</td>
-                    <td>${t.fecha_turno}</td>
-                    <td>${t.hora_desde} - ${t.hora_hasta}</td>
-                    <td>${t.doctor}</td>
-                    <td>
-                        <a href="controladores/turno_controlador.php?op=editar&id=${t.id_turno}" class="btn btn-sm btn-warning">Editar</a>
-                        <a href="controladores/turno_controlador.php?op=eliminar&id=${t.id_turno}" class="btn btn-sm btn-danger">Eliminar</a>
-                    </td>
-                </tr>
-            `;
-        });
-        document.getElementById("tbody_turnos").innerHTML = html;
-    });
-}
-cargarTablaTurnos();
 */
-
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Turnos</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <?php
 $colores = ["purple", "red", "green"];
@@ -411,3 +125,325 @@ $listaTurno = $tur->consultarTurnosDisponiblesPaginado($i, $porpag);
 </body>
 </html>
 
+<?php
+header('Content-Type: application/json; charset=utf-8');
+
+require_once "../../modelos/turno.php";
+require_once "../../modelos/agenda.php";
+require_once "../../modelos/agenda_turno.php";
+require_once "../../modelos/conexion.php";
+
+$action = $_POST["action"] ?? $_GET["action"] ?? null;
+
+try {
+
+    // GENERAR TURNOS : Usa la agenda 
+    // GENERAR TURNOS : Usa la agenda 
+    // GENERAR TURNOS : Usa la agenda 
+    // GENERAR TURNOS : Usa la agenda 
+    switch ($action) {
+
+        case ($action === "generar_turnos"):
+
+            $id_agenda = intval($_POST["id_agenda"] ?? 0);
+            $min = intval($_POST["minutos"] ?? 0);
+
+            if ($id_agenda <= 0 || $min <= 0) {
+                echo json_encode(["success" => false, "error" => "Parámetros inválidos."]);
+                exit();
+            }
+
+            $agenda = new Agenda();
+            $datos = $agenda->obtenerPorId($id_agenda);
+
+            if (!$datos) {
+                echo json_encode(["success" => false, "error" => "Agenda no encontrada."]);
+                exit();
+            }
+
+            // asumimos $datos['fecha_desde'], ['hora_desde'], ['hora_hasta']
+            $start = strtotime($datos['fecha_desde'] . ' ' . $datos['hora_desde']);
+            $end   = strtotime($datos['fecha_desde'] . ' ' . $datos['hora_hasta']); // genera para la fecha_desde
+
+            $turno = new Turno();
+
+            while ($start < $end) {
+                $turno->setAgenda_id_agenda($id_agenda);
+                $turno->setMinutos_turnos($min);
+
+                $turno->setFecha_hora(date("Y-m-d H:i:s", $start));
+                $turno->setDisponible(1);
+
+                $turno->guardarTurno();
+
+                $start = strtotime("+{$min} minutes", $start);
+            }
+
+            echo json_encode(["success" => true]);
+
+
+            break;
+        // INSERTAR UN TURNO
+        // INSERTAR UN TURNO
+        // INSERTAR UN TURNO
+        // INSERTAR UN TURNO
+        case ($action === "insertar"):
+            //TABLA TURNO
+            //TABLA TURNO
+            //TABLA TURNO
+            //se pregunta por el valor del check, si el modo es agregar, corresponde al registro de un turno fuera del 
+            //horario del profesional
+            $modo = $_POST['modo_turno'];
+
+            if ($modo == 'agregar') {
+                $minutos = intval($_POST["minutos_turnos"] ?? 0);
+                $fecha_hora = trim($_POST["fecha_hora"] ?? "");
+                $disponible = isset($_POST["disponible"]) ? intval($_POST["disponible"]) : 1;
+                $agenda_id = intval($_POST["agenda_id_agenda"] ?? 0);
+
+                if ($minutos <= 0 || $fecha_hora === "" || $agenda_id <= 0) {
+                    echo json_encode(["success" => false, "error" => "Faltan parámetros obligatorios."]);
+                    exit();
+                }
+
+                $turno = new Turno();
+                $turno->setAgenda_id_agenda($agenda_id);
+                $turno->setMinutos_turnos($minutos);
+                $turno->setFecha_hora($fecha_hora);
+                $turno->setDisponible($disponible ? 1 : 0);
+
+                $id = $turno->guardarTurno();
+
+                if ($id) {
+                    echo json_encode(["success" => true, "id_turno" => $id]);
+                } else {
+                    echo json_encode(["success" => false, "error" => "No se pudo insertar el turno."]);
+                }
+                exit();
+            } else {
+                //TABLA AGENDA_TURNO
+                //TABLA AGENDA_TURNO
+                //TABLA AGENDA_TURNO
+                //si el valor del check es de asignar, entonces se asigna :3
+                $paciente_id = intval($_POST["paciente_id"] ?? 0);
+                $turno_id = intval($_POST["turno_id"] ?? $_POST["turno_existente_id"] ?? 0);
+                $estado_id = intval($_POST["estados_id_estados"] ?? 2); // por defecto 2 si aplica
+
+                if ($paciente_id <= 0 || $turno_id <= 0) {
+                    echo json_encode(["success" => false, "error" => "Faltan parámetros (paciente o turno)."]);
+                    exit();
+                }
+
+                // 1) verificar que turno existe y está disponible
+                $t_model = new Turno();
+                $res = $t_model->existeTurnoDisponible($turno_id);
+
+                // Convertir resultado mysqli a array
+                $t = $res->fetch_assoc();
+
+                if (!$t) {
+                    echo json_encode(["success" => false, "error" => "Turno no existe."]);
+                    exit();
+                }
+
+                if (intval($t['disponible']) !== 1) {
+                    echo json_encode(["success" => false, "error" => "Turno no disponible."]);
+                    exit();
+                }
+
+
+                // 2) insertar agenda_turno
+                $i = new AgendaTurno();
+                $i->setPaciente_id_paciente($paciente_id);
+                $i->setTurno_id_turnos($turno_id);
+                $i->setEstados_id_estados($estado_id);
+                $id = $i->insertar();
+
+                if (!$id) {
+                    echo json_encode(["success" => false, "error" => "No se pudo asignar el turno."]);
+                    exit();
+                }
+
+                // 3) marcar turno como no disponible
+                $p = new Turno();
+                $pot = $p->actualizarDisponible($turno_id);
+
+                echo json_encode(["success" => true, "id_agenda_turno" => $id]);
+            }
+
+            break;
+        // ACTUALIZAR UN TURNO
+        // ACTUALIZAR UN TURNO
+        // ACTUALIZAR UN TURNO
+        // ACTUALIZAR UN TURNO
+
+        case ($action === "actualizacion"):
+            //actualizar de tabla turnos disponibles (turnos que no estan asignados a ningún paciente)
+
+            $id_turno = intval($_POST["id_turnos"] ?? 0);
+            $minutos = intval($_POST["minutos_turnos"] ?? 0);
+            $fecha_hora = trim($_POST["fecha_hora"] ?? "");
+            $disponible = isset($_POST["disponible"]) ? intval($_POST["disponible"]) : 1;
+            $agenda_id = intval($_POST["agenda_id_agenda"] ?? 0);
+
+            if ($id_turno <= 0 || $minutos <= 0 || $fecha_hora === "" || $agenda_id <= 0) {
+                echo json_encode(["success" => false, "error" => "Faltan parámetros obligatorios."]);
+                exit();
+            }
+
+            $re = new Turno();
+            $re->setId_turnos($id_turno);
+            $re->setMinutos_turnos($minutos);
+            $re->setFecha_hora($fecha_hora);
+            $re->setDisponible($disponible);
+            $re->setAgenda_id_agenda($agenda_id);
+            $res = $re->actualizar();
+
+            if ($res !== false) {
+                echo json_encode(["success" => true]);
+            } else {
+                echo json_encode(["success" => false, "error" => "No se pudo actualizar el turno."]);
+            }
+
+            break;
+
+        //actualizar de tabla turnos asignados
+        //actualizar de tabla turnos asignados
+        case ($action === "editar_asignado"):
+
+            // --------- 1) Recibir datos del formulario (normalizados) ---------
+            $id_agenda_turno = intval($_POST["id_agenda_turno"] ?? 0);
+            $paciente_id     = intval($_POST["paciente_id_paciente"] ?? 0);
+
+            // aceptar varios nombres posibles enviados por el formulario/modal
+            $turno_nuevo_id  = intval(
+                $_POST["turno_id"] ??
+                    $_POST["turno_id_turnos"] ??
+                    $_POST["turno_existente_id"] ??
+                    0
+            );
+
+            $estado_id  = intval($_POST["estados_id_estados"] ?? 1);
+
+            // validación básica
+            if ($id_agenda_turno <= 0 || $paciente_id <= 0) {
+                echo json_encode(["success" => false, "error" => "Faltan parámetros obligatorios (id_agenda_turno o paciente)."]);
+                exit();
+            }
+
+            $con = new Conexion();
+
+            // Si no llegó turno_nuevo_id, tomamos el turno actual asignado (evita fallo)
+            if ($turno_nuevo_id <= 0) {
+                $actualTmp = $con->consultarArray("SELECT turno_id_turnos FROM agenda_turno WHERE id_agenda_turno = $id_agenda_turno");
+                if (empty($actualTmp)) {
+                    echo json_encode(["success" => false, "error" => "Asignación no encontrada (para obtener turno actual)."]);
+                    exit();
+                }
+                $turno_nuevo_id = intval($actualTmp[0]['turno_id_turnos']);
+            }
+
+            // ahora sí validamos que turno_nuevo_id sea > 0
+            if ($turno_nuevo_id <= 0) {
+                echo json_encode(["success" => false, "error" => "ID de turno inválido."]);
+                exit();
+            }
+
+            // --------- 2) Obtener turno actual asignado ---------
+            $actual = $con->consultarArray("
+                SELECT turno_id_turnos 
+                FROM agenda_turno 
+                WHERE id_agenda_turno = $id_agenda_turno
+            ");
+
+            if (empty($actual)) {
+                echo json_encode(["success" => false, "error" => "Asignación no encontrada."]);
+                exit();
+            }
+
+            $turno_viejo_id = intval($actual[0]["turno_id_turnos"]);
+
+            // --------- 3) Si se cambió el turno, verificar disponibilidad y actualizar disponibilidades ---------
+            if ($turno_viejo_id !== $turno_nuevo_id) {
+
+                $check = $con->consultarArray("SELECT disponible FROM turno WHERE id_turnos = $turno_nuevo_id");
+                if (empty($check)) {
+                    echo json_encode(["success" => false, "error" => "El nuevo turno no existe."]);
+                    exit();
+                }
+                if (intval($check[0]['disponible']) !== 1) {
+                    echo json_encode(["success" => false, "error" => "El nuevo turno no está disponible."]);
+                    exit();
+                }
+
+                // liberar viejo y ocupar nuevo (atomicidad simple: dos queries)
+                $con->actualizar("UPDATE turno SET disponible = 1 WHERE id_turnos = $turno_viejo_id");
+                $con->actualizar("UPDATE turno SET disponible = 0 WHERE id_turnos = $turno_nuevo_id");
+            }
+
+            // --------- 4) Actualizar agenda_turno usando el modelo ---------
+
+            $obj = new AgendaTurno();
+            // asegurarse de que setters existen con estos nombres
+            $obj->setId_agenda_turno($id_agenda_turno);
+            $obj->setPaciente_id_paciente($paciente_id);
+            $obj->setTurno_id_turnos($turno_nuevo_id);
+            $obj->setEstados_id_estados($estado_id);
+
+            $resultado = $obj->modificar();
+
+            // --------- 5) Respuesta JSON (y opcional redirect si no es AJAX) ---------
+            if ($resultado !== false) {
+                // si viene por AJAX (fetch/jQuery), devolvemos JSON
+                echo json_encode(["success" => true]);
+                exit();
+            } else {
+                echo json_encode(["success" => false, "error" => "Error al actualizar el turno (BD)."]);
+                exit();
+            }
+
+        break;
+
+
+        // ELIMINAR UN TURNO
+        // ELIMINAR UN TURNO
+        // ELIMINAR UN TURNO
+        // ELIMINAR UN TURNO
+        case ($action === "eliminacion"):
+            //eliminar de tabla turnos disponibles
+
+            $id_turno = intval($_POST["id_turnos"] ?? $_POST["id"] ?? 0);
+            if ($id_turno <= 0) {
+                echo json_encode(["success" => false, "error" => "ID inválido."]);
+                exit;
+            }
+
+            $con = new Conexion();
+
+            // Antes de eliminar, verificar si el turno está asignado en agenda_turno
+            $check = $con->consultarArray("SELECT * FROM agenda_turno WHERE turno_id_turnos = $id_turno");
+            if (!empty($check)) {
+                // No permitimos eliminar si está asignado (alternativa: eliminar cascada)
+                echo json_encode(["success" => false, "error" => "El turno está asignado a un paciente, primero desasignelo."]);
+                exit;
+            }
+
+            $del = $con->eliminar("DELETE FROM turno WHERE id_turnos = $id_turno");
+            if ($del) {
+                echo json_encode(["success" => true]);
+            } else {
+                echo json_encode(["success" => false, "error" => "No se pudo eliminar."]);
+            }
+
+        break;
+
+        case ($action === "eliminar"):
+            //eliminar de tabla turnos asignados
+
+        break;
+    }
+    // Acción no reconocida
+    echo json_encode(["success" => false, "error" => "Acción desconocida o no proporcionada."]);
+} catch (Exception $ex) {
+    echo json_encode(["success" => false, "error" => $ex->getMessage()]);
+}

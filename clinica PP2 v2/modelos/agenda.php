@@ -88,9 +88,10 @@ class Agenda
         return $con->consultarArray($sql);
     }
 
-    public function listarAgendaXDoctor($doctorId){
+    public function listarAgendaXDoctor($doctorId)
+    {
         $con = new Conexion();
-        $sql= "SELECT id_agenda, 
+        $sql = "SELECT id_agenda, 
                     fecha_desde, 
                     fecha_hasta, 
                     hora_desde, 
@@ -147,9 +148,10 @@ class Agenda
         return $fila["total"] > 0;
     }
 
-    public function obtenerDoctores() {
-    $conexion = new Conexion();
-    $query = "SELECT 
+    public function obtenerDoctores()
+    {
+        $conexion = new Conexion();
+        $query = "SELECT 
                 d.id_doctor,
                 per.nombre AS nombre_persona,
                 u.nombre_usuario
@@ -157,8 +159,21 @@ class Agenda
             INNER JOIN usuario u ON d.usuario_id_usuario = u.id_usuario
             INNER JOIN persona per ON u.persona_id_persona = per.id_persona
             ORDER BY per.nombre ASC";
-    return $conexion->consultar($query);
-}
+        return $conexion->consultar($query);
+    }
+
+    public function cambiarEstado($id_agenda, $nuevoEstadoId)
+    {
+        $con = new Conexion();
+        $id_agenda     = intval($id_agenda);
+        $nuevoEstadoId = intval($nuevoEstadoId);
+
+        $sql = "UPDATE agenda 
+            SET estados_id_estados = $nuevoEstadoId
+            WHERE id_agenda = $id_agenda";
+
+        return $con->actualizar($sql);
+    }
 
 
     public function setFecha_desde($v)

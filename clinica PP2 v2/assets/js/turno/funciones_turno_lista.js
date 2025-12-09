@@ -4,7 +4,7 @@ $(function(){
     $(".select2-paciente").select2({ width: '100%', placeholder: 'Buscar paciente...' });
     $(".select2-turnos").select2({ width: '100%' });
 
-    // Cargar agendas por doctor (igual a tu función anterior)
+    // Cargar agendas por doctor
     function cargarAgendasParaDoctor(doctorId, $agendaSelect, selectAgendaId = null) {
         $agendaSelect.html('<option value="">Cargando...</option>');
         if (!doctorId) {
@@ -14,7 +14,7 @@ $(function(){
         fetch('controladores/turno/ajax_get_agenda.php?doctor_id=' + doctorId)
             .then(resp => resp.json())
             .then(data => {
-                // Esperamos array de agendas: [{id_agenda, fecha_agenda, hora_desde, hora_hasta}]
+                // Espera array de agendas: [{id_agenda, fecha_agenda, hora_desde, hora_hasta}]
                 $agendaSelect.empty();
                 $agendaSelect.append('<option value="">Seleccione una agenda</option>');
                 data.data.forEach(function(a){
@@ -178,7 +178,9 @@ $(function(){
             const fh = $('#input_fecha_hora').val();
             if (!fh) { alert('Seleccione fecha y hora'); return; }
         }
-
+/*
+echo print_r($_POST) ; esto imprime banda
+*/
         // enviar por AJAX (POST)
         $.ajax({
             url: 'controladores/turno/turno_controlador.php',
