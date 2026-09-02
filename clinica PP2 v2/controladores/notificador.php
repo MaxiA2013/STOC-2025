@@ -12,8 +12,8 @@ function enviarNotificacionLogin($email, $nombre_usuario) {
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';      // Servidor SMTP
         $mail->SMTPAuth = true;
-        $mail->Username = 'lukascolman88@gmail.com'; // Usuario SMTP
-        $mail->Password = 'ndct qydk xgsa nfsd';            // Contraseña SMTP
+        $mail->Username = 'biancacaceres3910@gmail.com'; // Usuario SMTP
+        $mail->Password = 'fdax zggy ycws iziy';            // Contraseña SMTP
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;                    // Seguridad (tls/ssl)
         $mail->Port = 587;                            // Puerto SMTP
         $mail->SMTPOptions = array(
@@ -23,10 +23,12 @@ function enviarNotificacionLogin($email, $nombre_usuario) {
                 'allow_self_signed' => true
             )
         );
+        $mail->CharSet = 'UTF-8';
+        $mail->Encoding = 'base64';
 
 
         // Remitente y destinatario
-        $mail->setFrom('lukascolman88@gmail.com', 'STOC - Sistema de Turnos Online de Clinicas');
+        $mail->setFrom('biancacaceres3910@gmail.com', 'STOC - Sistema de Turnos Online de Clinicas');
         $mail->addAddress($email);
         // Contenido del correo
         $mail->isHTML(true);

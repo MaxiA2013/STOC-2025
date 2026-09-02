@@ -1,6 +1,5 @@
-<?php
-
-require_once ('../../modelos/usuarios.php');
+<?php //se usa probablemente en login, lo tengo que corroborar
+require_once  __DIR__ . '/../../modelos/usuarios.php';
 $form_data = array();
 
 if (isset($_POST['action'])) {

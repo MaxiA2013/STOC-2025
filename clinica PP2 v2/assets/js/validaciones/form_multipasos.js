@@ -1,4 +1,3 @@
-console.log('cargado');
 function calcularEdad(fechaString) {
         if (!fechaString) return 0;
         const hoy = new Date();
@@ -8,7 +7,6 @@ function calcularEdad(fechaString) {
         if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) {
             edad--;
         }
-        console.log('edad rara');
         return edad;
     }
 
@@ -31,7 +29,6 @@ function calcularEdad(fechaString) {
 
     /* ---------- Manejo de errores visuales ---------- */
     function mostrarError(inputId, mensaje) {
-        console.log('mostrar error');
         const input = document.getElementById(inputId);
         const err = document.getElementById(`error-${inputId}`);
         if (input) input.classList.add('error-input');
@@ -90,44 +87,31 @@ function calcularEdad(fechaString) {
         }
     }
 
-    /* ---------- Validacion antes de submit (opcional) ---------- */
-    // document.getElementById('registroForm').addEventListener('submit', function(e) {
-    //     console.log('entro');
-    //     // Validación simple del paso 2 en cliente (mejora UX; el servidor sigue validando)
-    //     limpiarErrores(['nombre_usuario','email','password','password_repeat']);
-    //     let ok = true;
-    //     const username = document.getElementById('nombre_usuario');
-    //     const email = document.getElementById('email');
-    //     const password = document.getElementById('password');
-    //     const passwordRepeat = document.getElementById('password_repeat');//(agregado)
+    /* ---------- Validacion antes de submit ---------- */
+    document.getElementById('registroForm').addEventListener('submit', function(e) {
+        // Validación simple del paso 2 en cliente (mejora UX; el servidor sigue validando)
+        limpiarErrores(['nombre_usuario','email','password']);
+        let ok = true;
+        const username = document.getElementById('nombre_usuario');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
 
+        if (!username || username.value.trim().length < 3) {
+            mostrarError('nombre_usuario','El nombre de usuario debe tener al menos 3 caracteres');
+            ok = false;
+        }
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+            mostrarError('email','Ingrese un email válido');
+            ok = false;
+        }
+        if (!password || password.value.length < 6) {
+            mostrarError('password','La contraseña debe tener al menos 6 caracteres');
+            ok = false;
+        }
 
-    //     if (!username || username.value.trim().length < 3) {
-    //         mostrarError('nombre_usuario','El nombre de usuario debe tener al menos 3 caracteres');
-    //         ok = false;
-    //     }
-    //     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-    //         mostrarError('email','Ingrese un email válido');
-    //         ok = false;
-    //     }
-    //     if (!password || password.value.length < 6) {
-    //         mostrarError('password','La contraseña debe tener al menos 6 caracteres');
-    //         ok = false;
-    //     }
-        
-    //     //agregado.
-    //     if (!passwordRepeat || passwordRepeat.value.length < 6) {
-    //         mostrarError('password_repeat','Debe repetir la contraseña');
-    //         ok = false;
-    //     } else if (password.value !== passwordRepeat.value) {
-    //         mostrarError('password_repeat','Las contraseñas no coinciden');
-    //         ok = false;
-    //     }
-
-    //     if (!ok) {
-    //         e.preventDefault();
-    //         // Mostrar el paso 2 si estaban en otro
-    //         console.log('error');
-    //         mostrarPaso(2);
-    //     }
-    // });
+        if (!ok) {
+            e.preventDefault();
+            // Mostrar el paso 2 si estaban en otro
+            mostrarPaso(2);
+        }
+    });

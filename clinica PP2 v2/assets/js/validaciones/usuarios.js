@@ -1,4 +1,4 @@
-function validate_nombre_usuario(event){
+function validate_nombre_usuario(event){ //funcion usada e login probablemente a causa de que se usa usuarios_ajax.controlador
     console.log(event.target.value);
     $.ajax({
         url: "controladores/usuarios/usuarios_ajax.controlador.php",

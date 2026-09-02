@@ -96,8 +96,62 @@ class Doctor
             GROUP BY u.id_usuario
             ORDER BY p.nombre, p.apellido ";
         return $conexion->consultar($query);
-
     }
+
+    //FUNCIONES PARA BUSCADOR LIMIT PAGINACION
+
+    public function doctores_buscador($columnas, $campo, $sLimit)
+    {
+        $conexion = new Conexion();
+        $query = "SELECT " . implode(",", $columnas) . "
+              FROM doctor d
+              JOIN usuario u
+                ON d.usuario_id_usuario = u.id_usuario
+              JOIN persona p
+                ON u.persona_id_persona = p.id_persona";
+        if (!empty($campo)) {
+            $query .= " WHERE d.numero_matricula_profesional LIKE '%$campo%'
+                    OR p.nombre LIKE '%$campo%'
+                    OR p.apellido LIKE '%$campo%'
+                    OR u.nombre_usuario LIKE '%$campo%'";
+        }
+        $query .= " ORDER BY d.id_doctor DESC ";
+        $query .= " $sLimit";
+        $resultado = $conexion->consultar($query);
+        return $resultado;
+    }
+
+    public function doctores_filtradosSinWhere()
+    {
+        $conexion = new Conexion();
+        $sql = "SELECT COUNT(d.id_doctor)
+            FROM doctor d";
+        $resultado = $conexion->consultar($sql);
+        $fila = $resultado->fetch_array();
+        return $fila[0];
+    }
+
+    public function doctores_filtradosWhere($campo)
+    {
+        $conexion = new Conexion();
+        $sql = "SELECT COUNT(d.id_doctor)
+            FROM doctor d
+            JOIN usuario u
+                ON d.usuario_id_usuario = u.id_usuario
+            JOIN persona p
+                ON u.persona_id_persona = p.id_persona";
+        if (!empty($campo)) {
+            $sql .= " WHERE d.numero_matricula_profesional LIKE '%$campo%'
+                  OR p.nombre LIKE '%$campo%'
+                  OR p.apellido LIKE '%$campo%'
+                  OR u.nombre_usuario LIKE '%$campo%'";
+        }
+        $resultado = $conexion->consultar($sql);
+        $fila = $resultado->fetch_array();
+        return $fila[0];
+    }
+    //FUNCIONES PARA BUSCADOR LIMIT PAGINACION
+
 
     // getters / setters (sin cambios)
     public function getId_doctor()

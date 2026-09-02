@@ -1,12 +1,43 @@
-<div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
-    <div class="col p-4 d-flex flex-column position-static">
-        <h3 class="mb-0">Vision</h3>
-        <p class="card-text mb-auto">This is a wider card with supporting text below as a natural lead-in to additional content.</p>
+<div class="modern-info-card">
+
+    <div class="modern-icon">
+        🚀
     </div>
-    <div class="col-auto d-none d-lg-block">
-        <svg class="bd-placeholder-img" width="200" height="250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false">
-            <title>Placeholder</title>
-            <rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text>
-        </svg>
+
+    <span class="modern-badge">
+        Nuestra visión
+    </span>
+
+    <h3 class="modern-title">
+        Transformar la experiencia
+        médica digital
+    </h3>
+
+    <p class="modern-text">
+        Aspiramos a consolidarnos como una institución
+        líder en innovación sanitaria, integrando
+        tecnología, accesibilidad y excelencia médica
+        para mejorar la calidad de vida de nuestros pacientes.
+    </p>
+
+    <div class="modern-list">
+
+        <div class="modern-item">
+            ✓ Innovación tecnológica
+        </div>
+
+        <div class="modern-item">
+            ✓ Liderazgo regional
+        </div>
+
+        <div class="modern-item">
+            ✓ Medicina inteligente
+        </div>
+
+        <div class="modern-item">
+            ✓ Atención moderna y segura
+        </div>
+
     </div>
+
 </div>

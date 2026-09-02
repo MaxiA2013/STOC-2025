@@ -77,9 +77,7 @@ class LoginControlador
 
     public function registrar()
     {
-        // ------------------------------------------------------
         // VALIDACIONES PREVIAS A LA INSERCIÓN
-        // ------------------------------------------------------
 
         // Validar que exista la fecha de nacimiento y calcular edad correctamente
         if (!isset($_POST['fecha_nacimiento']) || empty($_POST['fecha_nacimiento'])) {
@@ -101,9 +99,9 @@ class LoginControlador
             exit();
         }
 
-        // Validar formato de nombre_usuario
-        if (verificar_cadenas('/^[a-zA-Z0-9_]{3,16}$/', $_POST['nombre_usuario'])) {
-            header('Location: ../index.php?message=El nombre de usuario debe tener entre 3 y 20 caracteres alfanuméricos&status=danger');
+        // Validar formato de nombre_usuario: tiene que permitir entre 3 y 16 caracteres, pero no debe exigir
+        if (verificar_cadenas('/^[a-zA-Z]{3,16}$/', $_POST['nombre_usuario'])) {
+            header('Location: ../index.php?message=El nombre de usuario debe tener entre 3 y 16 caracteres caracteres&status=danger');//esto debe tener mensaje js
             exit();
         }
 
@@ -112,28 +110,14 @@ class LoginControlador
         $usuarioTemp->setNombre_usuario($_POST['nombre_usuario']);
         $existeUsuario = $usuarioTemp->usuarioExiste();
         if ($existeUsuario->num_rows > 0) {
-            mostrarAlerta(
-                'error',
-                'El nombre de usuario ya está en uso',
-                'Por favor elegí otro nombre de usuario.',
-                '../index.php?page=registro'
-            );
+            header('Location: ../index.php?message=El nombre de usuario ya está en uso&status=danger');
+            //esto debe tener mensaje js
+            exit();
         }
-
-        // Validar que las contraseñas coincidan(repetir contraseña)
-        if ($_POST['password'] !== $_POST['password_repeat']) {
-            mostrarAlerta(
-                'error',
-                'Las contraseñas no coinciden',
-                'Por favor, asegurate de escribir la misma contraseña en ambos campos.',
-                '../index.php?page=registro'
-            );
-        }
-
 
         // Validar formato de correo
         if (!verificar_cadenas('/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/', $_POST['email'])) {
-            header('Location: ../index.php?message=El correo electrónico no tiene un formato válido&status=danger');
+            header('Location: ../index.php?message=El correo electrónico no tiene un formato válido&status=danger');//esto debe tener mensaje js
             exit();
         }
 
@@ -141,14 +125,10 @@ class LoginControlador
         $usuarioTemp->setEmail($_POST['email']);
         $existeEmail = $usuarioTemp->buscar_cohincidencias();
         if ($existeEmail->num_rows > 0) {
-            mostrarAlerta(
-                'error',
-                'Correo electrónico ya registrado',
-                'Por favor usá otro correo electrónico.',
-                '../index.php?page=registro'
-            );
+            header('Location: ../index.php?message=El correo electrónico ya está registrado&status=danger');
+            //esto debe tener mensaje js
+            exit();
         }
-        
 
         // ------------------------------------------------------
         // GUARDAR PERSONA
@@ -168,12 +148,9 @@ class LoginControlador
 
         $id_persona = $persona->guardar();
         if (!$id_persona) {
-            mostrarAlerta(
-                'error',
-                'Error al registrar persona',
-                'Ocurrió un problema al guardar los datos de la persona.',
-                '../index.php?page=registro'
-            );
+            header('Location: ../index.php?message=Error al registrar persona&status=danger');
+            //aca hay que agregar mensaje sweetalert
+            exit();
         }
 
         // ------------------------------------------------------
@@ -183,18 +160,13 @@ class LoginControlador
         $usuario->setNombre_usuario($_POST['nombre_usuario']);
         $usuario->setEmail($_POST['email']);
         $usuario->setPassword($_POST['password']);
-        $usuario->setFecha_alta(date('Y-m-d H:i:s'));
-
         $usuario->setPersona_id_persona($id_persona);
 
         $id_usuario = $usuario->guardarUsuario();
         if (!$id_usuario) {
-            mostrarAlerta(
-                'error',
-                'Error al registrar usuario',
-                'Ocurrió un problema al guardar los datos del usuario.',
-                '../index.php?page=registro'
-            );
+            header('Location: ../index.php?message=Error al registrar usuario&status=danger');
+            //aca hay que agregar mensaje sweetalert
+            exit();
         }
 
         // ------------------------------------------------------
@@ -238,16 +210,14 @@ class LoginControlador
         if ($perfil_id == 3) {
             $conn->insertar("INSERT INTO paciente (usuario_id_usuario) VALUES ($id_usuario)");
         }
+        echo $perfil_id;
 
-       if (isset($_GET['page']) && $_GET['page'] == 'lista_doctor') {
+        if (($_GET['page'] == 'lista_doctor')) {
             header('Location: ../index.php?page=' . $_GET['page']);
         } else {
-            mostrarAlerta(
-                'success',
-                'Usuario registrado correctamente',
-                'Tu cuenta fue creada con éxito. Ya podés iniciar sesión.',
-                '../index.php?page=login'
-            );
+            header('Location: ../index.php?message=Usuario registrado correctamente&status=success');
+            //aca hay que agregar mensaje sweetalert}
         }
+        
     }
 }

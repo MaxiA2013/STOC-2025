@@ -1,361 +1,420 @@
-    <?php
+<?php
 require_once __DIR__ . "/../../modelos/conexion.php";
 require_once __DIR__ . "/../../modelos/doctor.php";
 
 $doctor = new Doctor();
 $doctores = $doctor->all_doctores();
 
-// Obtener usuarios disponibles para asignar doctor (sin doctor aún) y traer sus perfiles
+// Obtener usuarios disponibles para asignar doctor
 $users = new Conexion();
+
 //$usuariosDisponibles = $users->consultar("SELECT * FROM doctor;");
 
-$resUsuariosModal = $users->consultar("SELECT u.id_usuario, p.nombre, p.apellido FROM usuario u JOIN persona p ON u.persona_id_persona = p.id_persona");
+$resUsuariosModal = $users->consultar("
+    SELECT 
+        u.id_usuario,
+        p.nombre,
+        p.apellido
+    FROM usuario u
+    JOIN persona p 
+        ON u.persona_id_persona = p.id_persona
+");
 
 ?>
-<!DOCTYPE html>
-<html lang="es">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Lista de Doctores</title>
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/select2.min.css">
-    <link rel="stylesheet" href="assets/css/modal_registro.css">
-    <style>
-        .select2-container--default .select2-selection--single {
-            height: 42px;
-            padding: 6px 10px;
-        }
-    </style>
-</head>
+<div class="container-fluid">
 
-<body class="bg-light">
-    <div class="container mt-5">
-        <h2 class="mb-4">Registrar Doctor</h2>
-        <p>Registra a un usuario ya existente como doctor, o crea uno nuevo desde el modal.</p>
+    <!-- ENCABEZADO -->
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1">
+            Gestión de Doctores
+        </h2>
 
-        <form id="formDoctor" action="controladores/doctor_controlador.php" method="POST">
-            <input type="hidden" name="action" value="guardar_doctor">
+        <p class="text-muted mb-0">
+            Administración de profesionales, matrículas y datos de consulta.
+        </p>
+    </div>
 
-            <div class="mb-3">
-                <label for="numero_matricula_profesional">Número Matrícula</label>
-                <input type="text" id="numero_matricula_profesional" name="numero_matricula_profesional" class="form-control" required>
+    <!-- BUSCARDOR / FILTROS -->
+    <div class="card border-0 shadow-sm rounded-4 mb-3">
+
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                    <div>
+                        <h5 class="fw-semibold mb-1">
+                            Registrar Doctor
+                        </h5>
+
+                        <small class="text-muted">
+                            Registra un usuario existente como doctor.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasNuevoDoctor"
+                        aria-controls="offcanvasNuevoDoctor">
+
+                        <i class="fa-solid fa-user-plus me-2"></i>
+                        Nuevo Doctor
+                    </button>
+
+                    <button
+                        class="btn btn-outline-secondary"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#filtrosAvanzados">
+
+                        <i class="fa-solid fa-sliders me-2"></i>
+                        Filtros
+                    </button>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label for="precio_consulta">Precio de consulta</label>
-                <input type="number" id="precio_consulta" name="precio_consulta" step="0.01" class="form-control" required>
+            <!-- Buscador -->
+            <div class="mb-4">
+                <div class="row g-3">
+                    <div class="position-relative">
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="campo"
+                            name="campo"
+                            placeholder="Buscar por nombre, apellido, matrícula o usuario">
+
+                        <button
+                            type="button"
+                            id="limpiarBusqueda"
+                            class="btn btn-sm border-0 position-absolute top-50 end-0 translate-middle-y me-2 d-none text-secondary"
+                            title="Limpiar búsqueda">
+
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label for="usuario_id_usuario">Usuario</label>
-                <select id="usuario_id_usuario" name="usuario_id_usuario" class="form-control" required>
-                    <option value="">Seleccione un usuario</option>
-                    <option value="new_user">¿Usuario no registrado?</option>
+            <!-- Filtros Avanzados -->
+            <div class="collapse mt-4" id="filtrosAvanzados">
+                <div class="row g-3">
 
-                    <?php
-                    if ($usuariosDisponibles && $usuarios->num_rows > 0) :
-                        while ($u = $usuarios->fetch_assoc()) :
-                            $texto = $u['nombre'] . ' ' . $u['apellido'] . ' (' . $u['nombre_usuario'] . ')';
-                            $perfiles = trim($u['perfiles']);
-                            if (!empty($perfiles)) $texto .= ' - ' . $perfiles;
-                    ?>
-                            <option value="<?= $u['id_usuario'] ?>"><?= htmlentities($texto) ?></option>
-                    <?php
-                        endwhile;
-                    endif;
-                    ?>
-                </select>
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Obra Social
+                        </label>
+
+                        <select class="form-select">
+                            <option selected>Todos</option>
+                            <option>Avalian</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+
+                        <div class="d-flex justify-content-end gap-2">
+
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary">
+                                Limpiar
+                            </button>
+
+                            <button
+                                type="button"
+                                class="btn btn-primary">
+                                Aplicar Filtros
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <button type="submit" class="btn btn-primary">Guardar Doctor</button>
-        </form>
-
-        <hr class="my-5">
-        <h3>Doctores Registrados</h3>
-        <div class="col mb-3">
-            <a class="btn btn-success" href="controladores/generar_excel.php" role="button">Excel</a>
-            <button type="button" class="btn btn-danger">PDF</button>
         </div>
 
-        <table class="table table-bordered table-hover mt-3">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Matrícula</th>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Usuario</th>
-                    <th>Precio de consulta</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($doctores)) : ?>
-                    <?php foreach ($doctores as $fila) : ?>
-                        <tr>
-                            <td><?= $fila['id_doctor'] ?></td>
-                            <td><?= $fila['numero_matricula_profesional'] ?></td>
-                            <td><?= $fila['nombre'] ?></td>
-                            <td><?= $fila['apellido'] ?></td>
-                            <td><?= $fila['nombre_usuario'] ?></td>
-                            <td>$ <?= $fila['precio_consulta'] ?></td>
-                            <td class="d-flex gap-2">
-                                <form action="controladores/doctor_controlador.php" method="POST" style="display:inline;">
-                                    <input type="hidden" name="action" value="eliminar_doctor">
-                                    <input type="hidden" name="id_doctor" value="<?= $fila['id_doctor'] ?>">
-                                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                                </form>
+    </div>
 
-                                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditar<?= $fila['id_doctor'] ?>">Editar</button>
+    <!-- TABLA DE DOCTORES -->
+    <div id="contenedorTablaDoctores">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body">
+                <!-- ENCABEZADO DEL LISTADO -->
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                    <div>
+                        <h5 class="fw-semibold mb-1">
+                            Doctores Registrados
+                        </h5>
 
-                                <!-- Modal editar (igual que antes) -->
-                                <div class="modal fade" id="modalEditar<?= $fila['id_doctor'] ?>" tabindex="-1" aria-labelledby="modalLabel<?= $fila['id_doctor'] ?>" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <form action="controladores/doctor_controlador.php" method="POST">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="modalLabel<?= $fila['id_doctor'] ?>">Editar Doctor</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <input type="hidden" name="action" value="actualizar_doctor">
-                                                    <input type="hidden" name="id_doctor" value="<?= $fila['id_doctor'] ?>">
+                        <small class="text-muted">
+                            Consulta y administración de profesionales registrados.
+                        </small>
+                    </div>
 
-                                                    <div class="mb-3">
-                                                        <label for="numero_matricula_profesional<?= $fila['id_doctor'] ?>" class="form-label">Número Matrícula</label>
-                                                        <input type="text" class="form-control" id="numero_matricula_profesional<?= $fila['id_doctor'] ?>" name="numero_matricula_profesional" value="<?= $fila['numero_matricula_profesional'] ?>" required>
-                                                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <div class="row g-4 mb-3">
+                            <div class="col-auto">
+                                <label
+                                    for="num_registros"
+                                    class="col-form-label">
 
-                                                    <div class="mb-3">
-                                                        <label for="precio_consulta<?= $fila['id_doctor'] ?>" class="form-label">Precio de consulta</label>
-                                                        <input type="number" step="0.01" class="form-control" id="precio_consulta<?= $fila['id_doctor'] ?>" name="precio_consulta" value="<?= $fila['precio_consulta'] ?>" required>
-                                                    </div>
+                                    Mostrar:
+                                </label>
+                            </div>
 
-                                                    <div class="mb-3">
-                                                        <label for="usuario_id_usuario<?= $fila['id_doctor'] ?>" class="form-label">Usuario</label>
-                                                          <select class="form-control" id="usuario_id_usuario<?= $fila['id_doctor'] ?>" name="usuario_id_usuario" required>
-                                                            <?php
-                                                            while ($um = $resUsuariosModal->fetch_assoc()):
-                                                            ?>
-                                                                <option value="<?= $um['id_usuario'] ?>" <?= $um['id_usuario'] == $fila['usuario_id_usuario'] ? 'selected' : '' ?>>
-                                                                    <?= $um['nombre'] . ' ' . $um['apellido'] ?>
-                                                                </option>
-                                                            <?php endwhile; ?>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                    <button type="submit" class="btn btn-success">Guardar cambios</button>
-                                                </div>
-                                            </form>
-                                        </div>
+                            <div class="col-auto">
+                                <select
+                                    name="num_registros"
+                                    id="num_registros"
+                                    class="form-select">
+
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- EXPORTAR -->
+                        <div class="d-flex gap-2">
+                            <a
+                                class="btn btn-outline-success btn-sm"
+                                href="controladores/generar_excel.php"
+                                role="button">
+
+                                <i class="fa-solid fa-file-excel me-1"></i>
+                                Exportar Excel
+                            </a>
+
+                            <button
+                                type="button"
+                                class="btn btn-outline-danger btn-sm">
+
+                                <i class="fa-solid fa-file-pdf me-1"></i>
+                                Exportar PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLA -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Matrícula</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Usuario</th>
+                                <th>Precio de Consulta</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="contenidoDoc">
+                        </tbody>
+                    </table>
+
+                    <!-- PAGINACION -->
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label id="lbl-total"></label>
+                        </div>
+
+                        <div
+                            class="col-md-6"
+                            id="nav_paginacion">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- OFFCANVAS -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNuevoDoctor" aria-labelledby="offcanvasNuevoDoctorLabel">
+        <div class="offcanvas-header border-bottom">
+            <div>
+                <h5
+                    class="offcanvas-title fw-semibold"
+                    id="offcanvasNuevoDoctorLabel">
+
+                    Nuevo Usuario
+                </h5>
+
+                <small class="text-muted">
+                    Complete los datos para registrar una nueva cuenta.
+                </small>
+            </div>
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas">
+            </button>
+        </div>
+
+        <div class="offcanvas-body">
+            <form
+                method="POST"
+                action="controladores/doctores/doctores_controlador.php">
+                <input
+                    type="hidden"
+                    name="action"
+                    value="insertar">
+
+                <!-- REGISTRO DE DOCTOR -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body">
+                        <form
+                            id="formDoctor"
+                            action="controladores/doctores/doctor_controlador.php"
+                            method="POST">
+
+                            <input type="hidden" name="action" value="guardar_doctor">
+                            <div class="row g-3">
+                                <!-- Matrícula -->
+                                <div class="mb-3">
+                                    <label
+                                        for="numero_matricula_profesional"
+                                        class="form-label">
+
+                                        Número de Matrícula
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="numero_matricula_profesional"
+                                        name="numero_matricula_profesional"
+                                        class="form-control"
+                                        placeholder="Ingrese la matrícula"
+                                        required>
+                                </div>
+
+                                <!-- Precio -->
+                                <div class="mb-3">
+                                    <label
+                                        for="precio_consulta"
+                                        class="form-label">
+
+                                        Precio de Consulta
+                                    </label>
+
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            $
+                                        </span>
+
+                                        <input
+                                            type="number"
+                                            id="precio_consulta"
+                                            name="precio_consulta"
+                                            step="0.01"
+                                            class="form-control"
+                                            placeholder="0.00"
+                                            required>
                                     </div>
                                 </div>
-                                <!-- Fin modal editar -->
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else : ?>
-                    <tr>
-                        <td colspan="7" class="text-center">No hay doctores registrados.</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
 
-    <!-- jQuery (requerido por Select2) -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <!-- Bootstrap Bundle -->
-    <script src="assets/js/bootstrap.bundle.min.js"></script>
-    <!-- Select2 -->
-    <script src="assets/js/select2.min.js"></script>
-    <!-- SweetAlert -->
-    <script src="assets/js/sweetalert2@11.js"></script>
+                                <!-- Usuario -->
+                                <div class="mb-3">
 
-    <script>
-        (function() {
-            // Inicializar Select2
-            $('#usuario_id_usuario').select2({
-                placeholder: "Buscar usuario por nombre o perfil...",
-                width: '100%',
-                allowClear: true
-            });
+                                    <label
+                                        for="usuario_id_usuario"
+                                        class="form-label">
 
-            // Abrir modal para nuevo usuario
-            $('#usuario_id_usuario').on('change', function() {
-                var val = $(this).val();
-                if (val === 'new_user') {
-                    var myModal = new bootstrap.Modal(document.getElementById('modalNewUser'));
-                    myModal.show();
-                    $(this).val(null).trigger('change');
-                }
-            });
+                                        Usuario
+                                    </label>
 
-            // Interceptar envío del formulario de registro cuando el modal está abierto
-            // y ejecutar la creación persona->usuario->doctor vía AJAX.
-              $('#modalNewUser').on('shown.bs.modal', function() {
-                // Capturamos el submit del formulario incluido (registro.php)
-                var $registroForm = $('#registroForm');
+                                    <select
+                                        id="usuario_id_usuario"
+                                        name="usuario_id_usuario"
+                                        class="form-control"
+                                        required>
 
-                // Evitar que se agregue múltiples handlers
-                $registroForm.off('submit.registrarDoctorModal');
+                                        <option value="">
+                                            Seleccione un usuario
+                                        </option>
 
-                $registroForm.on('submit.registrarDoctorModal', function(e) {
-                    //e.preventDefault();
+                                        <option value="new_user">
+                                            ¿Usuario no registrado?
+                                        </option>
 
-                    // recoger datos del modal (form de registro)
-                    // dentro del handler submit.registrarDoctorModal (en lista_doctor.php)
-                    var formData = new FormData(this);
+                                        <?php
+                                        if (isset($usuariosDisponibles) && $usuariosDisponibles && $doctores->num_rows > 0) :
 
-                    // agregar acción para el controlador AJAX específico:
-                    formData.set('action', 'registrarCompleto'); // asegura que exista action correcto
+                                            while ($u = $usuariosDisponibles->fetch_assoc()) :
 
-                    // marcar que viene desde lista_doctor si lo necesitás
-                    formData.append('from_lista_doctor', '1');
+                                                $texto =
+                                                    $u['nombre']
+                                                    . ' '
+                                                    . $u['apellido']
+                                                    . ' ('
+                                                    . $u['nombre_usuario']
+                                                    . ')';
 
-                    // agregar datos del formulario principal (matrícula + precio)
-                    formData.append('numero_matricula_profesional', $('#numero_matricula_profesional').val());
-                    formData.append('precio_consulta', $('#precio_consulta').val());
+                                                $perfiles = trim($u['perfiles']);
 
+                                                if (!empty($perfiles)) {
+                                                    $texto .= ' - ' . $perfiles;
+                                                }
 
-                    // Llamar al endpoint AJAX que crea persona->usuario(perfil=2)->doctor
-                    fetch('controladores/doctor_ajax_controlador.php', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(r => r.json())
-                        .then(resp => {
-                            if (resp.status === 'ok') {
-                                // cerrar modal, notificar y refrescar lista
-                                Swal.fire({
-                                    title: 'Guardado',
-                                    text: 'Usuario doctor creado correctamente.',
-                                    icon: 'success',
-                                    timer: 1400,
-                                    showConfirmButton: false
-                                });
+                                        ?>
 
-                                // cerrar modal
-                                var myModalEl = document.getElementById('modalNewUser');
-                                var modal = bootstrap.Modal.getInstance(myModalEl);
-                                modal.hide();
+                                                <option
+                                                    value="<?= $u['id_usuario'] ?>">
+                                                    <?= htmlentities($texto) ?>
+                                                </option>
 
-                                // recargar la página para que aparezca el doctor en la tabla
-                                setTimeout(function() {
-                                    location.reload();
-                                }, 600);
-                            } else {
-                                Swal.fire('Error', resp.message || 'Error en servidor', 'error');
-                            }
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            Swal.fire('Error', 'Error de red', 'error');
-                        });
+                                        <?php
+                                            endwhile;
 
-                }); // end submit handler
-            }); // end on shown.bs.modal
-          
+                                        endif;
+                                        ?>
 
-        })();
-    </script>
+                                    </select>
+                                </div>
+                            </div>
 
-    <!-- Modal para "Usuario no registrado?" (incluye tu registro.php) -->
-    <div class="modal fade" id="modalNewUser" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Registrar nuevo usuario</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body" id="modalNewUserBody">
-                    <form id="" class="needs-validation" novalidate action="controladores/doctor_ajax_controlador.php" method="POST">
-                    <input type="hidden" name="action" value="registrarCompleto" />
+                            <!-- Botón -->
+                            <div class="mb-3">
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary">
 
-                    <h2>Registro de Nuevos Usuarios</h2>
-
-                    <!-- Barra de Progreso -->
-                    <div class="progreso-container">
-                        <div class="progreso-item active" id="step1">1</div>
-                        <div class="progreso-item" id="step2">2</div>
+                                    <i class="fa-solid fa-user-plus me-2"></i>
+                                    Registrar Doctor
+                                </button>
+                            </div>
+                        </form>
                     </div>
-
-                    <!-- === PASO 1 === -->
-                    <div class="pagina active" id="pagina1">
-                        <h5 class="mb-3">Datos de Persona</h5>
-
-                        <div class="mb-3">
-                            <label for="nombre">Nombre</label>
-                            <input type="text" class="form-control" id="nombre" name="nombre" required>
-                            <div class="error-message" id="error-nombre"></div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="apellido">Apellido</label>
-                            <input type="text" class="form-control" id="apellido" name="apellido" required>
-                            <div class="error-message" id="error-apellido"></div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="fecha_nacimiento">Fecha de Nacimiento</label>
-                            <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" required>
-                            <div class="error-message" id="error-fecha_nacimiento"></div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="sexo">Sexo</label>
-                            <select class="form-select" id="sexo" name="sexo" required>
-                                <option value="">Seleccione...</option>
-                                <option value="1">Masculino</option>
-                                <option value="2">Femenino</option>
-                            </select>
-                            <div class="error-message" id="error-sexo"></div>
-                        </div>
-
-                        <button type="button" class="btn btn-primary w-100" onclick="validarPaso(1)">Siguiente</button>
-                    </div>
-
-                    <!-- === PASO 2 === -->
-                    <div class="pagina" id="pagina2">
-                        <h5 class="mb-3">Datos de Usuario</h5>
-
-                        <div class="mb-3">
-                            <label for="nombre_usuario">Nombre de Usuario</label>
-                            <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario" required>
-                            <div class="error-message" id="error-nombre_usuario"></div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="email">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                            <div class="error-message" id="error-email"></div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="password">Contraseña</label>
-                            <input type="password" class="form-control" id="password" name="password" required minlength="6">
-                            <div class="error-message" id="error-password"></div>
-                        </div>
-
-                        <input type="hidden" name="perfil_id_perfil" value="2">
-
-                        <div class="d-flex justify-content-between">
-                            <button type="button" class="btn btn-secondary" onclick="mostrarPaso(1)">Anterior</button>
-                            <button type="submit" class="btn btn-success">Registrarse</button>
-                        </div>
-                    </div>
-                </form>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
+
+
         </div>
-    </div>
-    <script src="assets/js/validaciones/form_multipasos.js"></script>
-</body>
 
-</html>
+    </div>
+
+    <?php
+    require_once __DIR__ . '../../componentes/modal_multipasos_usuarios.php';
+    ?>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/sweetalert2@11.js"></script>
+    <script src="assets/js/validaciones/lista_doctor/select&Ajax.js"></script>
+    <script src="assets/js/validaciones/form_multipasos.js"></script>
+    <script src="assets/js/validaciones/lista_doctor/doctores_buscador.js"></script>

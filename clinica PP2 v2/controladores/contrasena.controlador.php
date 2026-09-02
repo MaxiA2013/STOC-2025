@@ -2,6 +2,8 @@
 session_start();
 require_once '../modelos/usuarios.php';
 
+
+//Bloque para el cambio de contraseña destinado a pacientes
 if (isset($_POST['action']) && $_POST['action'] == 'cambiar_password') {
     $usuario = new Usuario();
     $usuario->setId_usuario($_SESSION['id_usuario']);

@@ -155,6 +155,5 @@
     <!-- Sidebar -->
     <?php include 'vistas/componentes/sidebar_filtros_turnos.php'; ?>
   </div>
-
 </body>
 </html>

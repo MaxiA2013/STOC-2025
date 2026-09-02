@@ -13,6 +13,7 @@
     ],
     "require": {
         "phpmailer/phpmailer": "^7.0",
-        "dompdf/dompdf": "^3.1"
+        "dompdf/dompdf": "^3.1",
+        "pusher/pusher-php-server": "^7.3"
     }
 }

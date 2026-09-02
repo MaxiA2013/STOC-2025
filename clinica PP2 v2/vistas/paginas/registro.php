@@ -3,12 +3,12 @@ $is_admin = isset($_SESSION['nombre_perfil']) && $_SESSION['nombre_perfil'] === 
 $page = $_GET['page'] ?? '';
 ?>
 <link rel="stylesheet" href="assets/css/modal_registro.css">
+
+
 <div class="row align-items-center py-5">
     <div class="col-12">
 
-        <!-- ====================================================================================== -->
         <!-- ========================== FORMULARIO MULTIPASOS (page=registro) ====================== -->
-        <!-- ====================================================================================== -->
         <?php if ($page === "registro"): ?>
             <div class="form-container">
                 <form id="registroForm" class="needs-validation" novalidate action="controladores/login.controlador.php" method="POST">
@@ -79,12 +79,6 @@ $page = $_GET['page'] ?? '';
                             <div class="error-message" id="error-password"></div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="password_repeat">Repetir Contraseña</label>
-                            <input type="password" class="form-control" id="password_repeat" name="password_repeat" required minlength="6">
-                            <div class="error-message" id="error-password_repeat"></div>
-                        </div>
-
                         <input type="hidden" name="perfil_id_perfil" value="3">
 
                         <div class="d-flex justify-content-between">
@@ -95,91 +89,6 @@ $page = $_GET['page'] ?? '';
                 </form>
             </div>
         <?php endif; ?>
-
-
-        <!-- ====================================================================================== -->
-        <!-- ================= FORMULARIO SIMPLE (page=lista_usuario && admin) ===================== -->
-        <!-- ====================================================================================== -->
-        <?php if ($page === "lista_usuario" && $is_admin): ?>
-            <div class="form-container mt-4">
-                <h2>Registrar Nuevo Usuario</h2>
-
-                <form action="controladores/login.controlador.php" method="POST">
-                    <input type="hidden" name="action" value="registro_simple">
-
-                    <div class="mb-3">
-                        <label>Nombre</label>
-                        <input type="text" class="form-control" name="nombre" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Apellido</label>
-                        <input type="text" class="form-control" name="apellido" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Fecha de Nacimiento</label>
-                        <input type="date" class="form-control" name="fecha_nacimiento" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Sexo</label>
-                        <select class="form-select" name="sexo" required>
-                            <option value="1">Masculino</option>
-                            <option value="2">Femenino</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Nombre de Usuario</label>
-                        <input type="text" class="form-control" name="nombre_usuario" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Email</label>
-                        <input type="email" class="form-control" name="email" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Contraseña</label>
-                        <input type="password" class="form-control" name="password" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Perfil</label>
-                        <select class="form-select" id="perfil" name="perfil_id_perfil" onchange="toggleDoctorFields()">
-                            <option value="1">Administrador</option>
-                            <option value="2">Doctor</option>
-                            <option value="3" selected>Paciente</option>
-                        </select>
-                    </div>
-
-                    <!-- Campos extra si el perfil es Doctor -->
-                    <div id="doctorFields" style="display:none;">
-                        <div class="mb-3">
-                            <label>Número de Matrícula Profesional</label>
-                            <input type="text" class="form-control" name="numero_matricula_profesional">
-                        </div>
-
-                        <div class="mb-3">
-                            <label>Precio Consulta</label>
-                            <input type="number" class="form-control" name="precio_consulta" step="0.01">
-                        </div>
-                    </div>
-
-                    <button class="btn btn-primary w-100" type="submit">Registrar</button>
-                </form>
-            </div>
-
-            <script>
-                function toggleDoctorFields() {
-                    const perfil = document.getElementById("perfil").value;
-                    document.getElementById("doctorFields").style.display = (perfil == "2") ? "block" : "none";
-                }
-                window.onload = toggleDoctorFields;
-            </script>
-        <?php endif; ?>
-
     </div>
 </div>
 

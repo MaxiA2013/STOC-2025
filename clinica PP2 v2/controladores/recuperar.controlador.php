@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $con->insertar($query);
 
             // Crear enlace de recuperación
-            $recoveryLink = "http://localhost/STOC-2025-mi-ramita/clinica PP2 v2/index.php?page=resetear&email={$email}&token=".$token;
+            $recoveryLink = "http://localhost/carpeta-limpia/clinica PP2 v2/index.php?page=resetear&email={$email}&token=".$token;
 
             // Configuración de PHPMailer
             $mail = new PHPMailer(true);
@@ -44,8 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mail->isSMTP();
                 $mail->Host = 'smtp.gmail.com';
                 $mail->SMTPAuth = true;
-                $mail->Username = 'lukascolman88@gmail.com'; // tu correo
-                $mail->Password = 'ndct qydk xgsa nfsd'; // tu contraseña de aplicación
+                $mail->Username = 'biancacaceres3910@gmail.com'; // tu correo
+                $mail->Password = 'fdax zggy ycws iziy'; // tu contraseña de aplicación
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 587;
                 $mail->SMTPOptions = array(
@@ -55,9 +55,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'allow_self_signed' => true
                     )
                 );
+                $mail->CharSet = 'UTF-8';
+                $mail->Encoding = 'base64';
 
                 // Remitente y destinatario
-                $mail->setFrom('lukascolman88@gmail.com', 'STOC - Sistema de Turnos Online de Clinicas');
+                $mail->setFrom('biancacaceres3910@gmail.com', 'STOC - Sistema de Turnos Online de Clinicas');
                 $mail->addAddress($email);
 
                 // Contenido
