@@ -21,7 +21,6 @@ $doctores_no_disponibles = $docs->all_doctores();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil de Usuario</title>
     <link rel="stylesheet" href="assets/css/adminStyle.css">
-    <link rel="stylesheet" href="assets/css/miperfil_admin.css">
     <style>
         header,
         h1,

@@ -23,10 +23,6 @@ class Usuario
     $this->persona_id_persona = $persona_id_persona;
   }
 
-
-
-
-
   public function guardarUsuario()
   {
     $conexion = new Conexion();
@@ -37,10 +33,6 @@ class Usuario
     $query = "INSERT INTO clinica.usuario (nombre_usuario, email, password, fecha_alta, persona_id_persona) VALUES ('$this->nombre_usuario', '$this->email', '$password', '$fecha_alta','$this->persona_id_persona')";
     return $conexion->insertar($query);
   }
-
-
-
-
 
   public function actualizarUsuario()
   {

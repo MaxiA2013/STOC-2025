@@ -78,6 +78,9 @@ class AgendaTurno
                 t.id_turnos AS turno_id_turnos,
                 t.fecha_hora,
                 t.minutos_turnos,
+                t.con_obra_social,
+                t.obra_social_id_obra_social,
+                os.nombre_obra_social,
                 e.id_estados,
                 e.tipo_estado,
                 a.id_agenda AS agenda_id_agenda,
@@ -98,6 +101,7 @@ class AgendaTurno
               INNER JOIN usuario u2 ON d.usuario_id_usuario = u2.id_usuario
               INNER JOIN persona per2 ON u2.persona_id_persona = per2.id_persona
               INNER JOIN estados e ON at.estados_id_estados = e.id_estados
+              LEFT JOIN obra_social os ON t.obra_social_id_obra_social = os.id_obra_social
               ORDER BY t.fecha_hora ASC";
         return $conexion->consultar($query);
     }

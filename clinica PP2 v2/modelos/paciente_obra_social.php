@@ -27,19 +27,19 @@ class Paciente_Obra_Social {
     // ✅ Consultar todas las obras sociales de un paciente
     public function consultarPorPaciente($id_paciente) {
         $sql = "SELECT os.id_obra_social, os.nombre_obra_social, os.detalle 
-                FROM obra_social os
-                INNER JOIN paciente_obra_social pos 
-                ON os.id_obra_social = pos.obra_social_id_obra_social
-                WHERE pos.paciente_id_paciente = '$id_paciente'";
+                FROM obra_social as os
+                INNER JOIN paciente_obra_social as p 
+                ON os.id_obra_social = p.obra_social_id_obra_social
+                WHERE p.paciente_id_paciente = '$id_paciente'";
         return $this->conexion->consultar($sql);
     }
 
     public function consultarArrayPorPaciente($id_paciente) {
     $sql = "SELECT os.id_obra_social, os.nombre_obra_social, os.detalle 
-            FROM obra_social os
-            INNER JOIN paciente_obra_social pos 
-            ON os.id_obra_social = pos.obra_social_id_obra_social
-            WHERE pos.paciente_id_paciente = '$id_paciente'";
+            FROM obra_social as os
+            INNER JOIN paciente_obra_social as p 
+            ON os.id_obra_social = p.obra_social_id_obra_social
+            WHERE p.paciente_id_paciente = '$id_paciente'";
     return $this->conexion->consultarArray($sql);
 }
 

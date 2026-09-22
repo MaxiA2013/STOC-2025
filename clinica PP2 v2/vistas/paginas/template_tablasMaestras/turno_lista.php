@@ -50,9 +50,9 @@ $estados  = $est->consultarVariosEstados();
     <div class="row">
         <!-- FORMULARIO PRINCIPAL: agregar/asignar -->
         <form id="formAgregarTurno"
-              class="form-box"
-              method="POST"
-              action="<?= $turnoControllerPath ?>">
+            class="form-box"
+            method="POST"
+            action="<?= $turnoControllerPath ?>">
             <input type="hidden" name="action" value="insertar">
 
             <div class="row g-3">
@@ -78,7 +78,7 @@ $estados  = $est->consultarVariosEstados();
                 </div>
 
                 <!-- Modo -->
-                <div class="col-12 col-md-6 col-lg-3">
+                <div class="col-12 col-md-6 col-lg-3" id="div_modo_turno">
                     <label class="form-label">Modo</label>
                     <div>
                         <div class="form-check">
@@ -114,21 +114,105 @@ $estados  = $est->consultarVariosEstados();
                     <small class="form-text text-muted">Si elige un turno, se usará su fecha/hora.</small>
                 </div>
 
-                <!-- Paciente -->
-                <div class="col-12 col-md-6 col-lg-3" id="div_select_paciente">
+                <!-- disponibilidad manual -->
+                <div class="col-12 col-md-6 col-lg-3" id="div_disponible_manual">
+                    <label class="form-label d-block">Disponible</label>
+
+                    <div class="form-check form-check-inline">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="disponible"
+                            id="disponible_si"
+                            value="1"
+                            checked>
+                        <label class="form-check-label" for="disponible_si">
+                            Sí
+                        </label>
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="disponible"
+                            id="disponible_no"
+                            value="0">
+                        <label class="form-check-label" for="disponible_no">
+                            No
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Paciente: manual no-disponible / asignar turno existente -->
+                <div class="col-12 col-md-6 col-lg-3 d-none" id="div_select_paciente_manual">
                     <label class="form-label">Paciente</label>
-                    <select name="paciente_id" id="select_pacientes" class="form-select select2-paciente">
-                        <option value="">Seleccione a un paciente</option>
+
+                    <select
+                        name="paciente_id"
+                        id="select_pacientes_manual"
+                        class="form-select select2-paciente"
+                        disabled>
+
+                        <option value="">Seleccione un paciente</option>
+
+                        <?php foreach ($pacientes as $p): ?>
+                            <option value="<?= $p['id_paciente'] ?>">
+                                <?= htmlspecialchars($p['nombre'] . ' ' . $p['apellido']) ?>
+                            </option>
+                        <?php endforeach; ?>
+
                     </select>
-                    <small class="form-text text-muted">Seleccione un paciente para asignarle un turno.</small>
+
+                    <small class="form-text text-muted">
+                        Seleccione el paciente al que se asignará este turno.
+                    </small>
+                </div>
+
+                <!-- ¿Con obra social? -->
+                <div class="col-12 col-md-6 col-lg-3 d-none" id="div_obra_social_toggle">
+                    <label class="form-label d-block">¿Con obra social?</label>
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input"
+                            type="radio"
+                            name="con_obra_social"
+                            id="obra_social_no"
+                            value="0"
+                            checked>
+                        <label class="form-check-label" for="obra_social_no">No</label>
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input"
+                            type="radio"
+                            name="con_obra_social"
+                            id="obra_social_si"
+                            value="1">
+                        <label class="form-check-label" for="obra_social_si">Sí</label>
+                    </div>
+                </div>
+
+                <!-- Elección de Obra Social -->
+                <div class="col-12 col-md-6 col-lg-3 d-none" id="div_select_obra_social">
+                    <label class="form-label">Obra Social</label>
+                    <select
+                        name="obra_social_id"
+                        id="select_obra_social"
+                        class="form-select select2-obra-social"
+                        disabled>
+                        <option value="">Seleccione paciente y doctor primero</option>
+                    </select>
+                    <small class="form-text text-muted">
+                        Solo se muestran las obras sociales en común entre el doctor y el paciente elegidos.
+                    </small>
                 </div>
 
                 <!-- Botón -->
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary w-100">
-                        Agregar / Asignar
-                    </button>
-                </div>
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fa-solid fa-floppy-disk me-1"></i>
+                    Guardar turno
+                </button>
 
             </div>
         </form>
@@ -187,27 +271,35 @@ $estados  = $est->consultarVariosEstados();
                                                 </button>
                                             </form>
                                         </a>
-
                                         <!-- Editar turno disponible -->
                                         <a>
                                             <button type="button"
-                                                    class="btn btn-warning btn-sm"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#modalEditar<?= $row['id_turnos'] ?>">
+                                                class="btn btn-warning btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalEditar<?= $row['id_turnos'] ?>">
                                                 <i class="fa-solid fa-pen"></i>
+                                            </button>
+                                        </a>
+                                        <!-- boton para historial -->
+                                        <a>
+                                            <button type="button"
+                                                class="btn btn-info btn-sm btn-ver-historial"
+                                                data-id-turno="<?= $row['id_turnos'] ?>">
+                                                <i class="fa-solid fa-clock-rotate-left"></i>
                                             </button>
                                         </a>
                                     </td>
                                 </tr>
 
                                 <!-- Modal edición por turno disponible -->
+                                <!-- Modal edición por turno disponible -->
                                 <div class="modal fade" id="modalEditar<?= $row['id_turnos'] ?>" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <form class="formEditarTurno"
-                                                  id="formEditarTurno_<?= $row['id_turnos'] ?>"
-                                                  method="POST"
-                                                  action="<?= $turnoControllerPath ?>">
+                                                id="formEditarTurno_<?= $row['id_turnos'] ?>"
+                                                method="POST"
+                                                action="<?= $turnoControllerPath ?>">
 
                                                 <div class="modal-header">
                                                     <h5 class="modal-title">Modificar Turno #<?= $row['id_turnos'] ?></h5>
@@ -215,7 +307,7 @@ $estados  = $est->consultarVariosEstados();
                                                 </div>
 
                                                 <div class="modal-body">
-                                                    <input type="hidden" name="action" value="actualizacion">
+                                                    <input type="hidden" name="action" value="actualizar">
                                                     <input type="hidden" name="id_turnos" value="<?= $row['id_turnos'] ?>">
 
                                                     <div class="mb-3">
@@ -240,39 +332,67 @@ $estados  = $est->consultarVariosEstados();
                                                     <div class="mb-3">
                                                         <label class="form-label">Minutos del Turno</label>
                                                         <input type="number"
-                                                               class="form-control"
-                                                               name="minutos_turnos"
-                                                               value="<?= $row['minutos_turnos'] ?>"
-                                                               required>
+                                                            class="form-control"
+                                                            name="minutos_turnos"
+                                                            value="<?= $row['minutos_turnos'] ?>"
+                                                            required>
                                                     </div>
 
                                                     <div class="mb-3">
                                                         <label class="form-label">Fecha y Hora</label>
                                                         <input type="datetime-local"
-                                                               class="form-control"
-                                                               name="fecha_hora"
-                                                               value="<?= date('Y-m-d\TH:i', strtotime($row['fecha_hora'])) ?>"
-                                                               required>
+                                                            class="form-control"
+                                                            name="fecha_hora"
+                                                            value="<?= date('Y-m-d\TH:i', strtotime($row['fecha_hora'])) ?>"
+                                                            required>
                                                     </div>
 
                                                     <div class="mb-3">
                                                         <label class="form-label">Disponible</label><br>
+
                                                         <div class="form-check form-check-inline">
                                                             <input class="form-check-input"
-                                                                   type="radio"
-                                                                   name="disponible"
-                                                                   value="0"
-                                                                   <?= $row['disponible'] == 0 ? 'checked' : '' ?>>
-                                                            <label class="form-check-label">No</label>
+                                                                type="radio"
+                                                                name="disponible"
+                                                                id="disponible_no_<?= $row['id_turnos'] ?>"
+                                                                value="0"
+                                                                <?= $row['disponible'] == 0 ? 'checked' : '' ?>>
+                                                            <label class="form-check-label" for="disponible_no_<?= $row['id_turnos'] ?>">No</label>
                                                         </div>
+
                                                         <div class="form-check form-check-inline">
                                                             <input class="form-check-input"
-                                                                   type="radio"
-                                                                   name="disponible"
-                                                                   value="1"
-                                                                   <?= $row['disponible'] == 1 ? 'checked' : '' ?>>
-                                                            <label class="form-check-label">Sí</label>
+                                                                type="radio"
+                                                                name="disponible"
+                                                                id="disponible_si_<?= $row['id_turnos'] ?>"
+                                                                value="1"
+                                                                <?= $row['disponible'] == 1 ? 'checked' : '' ?>>
+                                                            <label class="form-check-label" for="disponible_si_<?= $row['id_turnos'] ?>">Sí</label>
                                                         </div>
+                                                    </div>
+
+                                                    <!-- Paciente (aparece solo si Disponible = No) -->
+                                                    <div class="mb-3 d-none div-paciente-modal">
+                                                        <label class="form-label">Paciente</label>
+
+                                                        <select
+                                                            name="paciente_id"
+                                                            class="form-select select2-paciente-modal"
+                                                            disabled>
+
+                                                            <option value="">Seleccione un paciente</option>
+
+                                                            <?php foreach ($pacientes as $p): ?>
+                                                                <option value="<?= $p['id_paciente'] ?>">
+                                                                    <?= htmlspecialchars($p['nombre'] . ' ' . $p['apellido']) ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+
+                                                        </select>
+
+                                                        <small class="form-text text-muted">
+                                                            Seleccione el paciente al que se asignará este turno.
+                                                        </small>
                                                     </div>
                                                 </div>
 
@@ -280,6 +400,7 @@ $estados  = $est->consultarVariosEstados();
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                                     <button type="submit" class="btn btn-success">Guardar</button>
                                                 </div>
+
                                             </form>
                                         </div>
                                     </div>
@@ -296,10 +417,13 @@ $estados  = $est->consultarVariosEstados();
                         <thead>
                             <tr>
                                 <th>ID Agenda Turno</th>
+                                <th>ID Turno</th>
                                 <th>Paciente</th>
+                                <th>Doctor</th>
                                 <th>Fecha y Hora</th>
                                 <th>Minutos</th>
                                 <th>Estado</th>
+                                <th>Obra Social</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -308,10 +432,32 @@ $estados  = $est->consultarVariosEstados();
                             <?php foreach ($turnos_pacientes as $t): ?>
                                 <tr>
                                     <td><?= $t['id_agenda_turno'] ?></td>
-                                    <td><?= htmlspecialchars($t['paciente_nombre'] . " " . $t['paciente_apellido']) ?></td>
+
+                                    <td><?= $t['turno_id_turnos'] ?></td>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $t['paciente_nombre'] . " " . $t['paciente_apellido']
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $t['doctor_nombre'] . " " . $t['doctor_apellido']
+                                        ) ?>
+                                    </td>
+
                                     <td><?= $t['fecha_hora'] ?></td>
+
                                     <td><?= $t['minutos_turnos'] ?></td>
+
                                     <td><?= htmlspecialchars($t['tipo_estado']) ?></td>
+
+                                    <td>
+                                        <?= $t['con_obra_social']
+                                            ? htmlspecialchars($t['nombre_obra_social'] ?? 'Obra social eliminada')
+                                            : 'No' ?>
+                                    </td>
 
                                     <td class="d-flex gap-1">
 
@@ -336,19 +482,26 @@ $estados  = $est->consultarVariosEstados();
                                                 <i class="fa-solid fa-pen"></i>
                                             </button>
                                         </a>
+                                        <a>
+                                            <button type="button"
+                                                class="btn btn-info btn-sm btn-ver-historial"
+                                                data-id-turno="<?= $t['turno_id_turnos'] ?>">
+                                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                            </button>
+                                        </a>
                                     </td>
                                 </tr>
 
                                 <!-- MODAL PARA EDITAR TURNO ASIGNADO A PACIENTE -->
                                 <div class="modal fade"
-                                     id="modalEditarAsignado<?= $t['id_agenda_turno'] ?>"
-                                     tabindex="-1"
-                                     aria-hidden="true">
+                                    id="modalEditarAsignado<?= $t['id_agenda_turno'] ?>"
+                                    tabindex="-1"
+                                    aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
                                             <form method="POST"
-                                                  id="formEditarTurnoAsignado_<?= $t['id_agenda_turno'] ?>"
-                                                  action="<?= $turnoControllerPath ?>">
+                                                id="formEditarTurnoAsignado_<?= $t['id_agenda_turno'] ?>"
+                                                action="<?= $turnoControllerPath ?>">
 
                                                 <div class="modal-header">
                                                     <h5 class="modal-title">Editar Turno Asignado #<?= $t['id_agenda_turno'] ?></h5>
@@ -378,9 +531,9 @@ $estados  = $est->consultarVariosEstados();
                                                     <div class="col-12 col-md-6 mb-3">
                                                         <label class="form-label">Doctor</label>
                                                         <select id="doctorSelect_<?= $t['id_agenda_turno'] ?>"
-                                                                class="form-select select2-doctor"
-                                                                name="doctor_id"
-                                                                required>
+                                                            class="form-select select2-doctor"
+                                                            name="doctor_id"
+                                                            required>
                                                             <option value="">Seleccione</option>
                                                             <?php foreach ($doctores as $doc): ?>
                                                                 <option value="<?= $doc['id_doctor'] ?>"
@@ -395,9 +548,9 @@ $estados  = $est->consultarVariosEstados();
                                                     <div class="col-12 col-md-6 mb-3">
                                                         <label class="form-label">Agenda</label>
                                                         <select id="agendaSelect_<?= $t['id_agenda_turno'] ?>"
-                                                                class="form-select agenda-select-edit"
-                                                                name="agenda_id_agenda"
-                                                                required>
+                                                            class="form-select agenda-select-edit"
+                                                            name="agenda_id_agenda"
+                                                            required>
                                                             <option value="<?= $t['agenda_id_agenda'] ?>" selected>
                                                                 <?= htmlspecialchars($t['agenda_desc']) ?>
                                                             </option>
@@ -409,9 +562,9 @@ $estados  = $est->consultarVariosEstados();
                                                         <label class="form-label">Fecha y Hora (turnos disponibles)</label>
 
                                                         <select id="turnosSelect_<?= $t['id_agenda_turno'] ?>"
-                                                                name="turno_id"
-                                                                class="form-select select2-turnos"
-                                                                required>
+                                                            name="turno_id"
+                                                            class="form-select select2-turnos"
+                                                            required>
 
                                                             <option value="<?= $t['turno_id_turnos'] ?>" selected>
                                                                 <?= date("d/m/Y H:i", strtotime($t['fecha_hora'])) ?> (actual)
@@ -428,10 +581,10 @@ $estados  = $est->consultarVariosEstados();
                                                     <div class="col-12 col-md-6 mb-3">
                                                         <label class="form-label">Minutos</label>
                                                         <input type="number"
-                                                               class="form-control"
-                                                               name="minutos_turnos"
-                                                               value="<?= $t['minutos_turnos'] ?>"
-                                                               required>
+                                                            class="form-control"
+                                                            name="minutos_turnos"
+                                                            value="<?= $t['minutos_turnos'] ?>"
+                                                            required>
                                                     </div>
 
                                                     <!-- ESTADO -->
@@ -445,6 +598,53 @@ $estados  = $est->consultarVariosEstados();
                                                                 </option>
                                                             <?php endforeach ?>
                                                         </select>
+                                                    </div>
+
+                                                    <!-- ¿CON OBRA SOCIAL? -->
+                                                    <div class="col-12 col-md-6 mb-3 div-obra-social-toggle-modal">
+                                                        <label class="form-label d-block">¿Con obra social?</label>
+
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input"
+                                                                type="radio"
+                                                                name="con_obra_social"
+                                                                id="obra_social_no_asig_<?= $t['id_agenda_turno'] ?>"
+                                                                value="0"
+                                                                <?= !$t['con_obra_social'] ? 'checked' : '' ?>>
+                                                            <label class="form-check-label" for="obra_social_no_asig_<?= $t['id_agenda_turno'] ?>">No</label>
+                                                        </div>
+
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input"
+                                                                type="radio"
+                                                                name="con_obra_social"
+                                                                id="obra_social_si_asig_<?= $t['id_agenda_turno'] ?>"
+                                                                value="1"
+                                                                <?= $t['con_obra_social'] ? 'checked' : '' ?>>
+                                                            <label class="form-check-label" for="obra_social_si_asig_<?= $t['id_agenda_turno'] ?>">Sí</label>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- OBRA SOCIAL -->
+                                                    <div class="col-12 mb-3 div-select-obra-social-modal <?= $t['con_obra_social'] ? '' : 'd-none' ?>">
+                                                        <label class="form-label">Obra Social</label>
+                                                        <select
+                                                            name="obra_social_id"
+                                                            class="form-select select2-obra-social-modal"
+                                                            <?= $t['con_obra_social'] ? '' : 'disabled' ?>>
+
+                                                            <?php if ($t['con_obra_social'] && !empty($t['obra_social_id_obra_social'])): ?>
+                                                                <option value="<?= $t['obra_social_id_obra_social'] ?>" selected>
+                                                                    <?= htmlspecialchars($t['nombre_obra_social'] ?? '') ?>
+                                                                </option>
+                                                            <?php else: ?>
+                                                                <option value="">Seleccione un paciente primero</option>
+                                                            <?php endif; ?>
+
+                                                        </select>
+                                                        <small class="form-text text-muted">
+                                                            Solo se muestran las obras sociales en común entre el doctor y el paciente elegidos.
+                                                        </small>
                                                     </div>
 
                                                 </div>
@@ -473,8 +673,23 @@ $estados  = $est->consultarVariosEstados();
     </div>
 </div>
 
+<div class="modal fade" id="modalHistorial" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Historial del turno</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group" id="listaHistorial">
+                    <li class="list-group-item text-muted">Cargando...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="assets/js/sweetalert2@11.js"></script>
 <script type="module" src="assets/js/validaciones/turno/funciones_turno_lista.js"></script>
-<script type="module" src="assets/js/validaciones/turno/modo_turno.js"></script>
 <script type="module" src="assets/js/validaciones/turno/modalEditar_TurnosAsignados.js"></script>
 <script type="module" src="assets/js/validaciones/turno/envio_turno_controlador.js"></script>

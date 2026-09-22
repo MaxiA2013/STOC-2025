@@ -1,6 +1,16 @@
 <?php
 require_once 'conexion.php';
 
+class TurnoHistorial
+{
+    private $id_turno_historial;
+    private $turno_id_turnos;
+    private $usuario_id_usuario;
+    private $accion;
+    private $detalle;
+    private $fecha_registro;
+}
+
 class Turno
 {
     private $id_turnos;
@@ -8,68 +18,90 @@ class Turno
     private $fecha_hora;
     private $disponible;
     private $agenda_id_agenda;
+    private $con_obra_social;
+    private $obra_social_id_obra_social;
 
     public function guardarTurno()
     {
         $con = new Conexion();
-        $query = "INSERT INTO turno (minutos_turnos, fecha_hora, disponible, agenda_id_agenda)
-                  VALUES ($this->minutos_turnos, '$this->fecha_hora', $this->disponible, $this->agenda_id_agenda)";
+        $agenda = intval($this->agenda_id_agenda);
+        $minutos = intval($this->minutos_turnos);
+        $disponible = intval($this->disponible);
+        $fecha_hora = trim($this->fecha_hora);
+
+        if ($agenda <= 0 || $minutos <= 0 || $fecha_hora === '') {
+            return false;
+        }
+
+        // Evitar duplicar un turno en la misma agenda y horario
+        $existente = $this->existeTurnoEnAgenda($agenda, $fecha_hora);
+
+        if ($existente) {
+            // Devolvemos el ID existente.
+            // Esto es especialmente útil para "crear y asignar".
+            return $existente;
+        }
+
+        $query = "INSERT INTO turno
+              (minutos_turnos, fecha_hora, disponible, agenda_id_agenda)
+              VALUES ($minutos, '$fecha_hora', $disponible, $agenda)";
+
         return $con->insertar($query);
     }
 
     // GENERAR TURNOS
     public function generarTurnosParaAgenda($id_agenda, $fechaDesde, $fechaHasta, $horaDesde, $horaHasta, $minutos)
-{
-    $this->agenda_id_agenda = intval($id_agenda);
-    $minutos = intval($minutos);
+    {
+        $this->agenda_id_agenda = intval($id_agenda);
+        $minutos = intval($minutos);
 
-    if ($minutos <= 0) {
-        return false;
-    }
-
-    $fechaActual = new DateTime($fechaDesde);
-    $fechaFinal = new DateTime($fechaHasta);
-
-    while ($fechaActual <= $fechaFinal) {
-
-        $fecha = $fechaActual->format("Y-m-d");
-
-        $horaActual = strtotime("$fecha $horaDesde");
-        $horaFin = strtotime("$fecha $horaHasta");
-
-        while ($horaActual < $horaFin) {
-
-            $this->minutos_turnos = $minutos;
-            $this->fecha_hora = date("Y-m-d H:i:s", $horaActual);
-            $this->disponible = 1;
-
-            $this->guardarTurno();
-
-            $horaActual = strtotime("+$minutos minutes", $horaActual);
+        if ($minutos <= 0) {
+            return false;
         }
 
-        $fechaActual->modify("+1 day");
+        $fechaActual = new DateTime($fechaDesde);
+        $fechaFinal = new DateTime($fechaHasta);
+
+        while ($fechaActual <= $fechaFinal) {
+
+            $fecha = $fechaActual->format("Y-m-d");
+
+            $horaActual = strtotime("$fecha $horaDesde");
+            $horaFin = strtotime("$fecha $horaHasta");
+
+            while ($horaActual < $horaFin) {
+
+                $this->minutos_turnos = $minutos;
+                $this->fecha_hora = date("Y-m-d H:i:s", $horaActual);
+                $this->disponible = 1;
+
+                $this->guardarTurno();
+
+                $horaActual = strtotime("+$minutos minutes", $horaActual);
+            }
+
+            $fechaActual->modify("+1 day");
+        }
+
+        return true;
     }
 
-    return true;
-}
-
-   public function eliminarPorAgenda($agenda_id_agenda)
-{
-    $con = new Conexion();
-    $agenda_id_agenda = intval($agenda_id_agenda);
-    $sql = "DELETE FROM turno
+    public function eliminarPorAgenda($agenda_id_agenda)
+    {
+        $con = new Conexion();
+        $agenda_id_agenda = intval($agenda_id_agenda);
+        $sql = "DELETE FROM turno
             WHERE agenda_id_agenda = $agenda_id_agenda";
-    return $con->eliminar($sql);
-}
+        return $con->eliminar($sql);
+    }
 
-public function obtenerTurnosPorAgenda($idAgenda)
-{
-    $con = new Conexion();
+    public function obtenerTurnosPorAgenda($idAgenda)
+    {
+        $con = new Conexion();
 
-    $idAgenda = intval($idAgenda);
+        $idAgenda = intval($idAgenda);
 
-    $sql = "SELECT
+        $sql = "SELECT
                 t.id_turnos,
                 t.minutos_turnos,
                 t.fecha_hora,
@@ -85,198 +117,192 @@ public function obtenerTurnosPorAgenda($idAgenda)
             WHERE t.agenda_id_agenda = $idAgenda
             ORDER BY t.fecha_hora ASC";
 
-    return $con->consultarArray($sql);
-}
+        return $con->consultarArray($sql);
+    }
 
-public function eliminarTurno($idTurno)
-{
-    $con = new Conexion();
+    public function eliminarTurno($idTurno)
+    {
+        $con = new Conexion();
 
-    $idTurno = intval($idTurno);
+        $idTurno = intval($idTurno);
 
-    $sql = "DELETE FROM turno
+        $sql = "DELETE FROM turno
             WHERE id_turnos = $idTurno";
 
-    return $con->eliminar($sql);
-}
+        return $con->eliminar($sql);
+    }
 
-public function actualizarMinutos($idTurno, $minutos)
-{
-    $con = new Conexion();
+    public function actualizarMinutos($idTurno, $minutos)
+    {
+        $con = new Conexion();
 
-    $idTurno = intval($idTurno);
-    $minutos = intval($minutos);
+        $idTurno = intval($idTurno);
+        $minutos = intval($minutos);
 
-    $sql = "UPDATE turno
+        $sql = "UPDATE turno
             SET minutos_turnos = $minutos
             WHERE id_turnos = $idTurno";
 
-    return $con->actualizar($sql);
-}
-
-public function sincronizarTurnosAgenda(
-    $idAgenda,
-    $fechaDesde,
-    $fechaHasta,
-    $horaDesde,
-    $horaHasta,
-    $minutos
-) {
-    $idAgenda = intval($idAgenda);
-    $minutos = intval($minutos);
-
-    if ($minutos <= 0) {
-        return [
-            "success" => false,
-            "error" => "La duración de los turnos debe ser mayor a 0."
-        ];
+        return $con->actualizar($sql);
     }
 
-    /*
+    public function sincronizarTurnosAgenda(
+        $idAgenda,
+        $fechaDesde,
+        $fechaHasta,
+        $horaDesde,
+        $horaHasta,
+        $minutos
+    ) {
+        $idAgenda = intval($idAgenda);
+        $minutos = intval($minutos);
+
+        if ($minutos <= 0) {
+            return [
+                "success" => false,
+                "error" => "La duración de los turnos debe ser mayor a 0."
+            ];
+        }
+
+        /*
      * 1. GENERAR LA LISTA DE HORARIOS QUE DEBERÍAN EXISTIR
      */
 
-    $turnosEsperados = [];
+        $turnosEsperados = [];
 
-    $fechaActual = new DateTime($fechaDesde);
-    $fechaFinal = new DateTime($fechaHasta);
+        $fechaActual = new DateTime($fechaDesde);
+        $fechaFinal = new DateTime($fechaHasta);
 
-    while ($fechaActual <= $fechaFinal) {
+        while ($fechaActual <= $fechaFinal) {
 
-        $fecha = $fechaActual->format("Y-m-d");
+            $fecha = $fechaActual->format("Y-m-d");
 
-        $horaActual = strtotime("$fecha $horaDesde");
-        $horaFin = strtotime("$fecha $horaHasta");
+            $horaActual = strtotime("$fecha $horaDesde");
+            $horaFin = strtotime("$fecha $horaHasta");
 
-        while ($horaActual < $horaFin) {
+            while ($horaActual < $horaFin) {
 
-            $fechaHora = date("Y-m-d H:i:s", $horaActual);
+                $fechaHora = date("Y-m-d H:i:s", $horaActual);
 
-            $turnosEsperados[$fechaHora] = true;
+                $turnosEsperados[$fechaHora] = true;
 
-            $horaActual = strtotime("+$minutos minutes", $horaActual);
+                $horaActual = strtotime("+$minutos minutes", $horaActual);
+            }
+
+            $fechaActual->modify("+1 day");
         }
 
-        $fechaActual->modify("+1 day");
-    }
-
-    /*
+        /*
      * =====================================================
      * 2. OBTENER TURNOS ACTUALES
      * =====================================================
      */
 
-    $turnosActuales = $this->obtenerTurnosPorAgenda($idAgenda);
+        $turnosActuales = $this->obtenerTurnosPorAgenda($idAgenda);
 
-    $mapaActuales = [];
+        $mapaActuales = [];
 
-    foreach ($turnosActuales as $turno) {
+        foreach ($turnosActuales as $turno) {
 
-        $fechaHora = $turno["fecha_hora"];
+            $fechaHora = $turno["fecha_hora"];
 
-        $mapaActuales[$fechaHora] = $turno;
-    }
+            $mapaActuales[$fechaHora] = $turno;
+        }
 
-    /*
+        /*
      * =====================================================
      * 3. COMPROBAR SI HAY TURNOS ASIGNADOS
      *    QUE SE PERDERÍAN
      * =====================================================
      */
 
-    $turnosAsignadosAEliminar = [];
+        $turnosAsignadosAEliminar = [];
 
-    foreach ($mapaActuales as $fechaHora => $turno) {
+        foreach ($mapaActuales as $fechaHora => $turno) {
 
-        if (!isset($turnosEsperados[$fechaHora])) {
+            if (!isset($turnosEsperados[$fechaHora])) {
 
-            if (intval($turno["asignado"]) === 1) {
+                if (intval($turno["asignado"]) === 1) {
 
-                $turnosAsignadosAEliminar[] = $turno;
+                    $turnosAsignadosAEliminar[] = $turno;
+                }
             }
         }
-    }
 
-    /*
+        /*
      * Si existe algún turno asignado que quedaría fuera
-     * de la nueva configuración, NO modificamos nada.
+     * de la nueva configuración, NO modifica nada.
      */
 
-    if (!empty($turnosAsignadosAEliminar)) {
+        if (!empty($turnosAsignadosAEliminar)) {
 
-        $fechas = [];
+            $fechas = [];
 
-        foreach ($turnosAsignadosAEliminar as $turno) {
-            $fechas[] = date(
-                "d/m/Y H:i",
-                strtotime($turno["fecha_hora"])
-            );
+            foreach ($turnosAsignadosAEliminar as $turno) {
+                $fechas[] = date(
+                    "d/m/Y H:i",
+                    strtotime($turno["fecha_hora"])
+                );
+            }
+
+            return [
+                "success" => false,
+                "error" => "Hay turnos asignados que quedarían fuera de la nueva configuración.",
+                "turnos_asignados" => $fechas
+            ];
+        }
+
+        /*
+     * 4. ELIMINAR TURNOS QUE YA NO CORRESPONDEN
+     */
+
+        foreach ($mapaActuales as $fechaHora => $turno) {
+
+            if (!isset($turnosEsperados[$fechaHora])) {
+
+                $this->eliminarTurno($turno["id_turnos"]);
+            }
+        }
+
+        /*
+     * 5. CREAR LOS TURNOS NUEVOS
+     */
+
+        foreach ($turnosEsperados as $fechaHora => $valor) {
+
+            if (!isset($mapaActuales[$fechaHora])) {
+
+                $this->agenda_id_agenda = $idAgenda;
+                $this->minutos_turnos = $minutos;
+                $this->fecha_hora = $fechaHora;
+                $this->disponible = 1;
+
+                $this->guardarTurno();
+            }
+        }
+
+        /*
+     *  6. ACTUALIZAR DURACIÓN DE LOS TURNOS EXISTENTES
+     */
+
+        foreach ($mapaActuales as $fechaHora => $turno) {
+
+            if (isset($turnosEsperados[$fechaHora])) {
+
+                if (intval($turno["minutos_turnos"]) !== $minutos) {
+
+                    $this->actualizarMinutos(
+                        $turno["id_turnos"],
+                        $minutos
+                    );
+                }
+            }
         }
 
         return [
-            "success" => false,
-            "error" => "Hay turnos asignados que quedarían fuera de la nueva configuración.",
-            "turnos_asignados" => $fechas
+            "success" => true
         ];
     }
-
-    /*
-     * =====================================================
-     * 4. ELIMINAR TURNOS QUE YA NO CORRESPONDEN
-     * =====================================================
-     */
-
-    foreach ($mapaActuales as $fechaHora => $turno) {
-
-        if (!isset($turnosEsperados[$fechaHora])) {
-
-            $this->eliminarTurno($turno["id_turnos"]);
-        }
-    }
-
-    /*
-     * =====================================================
-     * 5. CREAR LOS TURNOS NUEVOS
-     * =====================================================
-     */
-
-    foreach ($turnosEsperados as $fechaHora => $valor) {
-
-        if (!isset($mapaActuales[$fechaHora])) {
-
-            $this->agenda_id_agenda = $idAgenda;
-            $this->minutos_turnos = $minutos;
-            $this->fecha_hora = $fechaHora;
-            $this->disponible = 1;
-
-            $this->guardarTurno();
-        }
-    }
-
-    /*
-     * =====================================================
-     * 6. ACTUALIZAR DURACIÓN DE LOS TURNOS EXISTENTES
-     * =====================================================
-     */
-
-    foreach ($mapaActuales as $fechaHora => $turno) {
-
-        if (isset($turnosEsperados[$fechaHora])) {
-
-            if (intval($turno["minutos_turnos"]) !== $minutos) {
-
-                $this->actualizarMinutos(
-                    $turno["id_turnos"],
-                    $minutos
-                );
-            }
-        }
-    }
-
-    return [
-        "success" => true
-    ];
-}
 
 
     public function eliminarPorAgendaAsignados($agenda_id_agenda)
@@ -456,7 +482,7 @@ public function sincronizarTurnosAgenda(
         return 0; // si hay error
 
     }
-    public function obtenerTurnoPorId($id_turno)
+    public function obtenerTurnoPorId($id_turnos)
     {
         $con = new Conexion();
 
@@ -475,7 +501,7 @@ public function sincronizarTurnosAgenda(
             INNER JOIN doctor d ON a.doctor_id_doctor = d.id_doctor
             INNER JOIN usuario u ON d.usuario_id_usuario = u.id_usuario
             INNER JOIN persona per ON u.persona_id_persona = per.id_persona
-            WHERE t.id_turnos = $id_turno
+            WHERE t.id_turnos = $id_turnos
             LIMIT 1";
 
         $res = $con->consultar($query); // retorna mysqli_result
@@ -487,6 +513,116 @@ public function sincronizarTurnosAgenda(
         }
     }
 
+    public function existeTurnoEnAgenda($agenda_id_agenda, $fecha_hora)
+    {
+        $con = new Conexion();
+
+        $agenda_id_agenda = intval($agenda_id_agenda);
+        $fecha_hora = trim($fecha_hora);
+
+        if ($agenda_id_agenda <= 0 || $fecha_hora === '') {
+            return false;
+        }
+
+        $sql = "SELECT id_turnos
+            FROM turno
+            WHERE agenda_id_agenda = $agenda_id_agenda
+              AND fecha_hora = '$fecha_hora'
+            LIMIT 1";
+
+        $datos = $con->consultarArray($sql);
+
+        return $datos[0]['id_turnos'] ?? false;
+    }
+
+    // HISTORIAL DE CAMBIOS
+        /*Registra un evento en el historial de un turno qué ze cambió específicamente,
+        * de qué valor a qué valor, quién lo hizo y con qué perfil*/
+        public function registrarHistorial(
+            $id_turno,
+            array $usuario,
+            $accion,
+            $campo_modificado = null,
+            $valor_anterior = null,
+            $valor_nuevo = null,
+            $detalle = null
+        ) {
+            $con = new Conexion();
+
+            $id_turno = intval($id_turno);
+
+            $usuario_id = !empty($usuario['id'])
+                ? intval($usuario['id'])
+                : null;
+
+            $usuario_id_sql = $usuario_id ? $usuario_id : 'NULL';
+
+            $usuario_nombre = addslashes(
+                trim($usuario['nombre'] ?? 'Sistema')
+            );
+
+            $usuario_perfil = isset($usuario['perfil']) && $usuario['perfil'] !== ''
+                ? "'" . addslashes(trim($usuario['perfil'])) . "'"
+                : 'NULL';
+
+            $accion = addslashes(trim($accion));
+
+            $campo_sql = $campo_modificado !== null
+                ? "'" . addslashes(trim($campo_modificado)) . "'"
+                : 'NULL';
+
+            $valor_anterior_sql = $valor_anterior !== null
+                ? "'" . addslashes(trim((string) $valor_anterior)) . "'"
+                : 'NULL';
+
+            $valor_nuevo_sql = $valor_nuevo !== null
+                ? "'" . addslashes(trim((string) $valor_nuevo)) . "'"
+                : 'NULL';
+
+            $detalle_sql = $detalle !== null
+                ? "'" . addslashes(trim($detalle)) . "'"
+                : 'NULL';
+
+            $query = "INSERT INTO turno_historial
+                (turno_id_turnos, usuario_id_usuario, usuario_nombre, usuario_perfil,
+                accion, campo_modificado, valor_anterior, valor_nuevo, detalle)
+            VALUES
+                ($id_turno, $usuario_id_sql, '$usuario_nombre', $usuario_perfil,
+                '$accion', $campo_sql, $valor_anterior_sql, $valor_nuevo_sql, $detalle_sql)";
+
+            return $con->insertar($query);
+        }
+
+        /**
+        * Devuelve los últimos $limite cambios de un turno.
+        * No necesita JOIN: nombre y perfil quedaron congelados
+        * al momento del cambio.
+        */
+        public function obtenerHistorial($id_turno, $limite = 4)
+        {
+            $con = new Conexion();
+
+            $id_turno = intval($id_turno);
+            $limite = intval($limite);
+
+            $query = "SELECT
+                id_turno_historial,
+                usuario_id_usuario,
+                usuario_nombre,
+                usuario_perfil,
+                accion,
+                campo_modificado,
+                valor_anterior,
+                valor_nuevo,
+                detalle,
+                fecha_registro
+            FROM turno_historial
+            WHERE turno_id_turnos = $id_turno
+            ORDER BY fecha_registro DESC
+            LIMIT $limite";
+
+            return $con->consultarArray($query);
+        }
 
     // Setters
     public function setMinutos_turnos($v)
@@ -506,23 +642,35 @@ public function sincronizarTurnosAgenda(
         $this->agenda_id_agenda = $v;
     }
 
-    /**
-     * Get the value of id_turnos
-     */
     public function getId_turnos()
     {
         return $this->id_turnos;
     }
 
-    /**
-     * Set the value of id_turnos
-     *
-     * @return  self
-     */
     public function setId_turnos($id_turnos)
     {
         $this->id_turnos = $id_turnos;
 
         return $this;
+    }
+
+    public function setCon_obra_social($v)
+    {
+        $this->con_obra_social = $v;
+    }
+
+    public function getCon_obra_social()
+    {
+        return $this->con_obra_social;
+    }
+
+    public function setObra_social_id_obra_social($v)
+    {
+        $this->obra_social_id_obra_social = $v;
+    }
+
+    public function getObra_social_id_obra_social()
+    {
+        return $this->obra_social_id_obra_social;
     }
 }

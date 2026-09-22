@@ -1,24 +1,5 @@
-document.addEventListener("DOMContentLoaded", () => {
-
-    //este js pertenece a las tablas 
-    // Activar el select2 si lo usas
-    if ($(".select2-pacientes").length) {
-        $(".select2-pacientes").select2({
-            dropdownParent: $("#modalTurno") 
-        });
-    }
-
-    // Evento submit del formulario de turno
-    document.getElementById("formAgregarTurno").addEventListener("submit", function (e) {
-        e.preventDefault();
-        guardarTurno();
-    });
-
-});
-
 // assets/js/turno/envio_turno_controlador.js
 $(document).ready(function () {
-
     // ==========================================================
     // Helpers: Toast de Bootstrap + SweetAlert2 de error
     // ==========================================================
@@ -133,53 +114,59 @@ $(document).ready(function () {
     //    Formularios dentro de los modales: <form class="formEditarTurno" ...>
     // ==========================================================
     $(document).on('submit', 'form.formEditarTurno', function (e) {
-        e.preventDefault();
-        const $form = $(this);
+    e.preventDefault();
+    const $form = $(this);
 
-        enviarFormularioAjax($form, {
-            successMessage: 'Turno disponible actualizado correctamente.',
-            onSuccess: function (resp, $f) {
-                // 1) Obtener ID de turno y buscar su fila en la tabla
-                const idTurno = $f.find("input[name='id_turnos']").val();
+    enviarFormularioAjax($form, {
+        successMessage: 'Turno disponible actualizado correctamente.',
+        onSuccess: function (resp, $f) {
 
-                const $fila = $("#panel-turnos tbody tr").filter(function () {
-                    return $(this).find("td").eq(0).text().trim() === idTurno;
-                });
+        /* Si el turno quedó asignado a un paciente, ya no pertenece a esta tabla: recargamos para que se
+        acomode sola en la pestaña de "Turnos Asignados"*/
+            if (resp.asignado) {
 
-                if ($fila.length) {
-                    // 2) Tomar valores del formulario
-                    const minutos    = $f.find("input[name='minutos_turnos']").val();
-                    const fechaHora  = $f.find("input[name='fecha_hora']").val();
-                    const disponible = $f.find("input[name='disponible']:checked").val();
-                    const disponibleTexto = (disponible === "1") ? "Sí" : "No";
+                setTimeout(function () {
+                    location.reload();
+                }, 800);
 
-                    const agendaTexto = $f.find("select[name='agenda_id_agenda'] option:selected").text();
-                    const doctorTexto = $f.find("select[name='doctor_id_modal'] option:selected").text();
-
-                    // 3) Actualizar columnas de la fila
-                    const $td = $fila.find("td");
-                    //   0: ID
-                    //   1: Minutos
-                    //   2: Fecha y Hora
-                    //   3: Disponible
-                    //   4: Agenda (Fecha)
-                    //   5: Doctor
-                    $td.eq(1).text(minutos);
-                    $td.eq(2).text(fechaHora);
-                    $td.eq(3).text(disponibleTexto);
-                    $td.eq(4).text(agendaTexto);
-                    $td.eq(5).text(doctorTexto);
-                }
-
-                // 4) Cerrar modal
-                const modalEl = $f.closest('.modal')[0];
-                if (modalEl) {
-                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                    modal.hide();
-                }
+                return;
             }
-        });
+
+            // 1) Obtener ID de turno y buscar su fila en la tabla
+            const idTurno = $f.find("input[name='id_turnos']").val();
+
+            const $fila = $("#panel-turnos tbody tr").filter(function () {
+                return $(this).find("td").eq(0).text().trim() === idTurno;
+            });
+
+            if ($fila.length) {
+                // 2) Tomar valores del formulario
+                const minutos    = $f.find("input[name='minutos_turnos']").val();
+                const fechaHora  = $f.find("input[name='fecha_hora']").val();
+                const disponible = $f.find("input[name='disponible']:checked").val();
+                const disponibleTexto = (disponible === "1") ? "Sí" : "No";
+
+                const agendaTexto = $f.find("select[name='agenda_id_agenda'] option:selected").text();
+                const doctorTexto = $f.find("select[name='doctor_id_modal'] option:selected").text();
+
+                // 3) Actualizar columnas de la fila
+                const $td = $fila.find("td");
+                $td.eq(1).text(minutos);
+                $td.eq(2).text(fechaHora);
+                $td.eq(3).text(disponibleTexto);
+                $td.eq(4).text(agendaTexto);
+                $td.eq(5).text(doctorTexto);
+            }
+
+            // 4) Cerrar modal
+            const modalEl = $f.closest('.modal')[0];
+            if (modalEl) {
+                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modal.hide();
+            }
+        }
     });
+});
 
     // ==========================================================
     // 3) EDITAR TURNOS ASIGNADOS A PACIENTES (tabla agenda_turno)
