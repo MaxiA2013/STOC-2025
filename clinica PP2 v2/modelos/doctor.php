@@ -73,13 +73,76 @@ class Doctor
                 JOIN persona p ON u.persona_id_persona = p.id_persona";
         return $conexion->consultar($query);
     }
-    //busca los doctores directamente de la tabla doctores
+    
+        //busca los doctores directamente de la tabla doctores
     public function todos_docs()
     {
         $conexion = new Conexion();
         $query = "SELECT * FROM doctor";
         return $conexion->consultar($query);
     }
+
+    // Obtener un doctor por ID, con su id_usuario incluido
+    // (necesario para notificaciones push)
+    public function obtenerPorId($id_doctor)
+    {
+        $conexion = new Conexion();
+
+        $id_doctor = intval($id_doctor);
+
+        $query = "SELECT
+                d.id_doctor,
+                u.id_usuario,
+                u.nombre_usuario,
+                per.nombre,
+                per.apellido
+            FROM doctor d
+            INNER JOIN usuario u ON d.usuario_id_usuario = u.id_usuario
+            INNER JOIN persona per ON u.persona_id_persona = per.id_persona
+            WHERE d.id_doctor = $id_doctor
+            LIMIT 1";
+
+        $resultado = $conexion->consultarArray($query);
+
+        return $resultado[0] ?? null;
+    }
+
+    /**
+ * Obtener el doctor asociado a un usuario.
+ */
+public function obtenerPorUsuarioId($id_usuario)
+{
+    $conexion = new Conexion();
+
+    $id_usuario = intval($id_usuario);
+
+    if ($id_usuario <= 0) {
+        return null;
+    }
+
+    $query = "SELECT
+                d.id_doctor,
+                d.numero_matricula_profesional,
+                d.precio_consulta,
+                d.usuario_id_usuario,
+                u.id_usuario,
+                u.nombre_usuario,
+                u.email,
+                p.id_persona,
+                p.nombre,
+                p.apellido
+              FROM doctor d
+              INNER JOIN usuario u
+                  ON d.usuario_id_usuario = u.id_usuario
+              INNER JOIN persona p
+                  ON u.persona_id_persona = p.id_persona
+              WHERE d.usuario_id_usuario = $id_usuario
+              LIMIT 1";
+
+    $resultado = $conexion->consultarArray($query);
+
+    return $resultado[0] ?? null;
+}
 
     // Obtener usuarios disponibles para asignar doctor (sin doctor aún) y traer sus perfiles
     public function userDisp()

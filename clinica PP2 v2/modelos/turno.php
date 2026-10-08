@@ -95,6 +95,33 @@ class Turno
         return $con->eliminar($sql);
     }
 
+        public function obtenerTurnosPorDoctor($id_doctor)
+    {
+        $con = new Conexion();
+        $id_doctor = intval($id_doctor);
+
+        $sql = "
+            SELECT
+                at.id_agenda_turno,
+                t.id_turnos AS turno_id_turnos,
+                t.fecha_hora,
+                t.minutos_turnos,
+                e.tipo_estado,
+                CONCAT(per.nombre, ' ', per.apellido) AS paciente_nombre
+            FROM agenda_turno at
+            INNER JOIN turno t ON at.turno_id_turnos = t.id_turnos
+            INNER JOIN agenda a ON t.agenda_id_agenda = a.id_agenda
+            INNER JOIN paciente p ON at.paciente_id_paciente = p.id_paciente
+            INNER JOIN usuario u ON p.usuario_id_usuario = u.id_usuario
+            INNER JOIN persona per ON u.persona_id_persona = per.id_persona
+            INNER JOIN estados e ON at.estados_id_estados = e.id_estados
+            WHERE a.doctor_id_doctor = $id_doctor
+            ORDER BY t.fecha_hora ASC
+        ";
+
+        return $con->consultarArray($sql);
+    }
+
     public function obtenerTurnosPorAgenda($idAgenda)
     {
         $con = new Conexion();
@@ -365,6 +392,123 @@ class Turno
         return $conexion->consultar($query);
     }
 
+    public function turnos_buscador($columnas, $campo, $sLimit)
+{
+    $con = new Conexion();
+
+    $campo = addslashes(trim($campo));
+
+    $where = "";
+
+    if ($campo !== '') {
+        $condiciones = [];
+
+        foreach ($columnas as $columna) {
+            $condiciones[] = "$columna LIKE '%$campo%'";
+        }
+
+        $where = "WHERE (" . implode(" OR ", $condiciones) . ")";
+    }
+
+    $query = "SELECT 
+                t.id_turnos,
+                t.minutos_turnos,
+                t.fecha_hora,
+                t.disponible,
+                t.agenda_id_agenda AS agenda_id,
+                a.fecha_desde AS fecha_agenda,
+                d.id_doctor AS doctor_id,
+                per.nombre AS nombre_doctor,
+                per.apellido
+            FROM turno t
+            INNER JOIN agenda a 
+                ON t.agenda_id_agenda = a.id_agenda
+            INNER JOIN doctor d 
+                ON a.doctor_id_doctor = d.id_doctor
+            INNER JOIN usuario u 
+                ON d.usuario_id_usuario = u.id_usuario
+            INNER JOIN persona per 
+                ON u.persona_id_persona = per.id_persona
+
+            $where
+
+            ORDER BY t.fecha_hora ASC
+
+            $sLimit";
+
+    return $con->consultar($query);
+}
+
+
+public function turnos_filtradosWhere($campo)
+{
+    $con = new Conexion();
+
+    $campo = addslashes(trim($campo));
+
+    $where = "";
+
+    if ($campo !== '') {
+
+        $where = "WHERE (
+            t.id_turnos LIKE '%$campo%'
+            OR t.minutos_turnos LIKE '%$campo%'
+            OR t.fecha_hora LIKE '%$campo%'
+            OR t.disponible LIKE '%$campo%'
+            OR t.agenda_id_agenda LIKE '%$campo%'
+            OR a.fecha_desde LIKE '%$campo%'
+            OR d.id_doctor LIKE '%$campo%'
+            OR per.nombre LIKE '%$campo%'
+            OR per.apellido LIKE '%$campo%'
+        )";
+    }
+
+    $query = "SELECT COUNT(*) AS total
+
+            FROM turno t
+
+            INNER JOIN agenda a
+                ON t.agenda_id_agenda = a.id_agenda
+
+            INNER JOIN doctor d
+                ON a.doctor_id_doctor = d.id_doctor
+
+            INNER JOIN usuario u
+                ON d.usuario_id_usuario = u.id_usuario
+
+            INNER JOIN persona per
+                ON u.persona_id_persona = per.id_persona
+
+            $where";
+
+    $resultado = $con->consultar($query);
+
+    if ($resultado) {
+        $fila = $resultado->fetch_assoc();
+        return (int) $fila['total'];
+    }
+
+    return 0;
+}
+
+
+public function turnos_filtradosSinWhere()
+{
+    $con = new Conexion();
+
+    $query = "SELECT COUNT(*) AS total
+              FROM turno";
+
+    $resultado = $con->consultar($query);
+
+    if ($resultado) {
+        $fila = $resultado->fetch_assoc();
+        return (int) $fila['total'];
+    }
+
+    return 0;
+}
+
     public function listarTurnoXAgenda($id_agenda)
     {
         $con = new Conexion();
@@ -383,11 +527,22 @@ class Turno
     public function actualizar()
     {
         $con = new Conexion();
+
+        $con_obra_social = intval($this->con_obra_social) === 1 ? 1 : 0;
+
+        // Invariante: si no hay obra social, el id jamás se graba,
+        // sin importar qué haya quedado seteado en el objeto.
+        $obra_social_sql = ($con_obra_social === 1 && !empty($this->obra_social_id_obra_social))
+            ? intval($this->obra_social_id_obra_social)
+            : 'NULL';
+
         $query = "UPDATE turno SET
                     minutos_turnos = '$this->minutos_turnos',
                     fecha_hora = '$this->fecha_hora',
                     disponible = '$this->disponible',
-                    agenda_id_agenda = '$this->agenda_id_agenda'
+                    agenda_id_agenda = '$this->agenda_id_agenda',
+                    con_obra_social = $con_obra_social,
+                    obra_social_id_obra_social = $obra_social_sql
                 WHERE id_turnos = '$this->id_turnos'";
         return $con->actualizar($query);
     }
@@ -534,6 +689,339 @@ class Turno
 
         return $datos[0]['id_turnos'] ?? false;
     }
+
+    /**
+ * Estadísticas generales del dashboard de un doctor.
+ */
+public function obtenerEstadisticasDoctor($idDoctor)
+{
+    $con = new Conexion();
+
+    $idDoctor = intval($idDoctor);
+
+    if ($idDoctor <= 0) {
+        return [];
+    }
+
+    $sql = "SELECT
+
+                COUNT(DISTINCT CASE
+                    WHEN DATE(t.fecha_hora) = CURDATE()
+                    THEN t.id_turnos
+                END) AS turnos_hoy,
+
+                COUNT(DISTINCT CASE
+                    WHEN DATE(t.fecha_hora) = CURDATE()
+                    AND t.disponible = 1
+                    THEN t.id_turnos
+                END) AS turnos_disponibles_hoy,
+
+                COUNT(DISTINCT CASE
+                    WHEN DATE(t.fecha_hora) = CURDATE()
+                    AND at.id_agenda_turno IS NOT NULL
+                    THEN t.id_turnos
+                END) AS turnos_asignados_hoy,
+
+                COUNT(DISTINCT CASE
+                    WHEN DATE(t.fecha_hora) = CURDATE()
+                    AND at.id_agenda_turno IS NOT NULL
+                    AND LOWER(e.tipo_estado) LIKE '%atend%'
+                    THEN t.id_turnos
+                END) AS turnos_atendidos_hoy,
+
+                COUNT(DISTINCT CASE
+                    WHEN t.fecha_hora >= NOW()
+                    AND at.id_agenda_turno IS NOT NULL
+                    THEN t.id_turnos
+                END) AS proximos_turnos,
+
+                COUNT(DISTINCT CASE
+                    WHEN at.id_agenda_turno IS NOT NULL
+                    THEN at.paciente_id_paciente
+                END) AS pacientes_totales
+
+            FROM turno t
+
+            INNER JOIN agenda a
+                ON t.agenda_id_agenda = a.id_agenda
+
+            LEFT JOIN agenda_turno at
+                ON at.turno_id_turnos = t.id_turnos
+
+            LEFT JOIN estados e
+                ON at.estados_id_estados = e.id_estados
+
+            WHERE a.doctor_id_doctor = $idDoctor
+              AND a.estados_id_estados <> 3";
+
+    $resultado = $con->consultarArray($sql);
+
+    return $resultado[0] ?? [];
+}
+
+/**
+ * Obtener próximos turnos asignados del doctor.
+ */
+public function obtenerProximosTurnosDoctor($idDoctor, $limite = 8)
+{
+    $con = new Conexion();
+
+    $idDoctor = intval($idDoctor);
+    $limite = intval($limite);
+
+    if ($idDoctor <= 0) {
+        return [];
+    }
+
+    if ($limite <= 0) {
+        $limite = 8;
+    }
+
+    $sql = "SELECT
+                at.id_agenda_turno,
+                t.id_turnos,
+                t.fecha_hora,
+                t.minutos_turnos,
+
+                at.estados_id_estados,
+                e.tipo_estado,
+
+                p.id_paciente,
+                per.nombre AS paciente_nombre,
+                per.apellido AS paciente_apellido,
+
+                a.id_agenda,
+                a.fecha_desde,
+                a.fecha_hasta,
+                a.hora_desde,
+                a.hora_hasta
+
+            FROM agenda_turno at
+
+            INNER JOIN turno t
+                ON at.turno_id_turnos = t.id_turnos
+
+            INNER JOIN agenda a
+                ON t.agenda_id_agenda = a.id_agenda
+
+            INNER JOIN paciente p
+                ON at.paciente_id_paciente = p.id_paciente
+
+            INNER JOIN usuario u
+                ON p.usuario_id_usuario = u.id_usuario
+
+            INNER JOIN persona per
+                ON u.persona_id_persona = per.id_persona
+
+            INNER JOIN estados e
+                ON at.estados_id_estados = e.id_estados
+
+            WHERE a.doctor_id_doctor = $idDoctor
+              AND a.estados_id_estados <> 3
+              AND t.fecha_hora >= NOW()
+
+            ORDER BY t.fecha_hora ASC
+
+            LIMIT $limite";
+
+    return $con->consultarArray($sql);
+}
+
+/**
+ * Obtener los turnos del día actual de un doctor.
+ */
+public function obtenerTurnosHoyDoctor($idDoctor)
+{
+    $con = new Conexion();
+
+    $idDoctor = intval($idDoctor);
+
+    $sql = "SELECT
+                at.id_agenda_turno,
+                t.id_turnos,
+                t.fecha_hora,
+                t.minutos_turnos,
+                t.disponible,
+
+                at.estados_id_estados,
+                e.tipo_estado,
+
+                p.id_paciente,
+                per.nombre AS paciente_nombre,
+                per.apellido AS paciente_apellido,
+
+                a.id_agenda
+
+            FROM turno t
+
+            INNER JOIN agenda a
+                ON t.agenda_id_agenda = a.id_agenda
+
+            LEFT JOIN agenda_turno at
+                ON at.turno_id_turnos = t.id_turnos
+
+            LEFT JOIN paciente p
+                ON at.paciente_id_paciente = p.id_paciente
+
+            LEFT JOIN usuario u
+                ON p.usuario_id_usuario = u.id_usuario
+
+            LEFT JOIN persona per
+                ON u.persona_id_persona = per.id_persona
+
+            LEFT JOIN estados e
+                ON at.estados_id_estados = e.id_estados
+
+            WHERE a.doctor_id_doctor = $idDoctor
+              AND a.estados_id_estados <> 3
+              AND DATE(t.fecha_hora) = CURDATE()
+
+            ORDER BY t.fecha_hora ASC";
+
+    return $con->consultarArray($sql);
+}
+
+/**
+ * Cantidad de turnos por día durante los últimos 7 días.
+ */
+public function obtenerActividadUltimos7Dias($idDoctor)
+{
+    $con = new Conexion();
+
+    $idDoctor = intval($idDoctor);
+
+    $sql = "SELECT
+                DATE(t.fecha_hora) AS fecha,
+                COUNT(t.id_turnos) AS total_turnos,
+                SUM(
+                    CASE
+                        WHEN t.disponible = 1 THEN 1
+                        ELSE 0
+                    END
+                ) AS disponibles,
+                COUNT(at.id_agenda_turno) AS asignados
+
+            FROM turno t
+
+            INNER JOIN agenda a
+                ON t.agenda_id_agenda = a.id_agenda
+
+            LEFT JOIN agenda_turno at
+                ON at.turno_id_turnos = t.id_turnos
+
+            WHERE a.doctor_id_doctor = $idDoctor
+              AND a.estados_id_estados <> 3
+              AND DATE(t.fecha_hora)
+                    BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+                    AND CURDATE()
+
+            GROUP BY DATE(t.fecha_hora)
+
+            ORDER BY fecha ASC";
+
+    return $con->consultarArray($sql);
+}
+
+/**
+ * Distribución de turnos por estado.
+ */
+public function obtenerTurnosPorEstadoDoctor($idDoctor)
+{
+    $con = new Conexion();
+
+    $idDoctor = intval($idDoctor);
+
+    $sql = "SELECT
+                e.tipo_estado AS estado,
+                COUNT(at.id_agenda_turno) AS cantidad
+
+            FROM agenda_turno at
+
+            INNER JOIN turno t
+                ON at.turno_id_turnos = t.id_turnos
+
+            INNER JOIN agenda a
+                ON t.agenda_id_agenda = a.id_agenda
+
+            INNER JOIN estados e
+                ON at.estados_id_estados = e.id_estados
+
+            WHERE a.doctor_id_doctor = $idDoctor
+              AND a.estados_id_estados <> 3
+
+            GROUP BY e.id_estados, e.tipo_estado
+
+            ORDER BY cantidad DESC";
+
+    return $con->consultarArray($sql);
+}
+
+/**
+ * Pacientes atendidos/asignados al doctor.
+ */
+public function obtenerPacientesDoctor($idDoctor)
+{
+    $con = new Conexion();
+
+    $idDoctor = intval($idDoctor);
+
+    $sql = "SELECT
+                p.id_paciente,
+                per.nombre,
+                per.apellido,
+                COUNT(at.id_agenda_turno) AS cantidad_turnos,
+                MAX(t.fecha_hora) AS ultima_consulta
+
+            FROM agenda_turno at
+
+            INNER JOIN turno t
+                ON at.turno_id_turnos = t.id_turnos
+
+            INNER JOIN agenda a
+                ON t.agenda_id_agenda = a.id_agenda
+
+            INNER JOIN paciente p
+                ON at.paciente_id_paciente = p.id_paciente
+
+            INNER JOIN usuario u
+                ON p.usuario_id_usuario = u.id_usuario
+
+            INNER JOIN persona per
+                ON u.persona_id_persona = per.id_persona
+
+            WHERE a.doctor_id_doctor = $idDoctor
+
+            GROUP BY
+                p.id_paciente,
+                per.nombre,
+                per.apellido
+
+            ORDER BY ultima_consulta DESC";
+
+    return $con->consultarArray($sql);
+}
+
+    public function obtenerPorUsuario($id_usuario)
+    {
+        $conexion = new Conexion();
+        $id_usuario = intval($id_usuario);
+
+        $query = "SELECT
+                d.id_doctor,
+                u.id_usuario,
+                per.nombre,
+                per.apellido
+            FROM doctor d
+            INNER JOIN usuario u ON d.usuario_id_usuario = u.id_usuario
+            INNER JOIN persona per ON u.persona_id_persona = per.id_persona
+            WHERE u.id_usuario = $id_usuario
+            LIMIT 1";
+
+        $resultado = $conexion->consultarArray($query);
+        return $resultado[0] ?? null;
+    }
+
+    
 
     // HISTORIAL DE CAMBIOS
         /*Registra un evento en el historial de un turno qué ze cambió específicamente,

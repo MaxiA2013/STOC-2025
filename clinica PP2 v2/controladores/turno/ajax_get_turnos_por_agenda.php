@@ -1,5 +1,5 @@
 <?php
-//ESTE ARCHIVO RECUPERA INFORMACIÓN DE TURNOS DE UNA DETERMINADA AGENDA Y LO ENVIA TURNO_LISTA
+//ESTE ARCHIVO RECUPERA INFORMACIÓN DE TURNOS DE UNA DETERMINADA AGENDA Y LO ENVIA TURNO_LISTA: trae turnos de una determinada agenda
 require_once "../../modelos/turno.php";
 require_once "../../modelos/conexion.php";
 

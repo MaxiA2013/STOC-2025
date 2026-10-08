@@ -5,10 +5,6 @@ require_once "modelos/agenda.php";
 require_once "modelos/agenda_turno.php";
 require_once "modelos/estados.php";
 
-/**
- * Ruta al controlador de turnos vista desde el navegador.
- * Ajustá este valor si tu estructura cambia o si cuelga de una carpeta diferente.
- */
 $turnoControllerPath = "controladores/turno/turno_controlador.php";
 
 $turnoObj       = new Turno();
@@ -371,7 +367,7 @@ $estados  = $est->consultarVariosEstados();
                                                         </div>
                                                     </div>
 
-                                                    <!-- Paciente (aparece solo si Disponible = No) -->
+                                                    <!-- Paciente (aparece solo si Disponible = No) -->                                   <!-- Paciente (aparece solo si Disponible = No) -->
                                                     <div class="mb-3 d-none div-paciente-modal">
                                                         <label class="form-label">Paciente</label>
 
@@ -392,6 +388,44 @@ $estados  = $est->consultarVariosEstados();
 
                                                         <small class="form-text text-muted">
                                                             Seleccione el paciente al que se asignará este turno.
+                                                        </small>
+                                                    </div>
+
+                                                    <!-- ¿CON OBRA SOCIAL? (aparece junto con Paciente) -->
+                                                    <div class="mb-3 d-none div-obra-social-toggle-modal">
+                                                        <label class="form-label d-block">¿Con obra social?</label>
+
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input"
+                                                                type="radio"
+                                                                name="con_obra_social"
+                                                                id="obra_social_no_modal_<?= $row['id_turnos'] ?>"
+                                                                value="0"
+                                                                checked>
+                                                            <label class="form-check-label" for="obra_social_no_modal_<?= $row['id_turnos'] ?>">No</label>
+                                                        </div>
+
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input"
+                                                                type="radio"
+                                                                name="con_obra_social"
+                                                                id="obra_social_si_modal_<?= $row['id_turnos'] ?>"
+                                                                value="1">
+                                                            <label class="form-check-label" for="obra_social_si_modal_<?= $row['id_turnos'] ?>">Sí</label>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- OBRA SOCIAL -->
+                                                    <div class="mb-3 d-none div-select-obra-social-modal">
+                                                        <label class="form-label">Obra Social</label>
+                                                        <select
+                                                            name="obra_social_id"
+                                                            class="form-select select2-obra-social-modal"
+                                                            disabled>
+                                                            <option value="">Seleccione un paciente primero</option>
+                                                        </select>
+                                                        <small class="form-text text-muted">
+                                                            Solo se muestran las obras sociales en común entre el doctor y el paciente elegidos.
                                                         </small>
                                                     </div>
                                                 </div>
@@ -499,8 +533,7 @@ $estados  = $est->consultarVariosEstados();
                                     aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
-                                            <form method="POST"
-                                                id="formEditarTurnoAsignado_<?= $t['id_agenda_turno'] ?>"
+                                            <form method="POST" id="formEditarTurnoAsignado_<?= $t['id_agenda_turno'] ?>"
                                                 action="<?= $turnoControllerPath ?>">
 
                                                 <div class="modal-header">
@@ -509,7 +542,6 @@ $estados  = $est->consultarVariosEstados();
                                                 </div>
 
                                                 <div class="modal-body row">
-
                                                     <input type="hidden" name="action" value="editar_asignado">
                                                     <input type="hidden" name="id_agenda_turno" value="<?= $t['id_agenda_turno'] ?>">
 
@@ -690,6 +722,9 @@ $estados  = $est->consultarVariosEstados();
 </div>
 
 <script src="assets/js/sweetalert2@11.js"></script>
+<script type="module" src="assets/js/validaciones/turno/turno_buscador.js"></script>
 <script type="module" src="assets/js/validaciones/turno/funciones_turno_lista.js"></script>
 <script type="module" src="assets/js/validaciones/turno/modalEditar_TurnosAsignados.js"></script>
 <script type="module" src="assets/js/validaciones/turno/envio_turno_controlador.js"></script>
+<script src="https://js.pusher.com/8.3.0/pusher.min.js"></script>
+<script src="assets/js/notificaciones/pusher_notificaciones.js"></script>

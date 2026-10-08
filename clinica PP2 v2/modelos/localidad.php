@@ -3,27 +3,27 @@ require_once("conexion.php");
 
 class Localidad{
     private int $id_localidad;
-    private string $descripcion;
+    private string $nombre_localidad;
     private int $id_provincia;
 
 
     public function guardarLocalidad(){
         $conn= new Conexion();
-        $query = "INSERT INTO localidad (descripcion, id_provincia ) VALUES ('$this->descripcion', $this->id_provincia)";
+        $query = "INSERT INTO localidad (nombre_localidad, id_provincia ) VALUES ('$this->nombre_localidad', $this->id_provincia)";
         $id = $conn->insertar($query);
         $this->setId_localidad($id);
     }
 
     public function modificarLocalidad(){
         $conn= new Conexion();
-        $query = "UPDATE localidad SET descripcion = '$this->descripcion' WHERE id_localidad = $this->id_localidad";
-        $conn->modificar($query);
+        $query = "UPDATE localidad SET nombre_localidad = '$this->nombre_localidad' WHERE id_localidad = $this->id_localidad";
+        $conn->actualizar($query);
     }
 
     public function eliminarLocalidad(){
         $conn= new Conexion();
         $query = "UPDATE localidad SET activo = 0 WHERE id_localidad = $this->id_localidad";
-        $conn->modificar($query);
+        $conn->actualizar($query);
     }
 
     public function consultarLocalidad($id){
@@ -35,26 +35,17 @@ class Localidad{
 
     public function consultarVariasLocalidades(){
         $conn= new Conexion();
-        $query = "SELECT * FROM localidad WHERE activo = 1";
+        $query = "SELECT * FROM localidad";
         $datos = $conn->consultar($query);
         return $datos;
     }
 
 
-
-    /**
-     * Get the value of id_localidad
-     */ 
     public function getId_localidad()
     {
         return $this->id_localidad;
     }
 
-    /**
-     * Set the value of id_localidad
-     *
-     * @return  self
-     */ 
     public function setId_localidad($id_localidad)
     {
         $this->id_localidad = $id_localidad;
@@ -62,39 +53,23 @@ class Localidad{
         return $this;
     }
 
-    /**
-     * Get the value of descripcion
-     */ 
-    public function getDescripcion()
+    public function getNombre_localidad()
     {
-        return $this->descripcion;
+        return $this->nombre_localidad;
     }
 
-    /**
-     * Set the value of descripcion
-     *
-     * @return  self
-     */ 
-    public function setDescripcion($descripcion)
+    public function setNombre_localidad($nombre_localidad)
     {
-        $this->descripcion = $descripcion;
+        $this->nombre_localidad = $nombre_localidad;
 
         return $this;
     }
 
-    /**
-     * Get the value of id_provincia
-     */ 
     public function getId_provincia()
     {
         return $this->id_provincia;
     }
 
-    /**
-     * Set the value of id_provincia
-     *
-     * @return  self
-     */ 
     public function setId_provincia($id_provincia)
     {
         $this->id_provincia = $id_provincia;

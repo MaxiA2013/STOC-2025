@@ -1,4 +1,5 @@
 <?php
+//trae las obras_sociales que son del paciente y que son compatibles con el doctor
 header('Content-Type: application/json; charset=utf-8');
 
 require_once "../../modelos/doctor_obra_social.php";

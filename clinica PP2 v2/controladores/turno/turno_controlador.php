@@ -47,6 +47,111 @@ require_once "../../modelos/turno.php";
 require_once "../../modelos/agenda.php";
 require_once "../../modelos/agenda_turno.php";
 require_once "../../modelos/conexion.php";
+require_once "../../modelos/paciente.php";
+require_once "../../modelos/doctor.php";
+require_once "../../modelos/notificacion.php";
+
+/**
+ * Notifica a un paciente por push, resolviendo su usuario_id
+ * a partir del id_paciente. Si el paciente no existe o no
+ * tiene usuario asociado, no hace nada (no rompe el flujo
+ * principal de turnos).
+ */
+function notificarPaciente($paciente_id, $titulo, $mensaje, $tipo = 'turno', $url = 'index.php?page=turnos')
+{
+    try {
+
+        $pacienteModel = new Paciente();
+        $datosPaciente = $pacienteModel->obtenerPorId($paciente_id);
+
+        if (!$datosPaciente || empty($datosPaciente['id_usuario'])) {
+            return;
+        }
+
+        $notificacion = new Notificacion();
+
+        $notificacion->crearYNotificar(
+            $datosPaciente['id_usuario'],
+            $titulo,
+            $mensaje,
+            $tipo,
+            $url
+        );
+    } catch (\Throwable $e) {
+
+        error_log(
+            'Error al notificar al paciente: ' . $e->getMessage()
+        );
+    }
+}
+
+function notificarDoctor($doctor_id, $titulo, $mensaje, $tipo = 'turno', $url = 'index.php?page=turnos')
+{
+    try {
+
+        $doctorModel = new Doctor();
+        $datosDoctor = $doctorModel->obtenerPorId($doctor_id);
+
+        if (!$datosDoctor || empty($datosDoctor['id_usuario'])) {
+            return;
+        }
+
+        $notificacion = new Notificacion();
+
+        $notificacion->crearYNotificar(
+            $datosDoctor['id_usuario'],
+            $titulo,
+            $mensaje,
+            $tipo,
+            $url
+        );
+    } catch (\Throwable $e) {
+
+        error_log(
+            'Error al notificar al doctor: ' . $e->getMessage()
+        );
+    }
+}
+
+/**
+ * Obtiene el paciente asociado al usuario actualmente logueado.
+ */
+function pacienteSesion()
+{
+    try {
+
+        $idUsuario = intval($_SESSION['id_usuario'] ?? 0);
+
+        if ($idUsuario <= 0) {
+            return null;
+        }
+
+        $pacienteModel = new Paciente();
+
+        return $pacienteModel->obtenerPorUsuario($idUsuario);
+    } catch (\Throwable $e) {
+
+        error_log(
+            'Error al obtener paciente de sesión: ' . $e->getMessage()
+        );
+
+        return null;
+    }
+}
+
+
+/**
+ * Determina si el usuario actualmente logueado es paciente.
+ *
+ * Se utiliza el nombre del perfil para evitar depender únicamente
+ * del ID del perfil.
+ */
+function esPacienteSesion()
+{
+    $perfil = strtolower(trim($_SESSION['nombre_perfil'] ?? ''));
+
+    return $perfil === 'paciente';
+}
 
 $action = $_POST["action"] ?? $_GET["action"] ?? null;
 
@@ -145,7 +250,7 @@ try {
                 $agenda_id = intval($_POST["agenda_id_agenda"] ?? 0);
 
 
-                                $paciente_id = intval($_POST["paciente_id"] ?? 0);
+                $paciente_id = intval($_POST["paciente_id"] ?? 0);
 
                 $estado_id = intval($_POST["estados_id_estados"] ?? 2);
 
@@ -207,7 +312,7 @@ try {
                 $asignarPaciente = ($disponible === 0 && $paciente_id > 0) ? 1 : 0;
 
 
-                                // Si se quiere asignar, debe existir paciente
+                // Si se quiere asignar, debe existir paciente
                 if ($asignarPaciente === 1 && $paciente_id <= 0) {
 
                     echo json_encode([
@@ -241,7 +346,7 @@ try {
                 $turno->setMinutos_turnos($minutos);
                 $turno->setFecha_hora($fecha_hora);
 
-                                // Si se asignará paciente, debe quedar NO disponible
+                // Si se asignará paciente, debe quedar NO disponible
                 $turno->setDisponible(
                     $asignarPaciente === 1 ? 0 : ($disponible ? 1 : 0)
                 );
@@ -399,7 +504,7 @@ try {
                     'Turno creado directamente como no disponible, para asignar a un paciente.'
                 );
 
-                                $turno->registrarHistorial(
+                $turno->registrarHistorial(
                     $id_turno,
                     $usuarioAct,
                     'asignado',
@@ -420,6 +525,20 @@ try {
                         "Turno tomado con obra social #$obra_social_id."
                     );
                 }
+
+                notificarPaciente(
+                    $paciente_id,
+                    'Nuevo turno asignado',
+                    'Se te asignó un turno para el ' . date('d/m/Y H:i', strtotime($fecha_hora)) . '.',
+                    'turno_asignado'
+                );
+
+                notificarDoctor(
+                    $id_doctor,
+                    'Nuevo turno agendado',
+                    'Un paciente reservó un turno para el ' . date('d/m/Y H:i', strtotime($fecha_hora)) . '.',
+                    'turno_asignado'
+                );
 
                 // Mensaje json de exito
                 echo json_encode([
@@ -444,9 +563,43 @@ try {
                     0
             );
 
-                        $estado_id = intval(
+            $estado_id = intval(
                 $_POST["estados_id_estados"] ?? 2
             );
+
+            // ==========================================================
+// SI EL USUARIO ES PACIENTE
+//
+// Nunca confiar en paciente_id enviado por POST.
+// El paciente siempre es el paciente de la sesión.
+//
+// Las reservas nuevas comienzan como Pendientes (2).
+// ==========================================================
+if (esPacienteSesion()) {
+
+    $datosPaciente = pacienteSesion();
+
+    if (
+        !$datosPaciente ||
+        empty($datosPaciente['id_paciente'])
+    ) {
+
+        echo json_encode([
+            "success" => false,
+            "error" => "No se pudo identificar al paciente."
+        ]);
+
+        exit();
+    }
+
+    $paciente_id = intval(
+        $datosPaciente['id_paciente']
+    );
+
+    // Toda reserva realizada por el paciente
+    // comienza pendiente de aprobación.
+    $estado_id = 2;
+}
 
             $con_obra_social = intval($_POST["con_obra_social"] ?? 0) === 1 ? 1 : 0;
             $obra_social_id  = intval($_POST["obra_social_id"] ?? 0);
@@ -476,6 +629,7 @@ try {
                     t.id_turnos,
                     t.disponible,
                     t.agenda_id_agenda,
+                    t.fecha_hora,
                     a.doctor_id_doctor
                 FROM turno t
                 INNER JOIN agenda a
@@ -513,7 +667,7 @@ try {
                 $turnoInfo[0]['agenda_id_agenda']
             );
 
-                        $id_doctor = intval(
+            $id_doctor = intval(
                 $turnoInfo[0]['doctor_id_doctor']
             );
 
@@ -620,7 +774,7 @@ try {
                 exit();
             }
 
-                        $turno = new Turno();
+            $turno = new Turno();
 
             if ($con_obra_social === 1 && $obra_social_id > 0) {
                 $con->actualizar("
@@ -653,6 +807,20 @@ try {
                     "Turno tomado con obra social #$obra_social_id."
                 );
             }
+
+            notificarPaciente(
+                $paciente_id,
+                'Nuevo turno asignado',
+                'Se te asignó un turno para el ' . date('d/m/Y H:i', strtotime($turnoInfo[0]['fecha_hora'])) . '.',
+                'turno_asignado'
+            );
+
+            notificarDoctor(
+                $id_doctor,
+                'Nuevo turno agendado',
+                'Un paciente reservó un turno para el ' . date('d/m/Y H:i', strtotime($turnoInfo[0]['fecha_hora'])) . '.',
+                'turno_asignado'
+            );
 
             // Terminar aquí el case insertar.
             echo json_encode([
@@ -687,7 +855,7 @@ try {
                 $_POST["agenda_id_agenda"] ?? 0
             );
 
-                        $paciente_id = intval(
+            $paciente_id = intval(
                 $_POST["paciente_id"] ?? 0
             );
 
@@ -859,7 +1027,7 @@ try {
                 ($disponible === 0 && $paciente_id > 0) ? 0 : ($disponible ? 1 : 0)
             );
 
-                        $turno->setAgenda_id_agenda(
+            $turno->setAgenda_id_agenda(
                 $agenda_id
             );
 
@@ -1012,7 +1180,7 @@ try {
             ");
 
 
-                        if (!empty($duplicadoPaciente)) {
+            if (!empty($duplicadoPaciente)) {
 
                 // Revertir disponibilidad, ya que no se pudo asignar
                 $con->actualizar("
@@ -1123,7 +1291,7 @@ try {
                 );
             }
 
-                       $turno->registrarHistorial(
+            $turno->registrarHistorial(
                 $id_turno,
                 $usuarioAct,
                 'asignado',
@@ -1145,6 +1313,20 @@ try {
                 );
             }
 
+            notificarPaciente(
+                $paciente_id,
+                'Nuevo turno asignado',
+                'Se te asignó un turno para el ' . date('d/m/Y H:i', strtotime($fecha_hora)) . '.',
+                'turno_asignado'
+            );
+
+            notificarDoctor(
+                $id_doctor_info,
+                'Nuevo turno agendado',
+                'Un paciente reservó un turno para el ' . date('d/m/Y H:i', strtotime($fecha_hora)) . '.',
+                'turno_asignado'
+            );
+
             echo json_encode([
                 "success" => true,
                 "id_turno" => $id_turno,
@@ -1154,15 +1336,12 @@ try {
 
             exit();
 
+
             // EDITAR TURNO ASIGNADO
         case "editar_asignado":
 
             $id_agenda_turno = intval(
                 $_POST["id_agenda_turno"] ?? 0
-            );
-
-            $paciente_id = intval(
-                $_POST["paciente_id_paciente"] ?? 0
             );
 
             $turno_nuevo_id = intval(
@@ -1172,12 +1351,13 @@ try {
                     0
             );
 
-            $estado_id = intval(
-                $_POST["estados_id_estados"] ?? 1
-            );
+            $con_obra_social = intval(
+                $_POST["con_obra_social"] ?? 0
+            ) === 1 ? 1 : 0;
 
-            $con_obra_social = intval($_POST["con_obra_social"] ?? 0) === 1 ? 1 : 0;
-            $obra_social_id  = intval($_POST["obra_social_id"] ?? 0);
+            $obra_social_id = intval(
+                $_POST["obra_social_id"] ?? 0
+            );
 
             if ($con_obra_social !== 1) {
                 $obra_social_id = 0;
@@ -1186,7 +1366,6 @@ try {
 
             if (
                 $id_agenda_turno <= 0 ||
-                $paciente_id <= 0 ||
                 $turno_nuevo_id <= 0
             ) {
 
@@ -1203,19 +1382,25 @@ try {
 
 
             // ------------------------------------------------------
-            // Obtener asignación actual
+            // OBTENER ASIGNACIÓN ACTUAL
             // ------------------------------------------------------
 
             $actual = $con->consultarArray("
-                SELECT
-                    id_agenda_turno,
-                    turno_id_turnos,
-                    paciente_id_paciente,
-                    estados_id_estados
-                FROM agenda_turno
-                WHERE id_agenda_turno = $id_agenda_turno
-                LIMIT 1
-            ");
+        SELECT
+            at.id_agenda_turno,
+            at.turno_id_turnos,
+            at.paciente_id_paciente,
+            at.estados_id_estados,
+            e.tipo_estado
+        FROM agenda_turno at
+
+        LEFT JOIN estados e
+            ON at.estados_id_estados = e.id_estados
+
+        WHERE at.id_agenda_turno = $id_agenda_turno
+
+        LIMIT 1
+    ");
 
 
             if (empty($actual)) {
@@ -1229,32 +1414,132 @@ try {
             }
 
 
+            $paciente_actual = intval(
+                $actual[0]["paciente_id_paciente"]
+            );
+
+            $estado_actual = intval(
+                $actual[0]["estados_id_estados"]
+            );
+
             $turno_viejo_id = intval(
                 $actual[0]["turno_id_turnos"]
             );
 
 
+            // ======================================================
+            // SEGURIDAD ESPECÍFICA PARA PACIENTE
+            // ======================================================
+
+            if (esPacienteSesion()) {
+
+                $datosPaciente = pacienteSesion();
+
+                if (
+                    !$datosPaciente ||
+                    empty($datosPaciente['id_paciente'])
+                ) {
+
+                    echo json_encode([
+                        "success" => false,
+                        "error" => "No se pudo identificar al paciente."
+                    ]);
+
+                    exit();
+                }
+
+
+                $paciente_id = intval(
+                    $datosPaciente['id_paciente']
+                );
+
+
+                // --------------------------------------------------
+                // Verificar que el turno pertenezca al paciente
+                // --------------------------------------------------
+
+                if ($paciente_actual !== $paciente_id) {
+
+                    echo json_encode([
+                        "success" => false,
+                        "error" => "No tenés permiso para modificar este turno."
+                    ]);
+
+                    exit();
+                }
+
+
+                // --------------------------------------------------
+                // SOLO ACTIVO PUEDE MODIFICARSE
+                // --------------------------------------------------
+
+                if ($estado_actual !== 1) {
+
+                    echo json_encode([
+                        "success" => false,
+                        "error" => "Solo podés modificar turnos que estén Activos."
+                    ]);
+
+                    exit();
+                }
+
+
+                // --------------------------------------------------
+                // El paciente NO puede cambiar el estado.
+                // Al modificar sigue siendo Activo.
+                // --------------------------------------------------
+
+                $estado_id = 1;
+            } else {
+
+                // ==================================================
+                // COMPORTAMIENTO ADMINISTRATIVO
+                // ==================================================
+
+                $paciente_id = intval(
+                    $_POST["paciente_id_paciente"] ?? 0
+                );
+
+                $estado_id = intval(
+                    $_POST["estados_id_estados"] ?? 1
+                );
+
+
+                if ($paciente_id <= 0) {
+
+                    echo json_encode([
+                        "success" => false,
+                        "error" => "Debe especificarse el paciente."
+                    ]);
+
+                    exit();
+                }
+            }
+
+
             // ------------------------------------------------------
-            // Obtener información del nuevo turno
+            // OBTENER INFORMACIÓN DEL NUEVO TURNO
             // ------------------------------------------------------
 
-                        $infoNuevo = $con->consultarArray("
-                SELECT
-                    t.id_turnos,
-                    t.disponible,
-                    t.agenda_id_agenda,
-                    t.con_obra_social,
-                    t.obra_social_id_obra_social,
-                    a.doctor_id_doctor
-                FROM turno t
+            $infoNuevo = $con->consultarArray("
+        SELECT
+            t.id_turnos,
+            t.disponible,
+            t.agenda_id_agenda,
+            t.con_obra_social,
+            t.obra_social_id_obra_social,
+            t.fecha_hora,
+            a.doctor_id_doctor
 
-                INNER JOIN agenda a
-                    ON t.agenda_id_agenda = a.id_agenda
+        FROM turno t
 
-                WHERE t.id_turnos = $turno_nuevo_id
+        INNER JOIN agenda a
+            ON t.agenda_id_agenda = a.id_agenda
 
-                LIMIT 1
-            ");
+        WHERE t.id_turnos = $turno_nuevo_id
+
+        LIMIT 1
+    ");
 
 
             if (empty($infoNuevo)) {
@@ -1269,7 +1554,7 @@ try {
 
 
             // ------------------------------------------------------
-            // Si realmente cambió de turno, verificar disponibilidad
+            // SI CAMBIÓ DE TURNO, EL NUEVO DEBE ESTAR DISPONIBLE
             // ------------------------------------------------------
 
             if ($turno_viejo_id !== $turno_nuevo_id) {
@@ -1292,13 +1577,23 @@ try {
                 $infoNuevo[0]["agenda_id_agenda"]
             );
 
-                        $id_doctor_n = intval(
+            $id_doctor_n = intval(
                 $infoNuevo[0]["doctor_id_doctor"]
             );
 
+
+            // ------------------------------------------------------
+            // VALIDAR OBRA SOCIAL
+            // ------------------------------------------------------
+
             if (
                 $con_obra_social === 1 &&
-                !obraSocialEsValida($con, $id_doctor_n, $paciente_id, $obra_social_id)
+                !obraSocialEsValida(
+                    $con,
+                    $id_doctor_n,
+                    $paciente_id,
+                    $obra_social_id
+                )
             ) {
 
                 echo json_encode([
@@ -1311,34 +1606,34 @@ try {
 
 
             // ------------------------------------------------------
-            // Verificar turno duplicado
+            // EVITAR DUPLICADO PACIENTE + DOCTOR + AGENDA
             // ------------------------------------------------------
 
             $turnoDuplicadoEdit = $con->consultarArray("
-                SELECT at.id_agenda_turno
+        SELECT at.id_agenda_turno
 
-                FROM agenda_turno at
+        FROM agenda_turno at
 
-                INNER JOIN turno t2
-                    ON at.turno_id_turnos = t2.id_turnos
+        INNER JOIN turno t2
+            ON at.turno_id_turnos = t2.id_turnos
 
-                INNER JOIN agenda a2
-                    ON t2.agenda_id_agenda = a2.id_agenda
+        INNER JOIN agenda a2
+            ON t2.agenda_id_agenda = a2.id_agenda
 
-                INNER JOIN doctor d2
-                    ON a2.doctor_id_doctor = d2.id_doctor
+        INNER JOIN doctor d2
+            ON a2.doctor_id_doctor = d2.id_doctor
 
-                INNER JOIN estados e
-                    ON at.estados_id_estados = e.id_estados
+        INNER JOIN estados e
+            ON at.estados_id_estados = e.id_estados
 
-                WHERE at.paciente_id_paciente = $paciente_id
-                  AND a2.id_agenda = $id_agenda_n
-                  AND d2.id_doctor = $id_doctor_n
-                  AND e.tipo_estado IN ('Pendiente', 'Activo')
-                  AND at.id_agenda_turno <> $id_agenda_turno
+        WHERE at.paciente_id_paciente = $paciente_id
+          AND a2.id_agenda = $id_agenda_n
+          AND d2.id_doctor = $id_doctor_n
+          AND e.tipo_estado IN ('Pendiente', 'Activo')
+          AND at.id_agenda_turno <> $id_agenda_turno
 
-                LIMIT 1
-            ");
+        LIMIT 1
+    ");
 
 
             if (!empty($turnoDuplicadoEdit)) {
@@ -1353,7 +1648,7 @@ try {
 
 
             // ------------------------------------------------------
-            // Primero modificar agenda_turno
+            // MODIFICAR agenda_turno
             // ------------------------------------------------------
 
             $obj = new AgendaTurno();
@@ -1390,16 +1685,24 @@ try {
 
 
             // ------------------------------------------------------
-            // Si cambió de turno, actualizar disponibilidades
+            // SI CAMBIÓ DE TURNO:
+            //
+            // 1. Liberar anterior
+            // 2. Ocupar nuevo
             // ------------------------------------------------------
 
             if ($turno_viejo_id !== $turno_nuevo_id) {
 
                 $liberar = $con->actualizar("
-                    UPDATE turno
-                    SET disponible = 1, con_obra_social = 0, obra_social_id_obra_social = NULL
-                    WHERE id_turnos = $turno_viejo_id
-                ");
+            UPDATE turno
+
+            SET
+                disponible = 1,
+                con_obra_social = 0,
+                obra_social_id_obra_social = NULL
+
+            WHERE id_turnos = $turno_viejo_id
+        ");
 
 
                 if ($liberar === false) {
@@ -1414,70 +1717,70 @@ try {
 
 
                 $ocupar = $con->actualizar("
-                    UPDATE turno
-                    SET disponible = 0
-                    WHERE id_turnos = $turno_nuevo_id
-                ");
+            UPDATE turno
+
+            SET disponible = 0
+
+            WHERE id_turnos = $turno_nuevo_id
+        ");
 
 
                 if ($ocupar === false) {
 
                     // Intentar restaurar el turno anterior
                     $con->actualizar("
-                        UPDATE turno
-                        SET disponible = 0
-                        WHERE id_turnos = $turno_viejo_id
-                    ");
+                UPDATE turno
+
+                SET disponible = 0
+
+                WHERE id_turnos = $turno_viejo_id
+            ");
+
 
                     echo json_encode([
                         "success" => false,
                         "error" => "No se pudo ocupar el nuevo turno."
                     ]);
 
-                                        exit();
+                    exit();
                 }
             }
 
-            // Guardar (o limpiar) la obra social en el turno
-            // vigente de la asignación, sin importar si el
-            // turno específico cambió o no.
-            $obraSocialUpdate = ($con_obra_social === 1 && $obra_social_id > 0)
-                ? "con_obra_social = 1, obra_social_id_obra_social = $obra_social_id"
-                : "con_obra_social = 0, obra_social_id_obra_social = NULL";
+
+            // ------------------------------------------------------
+            // GUARDAR OBRA SOCIAL
+            // ------------------------------------------------------
+
+            $obraSocialUpdate =
+                ($con_obra_social === 1 && $obra_social_id > 0)
+
+                ? "con_obra_social = 1,
+           obra_social_id_obra_social = $obra_social_id"
+
+                : "con_obra_social = 0,
+           obra_social_id_obra_social = NULL";
+
 
             $con->actualizar("
-                UPDATE turno
-                SET $obraSocialUpdate
-                WHERE id_turnos = $turno_nuevo_id
-            ");
+        UPDATE turno
+
+        SET $obraSocialUpdate
+
+        WHERE id_turnos = $turno_nuevo_id
+    ");
+
+
+            // ------------------------------------------------------
+            // HISTORIAL
+            // ------------------------------------------------------
 
             $turno = new Turno();
-            $anteriorAsignacion = $actual[0];
+
             $usuarioAct = usuarioActual();
 
-            if (intval($anteriorAsignacion['paciente_id_paciente']) !== $paciente_id) {
-                $turno->registrarHistorial(
-                    $turno_nuevo_id,
-                    $usuarioAct,
-                    'reasignado',
-                    'paciente_id',
-                    $anteriorAsignacion['paciente_id_paciente'],
-                    $paciente_id
-                );
-            }
 
-            if (intval($anteriorAsignacion['estados_id_estados']) !== $estado_id) {
-                $turno->registrarHistorial(
-                    $turno_nuevo_id,
-                    $usuarioAct,
-                    'modificado',
-                    'estados_id_estados',
-                    $anteriorAsignacion['estados_id_estados'],
-                    $estado_id
-                );
-            }
+            if ($turno_viejo_id !== $turno_nuevo_id) {
 
-                        if ($turno_viejo_id !== $turno_nuevo_id) {
                 $turno->registrarHistorial(
                     $turno_nuevo_id,
                     $usuarioAct,
@@ -1485,14 +1788,39 @@ try {
                     'turno_id_turnos',
                     $turno_viejo_id,
                     $turno_nuevo_id,
-                    'Se cambió el turno (fecha/hora) de la asignación.'
+                    'Se cambió el turno del paciente.'
                 );
             }
 
-            $obraSocialAnterior = intval($infoNuevo[0]['con_obra_social']) === 1 ? 'Sí' : 'No';
-            $obraSocialNueva = $con_obra_social === 1 ? 'Sí' : 'No';
+
+            if (
+                intval($actual[0]['estados_id_estados']) !== $estado_id
+            ) {
+
+                $turno->registrarHistorial(
+                    $turno_nuevo_id,
+                    $usuarioAct,
+                    'modificado',
+                    'estados_id_estados',
+                    $actual[0]['estados_id_estados'],
+                    $estado_id
+                );
+            }
+
+
+            $obraSocialAnterior =
+                intval($infoNuevo[0]['con_obra_social']) === 1
+                ? 'Sí'
+                : 'No';
+
+            $obraSocialNueva =
+                $con_obra_social === 1
+                ? 'Sí'
+                : 'No';
+
 
             if ($obraSocialAnterior !== $obraSocialNueva) {
+
                 $turno->registrarHistorial(
                     $turno_nuevo_id,
                     $usuarioAct,
@@ -1506,13 +1834,32 @@ try {
                 );
             }
 
+
+            // ------------------------------------------------------
+            // NOTIFICACIÓN
+            // ------------------------------------------------------
+
+            notificarPaciente(
+                $paciente_id,
+                'Turno modificado',
+                'Tu turno fue modificado. Revisá el detalle en tu panel.',
+                'turno_modificado'
+            );
+
+
+            notificarDoctor(
+                $id_doctor_n,
+                'Turno modificado',
+                'Se modificó un turno agendado.',
+                'turno_modificado'
+            );
+
+
             echo json_encode([
                 "success" => true
             ]);
 
             exit();
-
-
             // ELIMINAR TURNO DISPONIBLE
         case "eliminacion":
 
@@ -1580,11 +1927,18 @@ try {
 
 
             // ==========================================================
-            // ELIMINAR TURNO ASIGNADO
+            // CANCELAR TURNO ASIGNADO
             //
-            // 1. Obtiene turno
-            // 2. Libera turno
-            // 3. Elimina agenda_turno
+            // Paciente:
+            //   - Solo puede cancelar sus propios turnos.
+            //   - Solo puede cancelar turnos Activos (1).
+            //   - El turno pasa a Cancelado (3).
+            //   - NO se elimina agenda_turno.
+            //   - El turno vuelve a estar disponible.
+            //
+            // Administrador:
+            //   - Puede mantener el comportamiento de eliminación
+            //     administrativa si corresponde.
             // ==========================================================
         case "eliminar":
 
@@ -1608,15 +1962,32 @@ try {
 
 
             // ------------------------------------------------------
-            // Obtener turno asociado
+            // OBTENER ASIGNACIÓN
             // ------------------------------------------------------
 
             $fila = $con->consultarArray("
-                SELECT turno_id_turnos
-                FROM agenda_turno
-                WHERE id_agenda_turno = $id_agenda_turno
-                LIMIT 1
-            ");
+        SELECT
+            at.id_agenda_turno,
+            at.turno_id_turnos,
+            at.paciente_id_paciente,
+            at.estados_id_estados,
+
+            t.fecha_hora,
+
+            a.doctor_id_doctor
+
+        FROM agenda_turno at
+
+        INNER JOIN turno t
+            ON at.turno_id_turnos = t.id_turnos
+
+        INNER JOIN agenda a
+            ON t.agenda_id_agenda = a.id_agenda
+
+        WHERE at.id_agenda_turno = $id_agenda_turno
+
+        LIMIT 1
+    ");
 
 
             if (empty($fila)) {
@@ -1634,10 +2005,192 @@ try {
                 $fila[0]["turno_id_turnos"]
             );
 
+            $paciente_id_actual = intval(
+                $fila[0]["paciente_id_paciente"]
+            );
 
-            // ------------------------------------------------------
-            // Eliminar asignación primero
-            // ------------------------------------------------------
+            $estado_actual = intval(
+                $fila[0]["estados_id_estados"]
+            );
+
+            $doctor_id = intval(
+                $fila[0]["doctor_id_doctor"]
+            );
+
+
+            // ======================================================
+            // CANCELACIÓN REALIZADA POR PACIENTE
+            // ======================================================
+
+            if (esPacienteSesion()) {
+
+                $datosPaciente = pacienteSesion();
+
+
+                if (
+                    !$datosPaciente ||
+                    empty($datosPaciente['id_paciente'])
+                ) {
+
+                    echo json_encode([
+                        "success" => false,
+                        "error" => "No se pudo identificar al paciente."
+                    ]);
+
+                    exit();
+                }
+
+
+                $pacienteSesionId = intval(
+                    $datosPaciente['id_paciente']
+                );
+
+
+                // --------------------------------------------------
+                // Verificar propietario
+                // --------------------------------------------------
+
+                if ($paciente_id_actual !== $pacienteSesionId) {
+
+                    echo json_encode([
+                        "success" => false,
+                        "error" => "No tenés permiso para cancelar este turno."
+                    ]);
+
+                    exit();
+                }
+
+                // --------------------------------------------------
+                // SOLO ACTIVO (1) O PENDIENTE (2) PUEDEN CANCELARSE
+                // --------------------------------------------------
+                if (!in_array($estado_actual, [1, 2], true)) {
+
+                    echo json_encode([
+                        "success" => false,
+                        "error" => "Solo podés cancelar turnos Activos o Pendientes."
+                    ]);
+
+                    exit();
+                }
+
+                // --------------------------------------------------
+                // CAMBIAR A CANCELADO
+                //
+                // NO borrar agenda_turno.
+                // --------------------------------------------------
+
+                $cancelar = $con->actualizar("
+            UPDATE agenda_turno
+
+            SET estados_id_estados = 3
+
+            WHERE id_agenda_turno = $id_agenda_turno
+            AND paciente_id_paciente = $pacienteSesionId
+            AND estados_id_estados IN (1, 2)
+        ");
+
+
+                if ($cancelar === false) {
+
+                    echo json_encode([
+                        "success" => false,
+                        "error" => "No se pudo cancelar el turno."
+                    ]);
+
+                    exit();
+                }
+
+
+                // --------------------------------------------------
+                // LIBERAR TURNO
+                // --------------------------------------------------
+
+                $liberar = $con->actualizar("
+            UPDATE turno
+
+            SET
+                disponible = 1,
+                con_obra_social = 0,
+                obra_social_id_obra_social = NULL
+
+            WHERE id_turnos = $turno_id
+        ");
+
+
+                if ($liberar === false) {
+
+                    echo json_encode([
+                        "success" => false,
+                        "error" => "El turno fue cancelado, pero no se pudo liberar su disponibilidad."
+                    ]);
+
+                    exit();
+                }
+
+
+                // --------------------------------------------------
+                // HISTORIAL
+                // --------------------------------------------------
+
+                $turno = new Turno();
+
+                $turno->registrarHistorial(
+                    $turno_id,
+                    usuarioActual(),
+                    'cancelado',
+                    'estados_id_estados',
+                    $estado_actual,
+                    3,
+                    'El paciente canceló su turno.'
+                );
+
+
+                $turno->registrarHistorial(
+                    $turno_id,
+                    usuarioActual(),
+                    'liberado',
+                    'disponible',
+                    'No',
+                    'Sí',
+                    'El turno quedó disponible nuevamente después de la cancelación.'
+                );
+
+
+                // --------------------------------------------------
+                // NOTIFICACIONES
+                // --------------------------------------------------
+
+                notificarPaciente(
+                    $pacienteSesionId,
+                    'Turno cancelado',
+                    'Tu turno fue cancelado correctamente.',
+                    'turno_cancelado'
+                );
+
+
+                notificarDoctor(
+                    $doctor_id,
+                    'Turno cancelado',
+                    'Un paciente canceló un turno agendado.',
+                    'turno_cancelado'
+                );
+
+
+                echo json_encode([
+                    "success" => true,
+                    "cancelado" => true
+                ]);
+
+                exit();
+            }
+
+
+            // ======================================================
+            // COMPORTAMIENTO ADMINISTRATIVO
+            //
+            // Se conserva la posibilidad de eliminar físicamente
+            // una asignación desde administración.
+            // ======================================================
 
             $agendaTurnoModel = new AgendaTurno();
 
@@ -1658,14 +2211,20 @@ try {
 
 
             // ------------------------------------------------------
-            // Liberar turno
+            // LIBERAR TURNO
             // ------------------------------------------------------
 
             $upd = $con->actualizar("
-                UPDATE turno
-                SET disponible = 1, con_obra_social = 0, obra_social_id_obra_social = NULL
-                WHERE id_turnos = $turno_id
-            ");
+        UPDATE turno
+
+        SET
+            disponible = 1,
+            con_obra_social = 0,
+            obra_social_id_obra_social = NULL
+
+        WHERE id_turnos = $turno_id
+    ");
+
 
             if ($upd === false) {
 
@@ -1676,6 +2235,7 @@ try {
 
                 exit();
             }
+
 
             $turno = new Turno();
 
@@ -1689,20 +2249,25 @@ try {
                 'Se eliminó la asignación del paciente; el turno vuelve a estar disponible.'
             );
 
+
+            notificarPaciente(
+                $paciente_id_actual,
+                'Turno cancelado',
+                'Tu turno fue cancelado.',
+                'turno_cancelado'
+            );
+
+
+            notificarDoctor(
+                $doctor_id,
+                'Turno cancelado',
+                'Un turno agendado fue cancelado.',
+                'turno_cancelado'
+            );
+
+
             echo json_encode([
                 "success" => true
-            ]);
-
-            exit();
-
-            // ==========================================================
-            // ACCIÓN NO RECONOCIDA
-            // ==========================================================
-        default:
-
-            echo json_encode([
-                "success" => false,
-                "error" => "Acción desconocida o no proporcionada."
             ]);
 
             exit();

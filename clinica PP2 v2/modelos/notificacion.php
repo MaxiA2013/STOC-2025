@@ -1,6 +1,7 @@
 <?php
-
+//se utilizan las tablas notificacion y suscripcion push de la bd
 require_once "conexion.php";
+require_once __DIR__ . '/../config/pusher.php';
 
 class Notificacion
 {
@@ -18,7 +19,6 @@ class Notificacion
     private string $endpoint;
     private string $p256dh;
     private string $auth;
-
 
     public function __construct(
         $usuario_id_usuario = 0,
@@ -158,6 +158,84 @@ class Notificacion
         $con->insertar($query);
     }
 
+        // ==========================================
+    // CREAR NOTIFICACIÓN + ENVIAR POR PUSHER
+    // ==========================================
+    // Punto único de entrada para notificar a un usuario.
+    // Guarda en la tabla `notificacion` Y dispara el evento
+    // en tiempo real por el canal privado del usuario.
+    // Cualquier controlador (notificaciones, turnos, etc.)
+    // llama a este método en vez de reimplementar la lógica.
+    public function crearYNotificar(
+        $usuario_id_usuario,
+        $titulo,
+        $mensaje,
+        $tipo = 'general',
+        $url = ''
+    ) {
+        $this->usuario_id_usuario = (int) $usuario_id_usuario;
+        $this->titulo = $titulo;
+        $this->mensaje = $mensaje;
+        $this->tipo = $tipo;
+        $this->url = $url;
+        $this->leida = 0;
+
+        // Valores por defecto: si algo falla más abajo (guardar
+        // en BD o enviar por Pusher), igual devolvemos una
+        // estructura consistente en vez de romper.
+        $datosPusher = [
+            'id_notificacion'    => null,
+            'usuario_id_usuario' => $this->usuario_id_usuario,
+            'titulo'             => $titulo,
+            'mensaje'            => $mensaje,
+            'tipo'               => $tipo,
+            'url'                => $url,
+            'leida'              => 0,
+            'fecha_creacion'     => date('Y-m-d H:i:s')
+        ];
+
+        // TODO el proceso de notificar (guardar + enviar) va
+        // envuelto en un único try/catch: una falla acá NUNCA
+        // debe poder tumbar la operación principal que la
+        // originó (crear un turno, asignarlo, etc).
+        try {
+
+            $this->guardarNotificacion();
+
+            $resultado = $this->consultarUltimaNotificacionUsuario(
+                $this->usuario_id_usuario
+            );
+
+            if ($resultado && mysqli_num_rows($resultado) > 0) {
+
+                $datosNotificacion = mysqli_fetch_assoc($resultado);
+
+                $datosPusher['id_notificacion'] =
+                    $datosNotificacion['id_notificacion'] ?? null;
+
+                $datosPusher['fecha_creacion'] =
+                    $datosNotificacion['fecha_creacion']
+                    ?? $datosPusher['fecha_creacion'];
+            }
+
+            $canal = 'private-usuario-' . $this->usuario_id_usuario;
+            $pusher = new ConexionPusher();
+
+            $pusher->obtenerCliente()->trigger(
+                $canal,
+                'nueva-notificacion',
+                $datosPusher
+            );
+
+        } catch (\Throwable $e) {
+
+            error_log(
+                'Error al crear/enviar notificación: ' . $e->getMessage()
+            );
+        }
+
+        return $datosPusher;
+    }
 
     // ACTUALIZAR NOTIFICACION
     public function actualizarNotificacion()
@@ -291,6 +369,23 @@ class Notificacion
         $con->actualizar($query);
     }
 
+// MARCAR UNA NOTIFICACION COMO LEIDA
+// VERIFICANDO EL USUARIO
+
+public function marcarComoLeidaUsuario(
+    $id_notificacion,
+    $usuario_id_usuario
+) {
+    $con = new Conexion();
+
+    $query = "UPDATE notificacion
+              SET leida = 1
+              WHERE id_notificacion = $id_notificacion
+              AND usuario_id_usuario = $usuario_id_usuario";
+
+    return $con->actualizar($query);
+}
+
 
     // ==========================================
     // SUSCRIPCIONES PUSH
@@ -387,6 +482,22 @@ class Notificacion
         return $con->consultar($query);
     }
 
+    // ==========================================
+    // OBTENER ULTIMA NOTIFICACION DE UN USUARIO
+    // ==========================================
+    public function consultarUltimaNotificacionUsuario($usuario_id_usuario)
+    {
+        $con = new Conexion();
+
+        $query = "SELECT *
+                FROM notificacion
+                WHERE usuario_id_usuario = $usuario_id_usuario
+                ORDER BY id_notificacion DESC
+                LIMIT 1";
+
+        return $con->consultar($query);
+    }
+
 
     // COMPROBAR SI EXISTEN NOTIFICACIONES NO LEIDAS
     public function existenNotificacionesNoLeidas($usuario_id_usuario)
@@ -401,5 +512,6 @@ class Notificacion
 
         return $con->consultar($query);
     }
+    
 }
 ?>

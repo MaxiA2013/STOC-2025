@@ -1,82 +1,101 @@
 <?php
+
 require_once "conexion.php";
 
-class Pais{
+class Pais
+{
     private int $id_pais;
-    private string $descripcion;
+    private string $nombre_pais;
 
-
-    public function guardarPais(){
+    public function guardarPais()
+    {
         $conn = new Conexion();
-        $query = "INSERT INTO pais (decripcion) VALUES ('$this->descripcion')";
+        $nombre_pais = $this->nombre_pais;
+        $query = "INSERT INTO pais (nombre_pais) VALUES ('$nombre_pais')";
         $id = $conn->insertar($query);
-        $this->setId_pais($id);
-    }
 
-    public function actualizarPais(){
-        $conn = new Conexion();
-        $query = "UPDATE pais SET descripcion='$this->descripcion' WHERE id_pais=$this->id_pais";
-        $conn->modificar($query);
+        if ($id) {
+            $this->setId_pais($id);
+        }
+        return $id;
     }
-
-    public function eliminarPais(){
-        $conn = new Conexion();
-        $query = "DELETE FROM pais WHERE id_pais=$this->id_pais";
-        $conn->eliminar($query);
-    }
-
-    public function consultarVariosPaises(){
-        $conn = new Conexion();
-        $query = "SELECT * FROM pais";
-        $resultado = $conn->consultar($query);
-        return $resultado;
-    }
-
-    public function consultarPais($id){
-        $conn = new Conexion();
-        $query = "SELECT * FROM pais WHERE id_pais=$id";
-        $resultado = $conn->consultar($query);
-        return $resultado;
-    }
-
-   
 
     /**
-     * Get the value of id_pais
-     */ 
+     * Actualizar un país existente
+     */
+    public function actualizarPais()
+    {
+        $conn = new Conexion();
+        $id = $this->id_pais;
+        $nombre_pais = $this->nombre_pais;
+        $query = "UPDATE pais SET nombre_pais = '$nombre_pais' WHERE id_pais = $id";
+        return $conn->actualizar($query);
+    }
+
+    /**
+     * Eliminar un país
+     */
+    public function eliminarPais()
+    {
+        $conn = new Conexion();
+        $id = (int) $this->id_pais;
+        $query = "DELETE FROM pais WHERE id_pais = $id";
+        return $conn->eliminar($query);
+    }
+
+    /**
+     * Consultar todos los países
+     */
+    public function consultarVariosPaises()
+    {
+        $conn = new Conexion();
+        $query = "SELECT * FROM pais ORDER BY nombre_pais ASC";
+        return $conn->consultar($query);
+    }
+
+    /**
+     * Consultar un país por ID
+     */
+    public function consultarPais($id)
+    {
+        $conn = new Conexion();
+        $id = (int) $id;
+        $query = "SELECT * FROM pais WHERE id_pais = $id";
+        return $conn->consultar($query);
+    }
+
+    /**
+     * Obtener un país como array asociativo
+     */
+    public function obtenerPorId($id)
+    {
+        $conn = new Conexion();
+        $id = (int) $id;
+        $query = "SELECT * FROM pais WHERE id_pais = $id LIMIT 1";
+        $resultado = $conn->consultarArray($query);
+        return !empty($resultado) ? $resultado[0] : null;
+    }
+
     public function getId_pais()
     {
         return $this->id_pais;
     }
 
-    /**
-     * Set the value of id_pais
-     *
-     * @return  self
-     */ 
     public function setId_pais($id_pais)
     {
-        $this->id_pais = $id_pais;
-
+        $this->id_pais = (int) $id_pais;
         return $this;
     }
 
-    /**
-     * Get the value of descripcion
-     */ 
-    public function getDescripcion()
+
+    public function getNombre_pais()
     {
-        return $this->descripcion;
+        return $this->nombre_pais;
     }
 
-    /**
-     * Set the value of descripcion
-     *
-     * @return  self
-     */ 
-    public function setDescripcion($descripcion)
+    public function setNombre_pais($nombre_pais)
     {
-        $this->descripcion = $descripcion;
+        $this->nombre_pais = $nombre_pais;
 
         return $this;
     }

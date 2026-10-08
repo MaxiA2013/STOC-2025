@@ -66,7 +66,7 @@ class AgendaTurno
         return $conexion->consultar($query);
     }
 
-    //LISTAR TODOS LOS TURNOS ASIGNADOS CON DOCTOR INCLUIDO
+        //LISTAR TODOS LOS TURNOS ASIGNADOS CON DOCTOR INCLUIDO
     public function listar()
     {
         $conexion = new Conexion();
@@ -105,6 +105,63 @@ class AgendaTurno
               ORDER BY t.fecha_hora ASC";
         return $conexion->consultar($query);
     }
+
+    /**
+ * Obtener agendas activas de un doctor.
+ * Estado 3 = cerrada.
+ */
+public function listarAgendasActivasPorDoctor($doctorId)
+{
+    $con = new Conexion();
+
+    $doctorId = intval($doctorId);
+
+    $sql = "SELECT
+                a.id_agenda,
+                a.fecha_desde,
+                a.fecha_hasta,
+                a.hora_desde,
+                a.hora_hasta,
+                a.estados_id_estados,
+                e.tipo_estado AS estado_nombre,
+                d.id_doctor,
+                p.nombre AS doctor_nombre,
+                p.apellido AS doctor_apellido,
+                COUNT(t.id_turnos) AS cantidad_turnos,
+                SUM(
+                    CASE
+                        WHEN t.disponible = 1 THEN 1
+                        ELSE 0
+                    END
+                ) AS turnos_disponibles
+            FROM agenda a
+            INNER JOIN estados e
+                ON a.estados_id_estados = e.id_estados
+            INNER JOIN doctor d
+                ON a.doctor_id_doctor = d.id_doctor
+            INNER JOIN usuario u
+                ON d.usuario_id_usuario = u.id_usuario
+            INNER JOIN persona p
+                ON u.persona_id_persona = p.id_persona
+            LEFT JOIN turno t
+                ON t.agenda_id_agenda = a.id_agenda
+            WHERE a.doctor_id_doctor = $doctorId
+              AND a.estados_id_estados <> 3
+            GROUP BY
+                a.id_agenda,
+                a.fecha_desde,
+                a.fecha_hasta,
+                a.hora_desde,
+                a.hora_hasta,
+                a.estados_id_estados,
+                e.tipo_estado,
+                d.id_doctor,
+                p.nombre,
+                p.apellido
+            ORDER BY a.fecha_desde ASC, a.hora_desde ASC";
+
+    return $con->consultarArray($sql);
+}
 
 
     // OBTENER UN REGISTRO POR SU ID
@@ -167,6 +224,104 @@ class AgendaTurno
 
     return $con->consultarArray($sql);
 }
+
+    public function obtenerTurnosDetalladosPorPaciente($id_paciente)
+{
+    $con = new Conexion();
+
+    $id_paciente = intval($id_paciente);
+
+    if ($id_paciente <= 0) {
+        return [];
+    }
+
+    $sql = "
+        SELECT
+            at.id_agenda_turno,
+            at.paciente_id_paciente,
+            at.estados_id_estados,
+
+            t.id_turnos AS turno_id_turnos,
+            t.fecha_hora,
+            t.minutos_turnos,
+            t.con_obra_social,
+            t.obra_social_id_obra_social,
+
+            os.nombre_obra_social,
+
+            a.id_agenda AS agenda_id_agenda,
+            CONCAT(
+                a.id_agenda,
+                ' - ',
+                DATE_FORMAT(a.fecha_desde, '%d/%m/%Y')
+            ) AS agenda_desc,
+
+            d.id_doctor AS doctor_id,
+            CONCAT(
+                COALESCE(per.nombre, ''),
+                ' ',
+                COALESCE(per.apellido, '')
+            ) AS doctor_nombre,
+
+            e.tipo_estado
+
+        FROM agenda_turno at
+
+        INNER JOIN turno t
+            ON at.turno_id_turnos = t.id_turnos
+
+        INNER JOIN agenda a
+            ON t.agenda_id_agenda = a.id_agenda
+
+        LEFT JOIN doctor d
+            ON a.doctor_id_doctor = d.id_doctor
+
+        LEFT JOIN usuario u
+            ON d.usuario_id_usuario = u.id_usuario
+
+        LEFT JOIN persona per
+            ON u.persona_id_persona = per.id_persona
+
+        LEFT JOIN estados e
+            ON at.estados_id_estados = e.id_estados
+
+        LEFT JOIN obra_social os
+            ON t.obra_social_id_obra_social = os.id_obra_social
+
+        WHERE at.paciente_id_paciente = $id_paciente
+
+        ORDER BY t.fecha_hora ASC
+    ";
+
+    return $con->consultarArray($sql);
+}
+
+    public function obtenerTurnosPorDoctor($id_doctor)
+    {
+        $con = new Conexion();
+        $id_doctor = intval($id_doctor);
+
+        $sql = "
+            SELECT
+                at.id_agenda_turno,
+                t.id_turnos AS turno_id_turnos,
+                t.fecha_hora,
+                t.minutos_turnos,
+                e.tipo_estado,
+                CONCAT(per.nombre, ' ', per.apellido) AS paciente_nombre
+            FROM agenda_turno at
+            INNER JOIN turno t ON at.turno_id_turnos = t.id_turnos
+            INNER JOIN agenda a ON t.agenda_id_agenda = a.id_agenda
+            INNER JOIN paciente p ON at.paciente_id_paciente = p.id_paciente
+            INNER JOIN usuario u ON p.usuario_id_usuario = u.id_usuario
+            INNER JOIN persona per ON u.persona_id_persona = per.id_persona
+            INNER JOIN estados e ON at.estados_id_estados = e.id_estados
+            WHERE a.doctor_id_doctor = $id_doctor
+            ORDER BY t.fecha_hora ASC
+        ";
+
+        return $con->consultarArray($sql);
+    }
 
 public function listarTurnosPorAgenda($idAgenda)
 {

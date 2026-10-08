@@ -223,6 +223,17 @@
             </a>
         </li>
 
+        <!-- MI GESTION (dashboard)-->
+        <li>
+            <a href="index.php?page=mi_gestion"
+                class="nav-link text-white">
+
+                <i class="bi bi-clock-history"></i>
+
+                <span>Mi Gestion</span>
+            </a>
+        </li>
+
 
         <?php if ($_SESSION['id_perfil'] == '1'): ?>
             <hr>

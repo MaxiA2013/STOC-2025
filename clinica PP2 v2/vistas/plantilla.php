@@ -47,9 +47,9 @@ if (!isset($_SESSION['id_usuario'])) {
             $peges = $_GET['page'];
 
             $paginas_publica = ['indexo', 'noticias', 'nosotros', 'biblioteca', 'turnos', 'info_turnos', 'doctores', 'areas', 'login', 'registro', 'recuperar', 'resetear'];
-            $paginas_comunes = ['mi_perfil', 'salida', 'mis_datos'];
-            $paginas_admin = ['lista_usuario', 'lista_doctor', 'lista_paciente', 'registro', 'modulos', 'perfiles', 'permisos' , 'tablas', 'tablas_maestras', 'sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','direccion_lista', 'familiar_lista', 'agenda_lista', 'editar_agenda', 'dias_lista', 'turno_lista', 'lista_paciente', 'editar_paciente', 'mes_lista', 'franja_lista', 'reporte_usuarios', 'reporte', 'reporte_pacientes', 'reporte_obras_sociales', 'modificar_usuario'];
-            $listas = ['lista_usuario', 'lista_doctor', 'lista_paciente','condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','direccion_lista','sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'familiar_lista', 'agenda_lista', 'dias_lista', 'turno_lista','editar_agenda', 'lista_paciente', 'editar_paciente', 'tablas_maestras', 'mes_lista', 'franja_lista', 'reporte_usuarios', 'reporte', 'reporte_pacientes', 'reporte_obras_sociales'];
+            $paginas_comunes = ['mi_perfil', 'salida', 'mis_datos', 'mi_gestion'];
+            $paginas_admin = ['lista_usuario', 'lista_doctor', 'lista_paciente', 'registro', 'modulos', 'perfiles', 'permisos' , 'tablas', 'tablas_maestras', 'sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','pais_lista', 'provincia_lista', 'localidad_lista', 'calle_lista', 'barrio_lista', 'direccion_lista', 'familiar_lista', 'agenda_lista', 'editar_agenda', 'dias_lista', 'turno_lista', 'lista_paciente', 'editar_paciente', 'mes_lista', 'franja_lista', 'reporte_usuarios', 'reporte', 'reporte_pacientes', 'reporte_obras_sociales', 'modificar_usuario'];
+            $listas = ['lista_usuario', 'lista_doctor', 'lista_paciente','condicion_lista', 'contacto_lista', 'documento_lista', 'estados_lista', 'metodo_pago_lista','pais_lista', 'provincia_lista', 'localidad_lista', 'calle_lista', 'barrio_lista','direccion_lista','sintomas_lista', 'obra_social_lista', 'especialidad_lista', 'familiar_lista', 'agenda_lista', 'dias_lista', 'turno_lista','editar_agenda', 'lista_paciente', 'editar_paciente', 'tablas_maestras', 'mes_lista', 'franja_lista', 'reporte_usuarios', 'reporte', 'reporte_pacientes', 'reporte_obras_sociales'];
 
             if (in_array($peges, $paginas_publica)) {
                 include('vistas/paginas/' . $peges . '.php');
@@ -100,15 +100,13 @@ if (!isset($_SESSION['id_usuario'])) {
 
     <?php include 'componentes/footer.php'; ?>
 
-    <!-- Scripts -->
-
 </body>
-
 <script src="assets/js/all.min.js"></script>
 <script src="assets/js/jquery-3.7.1.min.js"></script>
 <script src="assets/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/select2.min.js"></script>
 <script src="assets/js/dataTables.min.js"></script>
+
 <!-- <script src="assets/js/controlador_perfil.js"></script>  hay que arreglar el por que no se estaría encontrando el archivo -->
 
 </html>

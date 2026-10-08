@@ -1,4 +1,5 @@
 <?php
+
 include_once "modelos/pais.php";
 
 $pais = new Pais();
@@ -6,15 +7,10 @@ $lista_paises = $pais->consultarVariosPaises();
 ?>
 
 <div class="container-fluid py-4 px-4">
-
-    <!-- ===================================================== -->
     <!-- ENCABEZADO -->
-    <!-- ===================================================== -->
 
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
-
         <div>
-
             <h2 class="fw-semibold mb-1">
                 Gestión de Países
             </h2>
@@ -57,7 +53,9 @@ $lista_paises = $pais->consultarVariosPaises();
         <div class="card-body p-4">
 
 
+            <!-- ================================================= -->
             <!-- CABECERA DE LA TABLA -->
+            <!-- ================================================= -->
 
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
 
@@ -90,7 +88,8 @@ $lista_paises = $pais->consultarVariosPaises();
                             type="text"
                             id="buscarPais"
                             class="form-control"
-                            placeholder="Buscar país...">
+                            placeholder="Buscar país..."
+                            autocomplete="off">
 
                     </div>
 
@@ -113,9 +112,13 @@ $lista_paises = $pais->consultarVariosPaises();
 
                         <tr>
 
-                            <th>ID</th>
+                            <th>
+                                ID
+                            </th>
 
-                            <th>País</th>
+                            <th>
+                                País
+                            </th>
 
                             <th class="text-center">
                                 Acciones
@@ -128,58 +131,59 @@ $lista_paises = $pais->consultarVariosPaises();
 
                     <tbody>
 
-                        <?php
+                        <?php if ($lista_paises && $lista_paises->num_rows > 0): ?>
 
-                        if ($lista_paises) {
-
-                            foreach ($lista_paises as $row) {
-
-                        ?>
+                            <?php while ($row = $lista_paises->fetch_assoc()): ?>
 
                                 <tr>
 
-
+                                    <!-- ================================================= -->
                                     <!-- ID -->
+                                    <!-- ================================================= -->
 
                                     <td>
 
                                         <span class="text-muted">
 
-                                            #<?= $row['id_pais'] ?>
+                                            #<?= (int) $row['id_pais'] ?>
 
                                         </span>
 
                                     </td>
 
 
+                                    <!-- ================================================= -->
                                     <!-- PAÍS -->
+                                    <!-- ================================================= -->
 
                                     <td>
 
-                                        <div class="d-flex align-items-center">
+                                        <div>
 
-                                            <div>
+                                            <span class="fw-semibold d-block">
 
-                                                <span class="fw-semibold d-block">
+                                                <?= htmlspecialchars(
+                                                    $row['nombre_pais'],
+                                                    ENT_QUOTES,
+                                                    'UTF-8'
+                                                ) ?>
 
-                                                    <?= htmlspecialchars($row['descripcion']) ?>
+                                            </span>
 
-                                                </span>
+                                            <small class="text-muted">
 
-                                                <small class="text-muted">
+                                                País del sistema
 
-                                                    País del sistema
-
-                                                </small>
-
-                                            </div>
+                                            </small>
 
                                         </div>
 
                                     </td>
 
 
+                                    <!-- ================================================= -->
                                     <!-- ACCIONES -->
+                                    <!-- ================================================= -->
 
                                     <td>
 
@@ -193,7 +197,7 @@ $lista_paises = $pais->consultarVariosPaises();
                                                 class="btn btn-sm btn-outline-primary"
                                                 title="Editar país"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#modal<?= $row['id_pais'] ?>">
+                                                data-bs-target="#modal<?= (int) $row['id_pais'] ?>">
 
                                                 <i class="fa-solid fa-pen"></i>
 
@@ -203,14 +207,14 @@ $lista_paises = $pais->consultarVariosPaises();
                                             <!-- ELIMINAR -->
 
                                             <form
-                                                action="controladores/pais_controlador.php"
+                                                action="controladores/pais/pais_controlador.php"
                                                 method="post"
                                                 class="d-inline">
 
                                                 <input
                                                     type="hidden"
                                                     name="id_pais"
-                                                    value="<?= $row['id_pais'] ?>">
+                                                    value="<?= (int) $row['id_pais'] ?>">
 
                                                 <input
                                                     type="hidden"
@@ -241,9 +245,9 @@ $lista_paises = $pais->consultarVariosPaises();
 
                                 <div
                                     class="modal fade"
-                                    id="modal<?= $row['id_pais'] ?>"
+                                    id="modal<?= (int) $row['id_pais'] ?>"
                                     tabindex="-1"
-                                    aria-labelledby="modalLabel<?= $row['id_pais'] ?>"
+                                    aria-labelledby="modalLabel<?= (int) $row['id_pais'] ?>"
                                     aria-hidden="true">
 
                                     <div class="modal-dialog">
@@ -259,7 +263,7 @@ $lista_paises = $pais->consultarVariosPaises();
 
                                                     <h5
                                                         class="modal-title fw-semibold"
-                                                        id="modalLabel<?= $row['id_pais'] ?>">
+                                                        id="modalLabel<?= (int) $row['id_pais'] ?>">
 
                                                         Editar País
 
@@ -288,9 +292,8 @@ $lista_paises = $pais->consultarVariosPaises();
                                             <form
                                                 class="needs-validation"
                                                 novalidate
-                                                action="controladores/pais_controlador.php"
+                                                action="controladores/pais/pais_controlador.php"
                                                 method="post">
-
 
                                                 <div class="modal-body">
 
@@ -302,7 +305,7 @@ $lista_paises = $pais->consultarVariosPaises();
                                                     <input
                                                         type="hidden"
                                                         name="id_pais"
-                                                        value="<?= $row['id_pais'] ?>">
+                                                        value="<?= (int) $row['id_pais'] ?>">
 
 
                                                     <!-- PAÍS -->
@@ -310,7 +313,7 @@ $lista_paises = $pais->consultarVariosPaises();
                                                     <div class="mb-3">
 
                                                         <label
-                                                            for="descripcion<?= $row['id_pais'] ?>"
+                                                            for="nombre_pais<?= (int) $row['id_pais'] ?>"
                                                             class="form-label fw-semibold">
 
                                                             País
@@ -320,9 +323,13 @@ $lista_paises = $pais->consultarVariosPaises();
                                                         <input
                                                             type="text"
                                                             class="form-control"
-                                                            id="descripcion<?= $row['id_pais'] ?>"
-                                                            name="descripcion"
-                                                            value="<?= htmlspecialchars($row['descripcion']) ?>"
+                                                            id="nombre_pais<?= (int) $row['id_pais'] ?>"
+                                                            name="nombre_pais"
+                                                            value="<?= htmlspecialchars(
+                                                                $row['nombre_pais'],
+                                                                ENT_QUOTES,
+                                                                'UTF-8'
+                                                            ) ?>"
                                                             required>
 
                                                         <div class="invalid-feedback">
@@ -369,13 +376,25 @@ $lista_paises = $pais->consultarVariosPaises();
 
                                 </div>
 
-                        <?php
+                            <?php endwhile; ?>
 
-                            }
+                        <?php else: ?>
 
-                        }
+                            <tr>
 
-                        ?>
+                                <td colspan="3" class="text-center py-4">
+
+                                    <span class="text-muted">
+
+                                        No hay países registrados.
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                        <?php endif; ?>
 
                     </tbody>
 
@@ -441,8 +460,7 @@ $lista_paises = $pais->consultarVariosPaises();
             class="needs-validation"
             novalidate
             method="post"
-            action="controladores/pais_controlador.php">
-
+            action="controladores/pais/pais_controlador.php">
 
             <!-- ACTION -->
 
@@ -450,25 +468,21 @@ $lista_paises = $pais->consultarVariosPaises();
                 type="hidden"
                 name="action"
                 value="insertar">
-
-
             <!-- PAÍS -->
 
             <div class="mb-4">
 
                 <label
-                    for="descripcionPais"
+                    for="nombre_pais"
                     class="form-label fw-semibold">
-
                     País
-
                 </label>
 
                 <input
                     type="text"
                     class="form-control"
-                    id="descripcionPais"
-                    name="descripcion"
+                    id="nombre_pais"
+                    name="nombre_pais"
                     placeholder="Ej. Argentina"
                     required>
 
@@ -545,7 +559,7 @@ $lista_paises = $pais->consultarVariosPaises();
         buscadorPais.addEventListener('keyup', function () {
 
             const texto =
-                this.value.toLowerCase();
+                this.value.toLowerCase().trim();
 
             const filas =
                 document.querySelectorAll(

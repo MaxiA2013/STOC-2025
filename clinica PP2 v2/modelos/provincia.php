@@ -1,23 +1,23 @@
 <?php
 require_once "conexion.php";
 require_once "provincia.php";
-require_once("pais.php");
+require_once "pais.php";
 
 class Provincia{ 
     private int $id_provincia;
-    private string $descripcion;
-    private int $id_pais; #comprobar
+    private string $nombre_provincia;
+    private int $pais_id_pais; #comprobar
 
     public function guardarProvincia(){
         $conn = new Conexion();
-        $query = "INSERT INTO provincia ( descripcion, pais_id_pais ) VALUES ('$this->descripcion', $this->id_pais)";
+        $query = "INSERT INTO provincia ( nombre_provincia, pais_id_pais ) VALUES ('$this->nombre_provincia', $this->pais_id_pais)";
         $id = $conn->insertar($query);
         $this->setId_provincia($id);
     }
 
     public function actualizarProvincia(){
         $conn = new Conexion();
-        $query = "UPDATE provincia SET descripcion = '$this->descripcion' WHERE id_provincia = $this->id_provincia";
+        $query = "UPDATE provincia SET nombre_provincia = '$this->nombre_provincia' WHERE id_provincia = $this->id_provincia";
         $conn->actualizar($query);
     }
 
@@ -42,19 +42,11 @@ class Provincia{
         return $datos;
     }
 
-    /**
-     * Get the value of id_provincia
-     */ 
     public function getId_provincia()
     {
         return $this->id_provincia;
     }
 
-    /**
-     * Set the value of id_provincia
-     *
-     * @return  self
-     */ 
     public function setId_provincia($id_provincia)
     {
         $this->id_provincia = $id_provincia;
@@ -62,42 +54,26 @@ class Provincia{
         return $this;
     }
 
-    /**
-     * Get the value of descripcion
-     */ 
-    public function getDescripcion()
+    public function getNombre_provincia()
     {
-        return $this->descripcion;
+        return $this->nombre_provincia;
     }
 
-    /**
-     * Set the value of descripcion
-     *
-     * @return  self
-     */ 
-    public function setDescripcion($descripcion)
+    public function setNombre_provincia($nombre_provincia)
     {
-        $this->descripcion = $descripcion;
+        $this->nombre_provincia = $nombre_provincia;
 
         return $this;
     }
 
-    /**
-     * Get the value of id_pais
-     */ 
-    public function getId_pais()
+    public function getPaisId_pais()
     {
-        return $this->id_pais;
+        return $this->pais_id_pais;
     }
 
-    /**
-     * Set the value of id_pais
-     *
-     * @return  self
-     */ 
-    public function setId_pais($id_pais)
+    public function setPaisId_pais($pais_id_pais)
     {
-        $this->id_pais = $id_pais;
+        $this->pais_id_pais = $pais_id_pais;
 
         return $this;
     }

@@ -1,14 +1,6 @@
-// assets/js/turno/envio_turno_controlador.js
 $(document).ready(function () {
-    // ==========================================================
-    // Helpers: Toast de Bootstrap + SweetAlert2 de error
-    // ==========================================================
-
-    /**
-     * Muestra un toast de Bootstrap en la esquina inferior derecha
-     * @param {string} message
-     * @param {'success'|'danger'|'warning'|'info'} type
-     */
+    // Toast de Bootstrap + SweetAlert2 de error
+    /* Muestra un toast de Bootstrap en la esquina inferior derecha */
     function showToast(message, type = 'success') {
         // Contenedor general de toasts
         let $container = $('#toastContainer');
@@ -37,10 +29,7 @@ $(document).ready(function () {
         toast.show();
     }
 
-    /**
-     * Muestra un SweetAlert2 de error
-     * @param {string} message
-     */
+    /* Muestra un SweetAlert2 de error */
     function showErrorAlert(message) {
         Swal.fire({
             icon: 'error',
@@ -49,13 +38,9 @@ $(document).ready(function () {
         });
     }
 
-    /**
-     * Función genérica para enviar formularios por AJAX hacia turno_controlador.php
-     * @param {jQuery} $form
-     * @param {object} options
-     *   - successMessage: texto del toast en caso de éxito
-     *   - onSuccess(resp, $form): callback adicional en caso de éxito
-     */
+    /* Función genérica para enviar formularios por AJAX hacia turno_controlador.php
+    - successMessage: texto del toast en caso de éxito
+    - onSuccess(resp, $form): callback adicional en caso de éxito */
     function enviarFormularioAjax($form, options = {}) {
         const successMessage = options.successMessage || 'Operación realizada correctamente.';
         const onSuccess = options.onSuccess;

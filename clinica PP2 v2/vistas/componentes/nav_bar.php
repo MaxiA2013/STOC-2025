@@ -4,11 +4,11 @@
     <div class="col-md-3 mb-2 mb-md-0">
 
         <a href="index.php?page=indexo"
-           class="d-inline-flex link-body-emphasis text-decoration-none">
+            class="d-inline-flex link-body-emphasis text-decoration-none">
 
             <img src="assets/images/logo/captura_de_pantalla_2.png"
-                 alt="Logo"
-                 style="width:250px; margin:10px;">
+                alt="Logo"
+                style="width:250px; margin:10px;">
         </a>
     </div>
 
@@ -18,28 +18,28 @@
 
         <li>
             <a href="index.php?page=indexo"
-               class="nav-link px-2 link-secondary">
+                class="nav-link px-2 link-secondary">
                 Inicio
             </a>
         </li>
 
         <li>
             <a href="index.php?page=noticias"
-               class="nav-link px-2">
+                class="nav-link px-2">
                 Noticias
             </a>
         </li>
 
         <li>
             <a href="index.php?page=nosotros"
-               class="nav-link px-2">
+                class="nav-link px-2">
                 Nosotros
             </a>
         </li>
 
         <li>
             <a href="index.php?page=biblioteca"
-               class="nav-link px-2">
+                class="nav-link px-2">
                 Biblioteca
             </a>
         </li>
@@ -49,10 +49,10 @@
         <li class="nav-item dropdown">
 
             <a class="nav-link dropdown-toggle"
-               href="#"
-               role="button"
-               data-bs-toggle="dropdown"
-               aria-expanded="false">
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
                 Salud
             </a>
 
@@ -60,14 +60,14 @@
 
                 <li>
                     <a class="dropdown-item"
-                       href="index.php?page=doctores">
+                        href="index.php?page=doctores">
                         Doctores
                     </a>
                 </li>
 
                 <li>
                     <a class="dropdown-item"
-                       href="index.php?page=turnos">
+                        href="index.php?page=turnos">
                         Turnos
                     </a>
                 </li>
@@ -80,7 +80,7 @@
         <!-- TURNOS -->
         <li>
             <a class="nav-link px-2"
-               href="index.php?page=turnos">
+                href="index.php?page=turnos">
                 Turnos
             </a>
         </li>
@@ -96,7 +96,7 @@
 
             <!-- INGRESAR -->
             <a href="index.php?page=login"
-               class="btn btn-outline-primary">
+                class="btn btn-outline-primary">
                 Ingresar
             </a>
 
@@ -341,9 +341,14 @@
 
             </a>
 
-
+            <script>
+                window.ID_USUARIO = <?= (int) $_SESSION['id_usuario'] ?>;
+            </script>
         <?php endif; ?>
+
 
     </div>
 
 </header>
+<script src="https://js.pusher.com/8.3.0/pusher.min.js"></script>
+<script src="assets/js/notificaciones/pusher_notificaciones.js"></script>

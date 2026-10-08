@@ -4,7 +4,6 @@ $u = new Usuario();
 
 $lista_usuarios = $u->total_usuarios();
 $total_registros = $u->cantidad_usuarios();
-
 ?>
 
 <div class="container-fluid">

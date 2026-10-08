@@ -1,4 +1,5 @@
 <?php
+//etse el archivo para la funcionalidad de suditoria de la tabla turno_lista
 header('Content-Type: application/json; charset=utf-8');
 
 require_once "../../modelos/turno.php";

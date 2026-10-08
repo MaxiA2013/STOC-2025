@@ -30,6 +30,21 @@ class Paciente {
         return $resultado[0] ?? null;
     }
 
+    public function obtenerPorUsuario($id_usuario) {
+        $conexion = new Conexion();
+        $id_usuario = intval($id_usuario);
+
+        $query = "SELECT p.id_paciente, u.id_usuario, u.nombre_usuario, u.email, per.nombre, per.apellido
+                    FROM paciente p
+                    INNER JOIN usuario u ON p.usuario_id_usuario = u.id_usuario
+                    INNER JOIN persona per ON u.persona_id_persona = per.id_persona
+                    WHERE u.id_usuario = $id_usuario
+                    LIMIT 1";
+
+        $resultado = $conexion->consultarArray($query);
+        return $resultado[0] ?? null;
+    }
+
     public function insertar() {
         $conexion = new Conexion();
         $query = "INSERT INTO paciente (usuario_id_usuario) VALUES ($this->usuario_id_usuario)";

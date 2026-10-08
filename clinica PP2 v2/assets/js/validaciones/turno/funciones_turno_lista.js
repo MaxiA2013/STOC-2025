@@ -1,7 +1,5 @@
 $(function () {
-  // =====================================================
   // INICIALIZAR SELECT2
-  // =====================================================
 
   $(".select2-doctor").select2({
     width: "100%",
@@ -21,10 +19,7 @@ $(function () {
     placeholder: "Seleccione obra social",
   });
 
-  // =====================================================
   // ELEMENTOS DEL FORMULARIO PRINCIPAL
-  // =====================================================
-
   const $divDatetime = $("#div_datetime_input");
   const $divTurnos = $("#div_select_turnos");
   const $divDisponible = $("#div_disponible_manual");
@@ -744,15 +739,13 @@ $(function () {
                     placeholder: "Seleccione obra social"
                 });
 
-            // Sincronizar visibilidad según el valor de
-            // "disponible" que ya trae el turno guardado
-            // (no-op si el modal no tiene radios "disponible",
-            // como el modal de Turnos Asignados)
-            actualizarPacienteModalEditar($modal);
+            /* función oculta el toggle de obra social cuando no encuentra el radio "disponible" (lo interpreta como "disponible = Sí"),
+            así que NO debe correr en modales que no tienen ese radio*/
+            if ($modal.find('input[name="disponible"]').length) {
+                actualizarPacienteModalEditar($modal);
+            }
 
-            // Sincronizar el select de obra social según el
-            // radio "con_obra_social" que ya trae el turno
-            // (no-op si el modal no tiene ese radio)
+            /* Sincroniza select de obra social según el radio "con_obra_social" que ya trae el turno */
             if ($modal.find('input[name="con_obra_social"]').length) {
                 actualizarSelectObraSocialModal($modal);
             }

@@ -46,8 +46,18 @@ class Agenda
         return $con->actualizar($sql);
     }
     
-    public function eliminar($id_agenda)
+        public function eliminar($id_agenda)
     {
+        require_once __DIR__ . '/turno.php';
+        $id_agenda = intval($id_agenda);
+        // Antes de borrar la agenda, limpiar en cascada sus
+        // asignaciones (agenda_turno) y sus turnos — si no, el
+        // turno queda huérfano (agenda_id_agenda apuntando a
+        // una fila que ya no existe) y desaparece de cualquier
+        // listado que use INNER JOIN agenda.
+        $turnoModel = new Turno();
+        $turnoModel->eliminarPorAgendaAsignados($id_agenda);
+
         $con = new Conexion();
         return $con->eliminar("DELETE FROM agenda WHERE id_agenda = $id_agenda");
     }
