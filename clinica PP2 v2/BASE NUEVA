@@ -1895,7 +1895,6 @@ CREATE TABLE IF NOT EXISTS `clinica`.`riesgos` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
-
 -- -----------------------------------------------------
 -- Table `clinica`.`usuario_has_perfil`
 -- -----------------------------------------------------
