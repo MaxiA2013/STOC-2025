@@ -1,0 +1,1874 @@
+-- MySQL Workbench Forward Engineering BASE DE DATOS VIEJA NO USAR
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema clinica NO USAR ESTA BASE DE DATOS
+-- NO USAR ESTA BASE DE DATOS
+--NO USAR ESTA BASE DE DATOS
+--NO USAR ESTA BASE DE DATOS
+--ESTA BASE DE DATOS ES LA VIEJAAAAAAAA
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema clinica
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `clinica` DEFAULT CHARACTER SET utf8 ;
+USE `clinica` ;
+
+-- -----------------------------------------------------
+-- Table `clinica`.`calle`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`calle` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`calle` (
+  `id_calle` INT(8) NOT NULL,
+  `nombre_calle` VARCHAR(45) NULL DEFAULT NULL,
+  `calle_altura` VARCHAR(10) NULL DEFAULT NULL,
+  PRIMARY KEY (`id_calle`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`paciente-usuario`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`paciente-usuario` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`paciente-usuario` (
+  `id_paciente-usuario` INT(8) NOT NULL,
+  `usuario_id_usuario` INT(9) NOT NULL,
+  `paciente_id_paciente` INT(10) NOT NULL,
+  PRIMARY KEY (`id_paciente-usuario`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`persona`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`persona` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`persona` (
+  `id_persona` INT(10) NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(150) NULL,
+  `apellido` VARCHAR(150) NULL,
+  `sexo` INT NULL,
+  `fecha_nacimiento` DATETIME NULL,
+  PRIMARY KEY (`id_persona`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`pais`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`pais` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`pais` (
+  `id_pais` INT(8) NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(150) NULL,
+  PRIMARY KEY (`id_pais`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`provincia`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`provincia` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`provincia` (
+  `id_provincia` INT(8) NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(150) NULL,
+  `pais_id_pais` INT(8) NOT NULL,
+  PRIMARY KEY (`id_provincia`),
+  INDEX `fk_provincia_pais1_idx` (`pais_id_pais` ASC),
+  CONSTRAINT `fk_provincia_pais1`
+    FOREIGN KEY (`pais_id_pais`)
+    REFERENCES `clinica`.`pais` (`id_pais`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`localidad`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`localidad` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`localidad` (
+  `id_localidad` INT(8) NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(150) NULL,
+  `provincia_id_provincia` INT(8) NOT NULL,
+  PRIMARY KEY (`id_localidad`),
+  INDEX `fk_localidad_provincia1_idx` (`provincia_id_provincia` ASC),
+  CONSTRAINT `fk_localidad_provincia1`
+    FOREIGN KEY (`provincia_id_provincia`)
+    REFERENCES `clinica`.`provincia` (`id_provincia`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`barrio`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`barrio` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`barrio` (
+  `id_barrio` INT(8) NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(150) NULL,
+  `localidad_id_localidad` INT(8) NOT NULL,
+  PRIMARY KEY (`id_barrio`),
+  INDEX `fk_barrio_localidad1_idx` (`localidad_id_localidad` ASC),
+  CONSTRAINT `fk_barrio_localidad1`
+    FOREIGN KEY (`localidad_id_localidad`)
+    REFERENCES `clinica`.`localidad` (`id_localidad`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`direccion`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`direccion` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`direccion` (
+  `id_direccion` INT(10) NOT NULL AUTO_INCREMENT,
+  `persona_id_persona` INT(10) NOT NULL,
+  `detalle` VARCHAR(150) NULL,
+  `calle` VARCHAR(45) NULL,
+  `numero_casa` VARCHAR(45) NULL,
+  `barrio_id_barrio` INT(8) NOT NULL,
+  PRIMARY KEY (`id_direccion`),
+  INDEX `fk_direccion_persona2_idx` (`persona_id_persona` ASC),
+  INDEX `fk_direccion_barrio1_idx` (`barrio_id_barrio` ASC),
+  CONSTRAINT `fk_direccion_persona2`
+    FOREIGN KEY (`persona_id_persona`)
+    REFERENCES `clinica`.`persona` (`id_persona`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_direccion_barrio1`
+    FOREIGN KEY (`barrio_id_barrio`)
+    REFERENCES `clinica`.`barrio` (`id_barrio`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`medicos-especialidades`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`medicos-especialidades` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`medicos-especialidades` (
+  `id_medicos-especialidades` INT NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(45) NULL,
+  PRIMARY KEY (`id_medicos-especialidades`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`clinica`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`clinica` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`clinica` (
+  `id_clinica` INT NOT NULL AUTO_INCREMENT,
+  `nombre_clinica` VARCHAR(150) NULL,
+  `direccion_id_direccion` INT(10) NOT NULL,
+  `medicos-especialidades_id_medicos-especialidades` INT NOT NULL,
+  PRIMARY KEY (`id_clinica`),
+  INDEX `fk_clinica_direccion1_idx` (`direccion_id_direccion` ASC),
+  INDEX `fk_clinica_medicos-especialidades1_idx` (`medicos-especialidades_id_medicos-especialidades` ASC),
+  CONSTRAINT `fk_clinica_direccion1`
+    FOREIGN KEY (`direccion_id_direccion`)
+    REFERENCES `clinica`.`direccion` (`id_direccion`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_clinica_medicos-especialidades1`
+    FOREIGN KEY (`medicos-especialidades_id_medicos-especialidades`)
+    REFERENCES `clinica`.`medicos-especialidades` (`id_medicos-especialidades`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`usuario`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`usuario` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`usuario` (
+  `id_usuario` INT(9) NOT NULL AUTO_INCREMENT,
+  `nombre_usuario` VARCHAR(100) NULL,
+  `email` VARCHAR(150) NULL,
+  `password` VARCHAR(100) NULL,
+  `estado` TINYINT(1) NOT NULL,
+  `ultima_conexion` DATETIME NULL,
+  `fecha_alta` DATETIME NULL,
+  `fecha_baja` DATETIME NULL,
+  `persona_id_persona` INT(10) NOT NULL,
+  `clinica_id_clinica` INT NOT NULL,
+  PRIMARY KEY (`id_usuario`),
+  INDEX `fk_usuario_persona1_idx` (`persona_id_persona` ASC),
+  INDEX `fk_usuario_clinica1_idx` (`clinica_id_clinica` ASC),
+  CONSTRAINT `fk_usuario_persona1`
+    FOREIGN KEY (`persona_id_persona`)
+    REFERENCES `clinica`.`persona` (`id_persona`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_usuario_clinica1`
+    FOREIGN KEY (`clinica_id_clinica`)
+    REFERENCES `clinica`.`clinica` (`id_clinica`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`perfil`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`perfil` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`perfil` (
+  `id_perfil` INT(9) NOT NULL AUTO_INCREMENT,
+  `nombre_perfil` VARCHAR(150) NULL,
+  `descripcion` VARCHAR(150) NULL,
+  PRIMARY KEY (`id_perfil`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`permiso`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`permiso` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`permiso` (
+  `id_permiso` INT(10) NOT NULL AUTO_INCREMENT,
+  `nombre_permiso` VARCHAR(150) NULL,
+  `detalle` VARCHAR(150) NULL,
+  `estado` TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id_permiso`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`permiso-perfiles`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`permiso-perfiles` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`permiso-perfiles` (
+  `id_permiso-perfil` INT(10) NOT NULL,
+  `permiso_id_permiso` INT(10) NOT NULL,
+  `perfil_id_perfil` INT(9) NOT NULL,
+  `descripcion` VARCHAR(150) NULL,
+  PRIMARY KEY (`id_permiso-perfil`),
+  INDEX `fk_permiso-perfiles_permiso1_idx` (`permiso_id_permiso` ASC),
+  INDEX `fk_permiso-perfiles_perfil1_idx` (`perfil_id_perfil` ASC),
+  CONSTRAINT `fk_permiso-perfiles_permiso1`
+    FOREIGN KEY (`permiso_id_permiso`)
+    REFERENCES `clinica`.`permiso` (`id_permiso`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_permiso-perfiles_perfil1`
+    FOREIGN KEY (`perfil_id_perfil`)
+    REFERENCES `clinica`.`perfil` (`id_perfil`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`contacto`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`contacto` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`contacto` (
+  `id_contacto` INT(8) NOT NULL AUTO_INCREMENT,
+  `tipo_contacto` VARCHAR(100) NULL,
+  `descripcion` VARCHAR(100) NULL,
+  PRIMARY KEY (`id_contacto`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`paciente`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`paciente` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`paciente` (
+  `id_paciente` INT(10) NOT NULL AUTO_INCREMENT,
+  `usuario_id_usuario` INT(9) NOT NULL,
+  PRIMARY KEY (`id_paciente`),
+  INDEX `fk_paciente_usuario1_idx` (`usuario_id_usuario` ASC),
+  CONSTRAINT `fk_paciente_usuario1`
+    FOREIGN KEY (`usuario_id_usuario`)
+    REFERENCES `clinica`.`usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`doctor`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`doctor` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`doctor` (
+  `id_doctor` INT(8) NOT NULL AUTO_INCREMENT,
+  `numero_matricula_profesional` VARCHAR(45) NULL,
+  `estado_doctor` VARCHAR(45) NULL,
+  `usuario_id_usuario` INT(9) NOT NULL,
+  `salario` FLOAT NULL,
+  `fecha_inicio` DATE NULL,
+  `fecha_fin` DATE NULL,
+  `horario_inicio` TIME NULL,
+  `horario_fin` TIME NULL,
+  PRIMARY KEY (`id_doctor`),
+  INDEX `fk_doctor_usuario1_idx` (`usuario_id_usuario` ASC),
+  CONSTRAINT `fk_doctor_usuario1`
+    FOREIGN KEY (`usuario_id_usuario`)
+    REFERENCES `clinica`.`usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`obra-social`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`obra-social` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`obra-social` (
+  `id_obra-social` INT(8) NOT NULL AUTO_INCREMENT,
+  `nombre_obra-social` VARCHAR(50) NULL,
+  `detalle` VARCHAR(50) NULL,
+  PRIMARY KEY (`id_obra-social`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`paciente-obra_social`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`paciente-obra_social` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`paciente-obra_social` (
+  `id_paciente-obra_social` INT(8) NOT NULL AUTO_INCREMENT,
+  `paciente_id_paciente` INT(10) NOT NULL,
+  `obra-social_id_obra-social` INT(8) NOT NULL,
+  PRIMARY KEY (`id_paciente-obra_social`),
+  INDEX `fk_paciente-obra_social_paciente2_idx` (`paciente_id_paciente` ASC),
+  INDEX `fk_paciente-obra_social_obra-social2_idx` (`obra-social_id_obra-social` ASC),
+  CONSTRAINT `fk_paciente-obra_social_paciente2`
+    FOREIGN KEY (`paciente_id_paciente`)
+    REFERENCES `clinica`.`paciente` (`id_paciente`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_paciente-obra_social_obra-social2`
+    FOREIGN KEY (`obra-social_id_obra-social`)
+    REFERENCES `clinica`.`obra-social` (`id_obra-social`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`doctor-obra_social`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`doctor-obra_social` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`doctor-obra_social` (
+  `id_doctor-obra_social` INT(5) NOT NULL AUTO_INCREMENT,
+  `obra-social_id_obra-social` INT(8) NOT NULL,
+  `doctor_id_doctor` INT(8) NOT NULL,
+  PRIMARY KEY (`id_doctor-obra_social`),
+  INDEX `fk_doctor-obra_social_obra-social2_idx` (`obra-social_id_obra-social` ASC),
+  INDEX `fk_doctor-obra_social_doctor1_idx` (`doctor_id_doctor` ASC),
+  CONSTRAINT `fk_doctor-obra_social_obra-social2`
+    FOREIGN KEY (`obra-social_id_obra-social`)
+    REFERENCES `clinica`.`obra-social` (`id_obra-social`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_doctor-obra_social_doctor1`
+    FOREIGN KEY (`doctor_id_doctor`)
+    REFERENCES `clinica`.`doctor` (`id_doctor`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`lugar-trabajo`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`lugar-trabajo` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`lugar-trabajo` (
+  `id_lugar-trabajo` INT(10) NOT NULL AUTO_INCREMENT,
+  `nombre_lugar` VARCHAR(150) NULL,
+  PRIMARY KEY (`id_lugar-trabajo`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`doctor-lugar`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`doctor-lugar` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`doctor-lugar` (
+  `id_doctor-lugar` INT(10) NOT NULL AUTO_INCREMENT,
+  `doctor_id_doctor` INT(8) NOT NULL,
+  `lugar-trabajo_id_lugar-trabajo` INT(10) NOT NULL,
+  PRIMARY KEY (`id_doctor-lugar`),
+  INDEX `fk_doctor-lugar_doctor1_idx` (`doctor_id_doctor` ASC),
+  INDEX `fk_doctor-lugar_lugar-trabajo1_idx` (`lugar-trabajo_id_lugar-trabajo` ASC),
+  CONSTRAINT `fk_doctor-lugar_doctor1`
+    FOREIGN KEY (`doctor_id_doctor`)
+    REFERENCES `clinica`.`doctor` (`id_doctor`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_doctor-lugar_lugar-trabajo1`
+    FOREIGN KEY (`lugar-trabajo_id_lugar-trabajo`)
+    REFERENCES `clinica`.`lugar-trabajo` (`id_lugar-trabajo`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`especialidad`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`especialidad` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`especialidad` (
+  `id_especialidad` INT(10) NOT NULL AUTO_INCREMENT,
+  `nombre_especialidad` VARCHAR(150) NULL,
+  PRIMARY KEY (`id_especialidad`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`contacto-persona`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`contacto-persona` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`contacto-persona` (
+  `id_contacto-persona` INT(5) NOT NULL AUTO_INCREMENT,
+  `detalle` VARCHAR(100) NULL,
+  `persona_id_persona` INT(10) NOT NULL,
+  `contacto_id_contacto` INT(8) NOT NULL,
+  PRIMARY KEY (`id_contacto-persona`),
+  INDEX `fk_contacto-persona_persona1_idx` (`persona_id_persona` ASC),
+  INDEX `fk_contacto-persona_contacto1_idx` (`contacto_id_contacto` ASC),
+  CONSTRAINT `fk_contacto-persona_persona1`
+    FOREIGN KEY (`persona_id_persona`)
+    REFERENCES `clinica`.`persona` (`id_persona`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_contacto-persona_contacto1`
+    FOREIGN KEY (`contacto_id_contacto`)
+    REFERENCES `clinica`.`contacto` (`id_contacto`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`documento`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`documento` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`documento` (
+  `id_documento` INT NOT NULL AUTO_INCREMENT,
+  `tipo_documento` VARCHAR(150) NULL,
+  `descripcion` VARCHAR(150) NULL,
+  PRIMARY KEY (`id_documento`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`documento-persona`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`documento-persona` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`documento-persona` (
+  `id_documento-persona` INT NOT NULL AUTO_INCREMENT,
+  `detalle` VARCHAR(150) NULL,
+  `documento_id_documento` INT NOT NULL,
+  `persona_id_persona` INT(10) NOT NULL,
+  `valor` TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id_documento-persona`),
+  INDEX `fk_documento-persona_documento1_idx` (`documento_id_documento` ASC),
+  INDEX `fk_documento-persona_persona1_idx` (`persona_id_persona` ASC),
+  CONSTRAINT `fk_documento-persona_documento1`
+    FOREIGN KEY (`documento_id_documento`)
+    REFERENCES `clinica`.`documento` (`id_documento`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_documento-persona_persona1`
+    FOREIGN KEY (`persona_id_persona`)
+    REFERENCES `clinica`.`persona` (`id_persona`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`turnos`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`turnos` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`turnos` (
+  `id_turnos` INT NOT NULL AUTO_INCREMENT,
+  `fecha_hora_inicio` DATETIME NOT NULL,
+  `fecha_hora_fin` DATETIME NOT NULL,
+  `doctor_id_doctor` INT(8) NOT NULL,
+  `usuario_id_usuario` INT(9) NOT NULL,
+  PRIMARY KEY (`id_turnos`),
+  INDEX `fk_turnos_doctor1_idx` (`doctor_id_doctor` ASC),
+  INDEX `fk_turnos_usuario1_idx` (`usuario_id_usuario` ASC),
+  CONSTRAINT `fk_turnos_doctor1`
+    FOREIGN KEY (`doctor_id_doctor`)
+    REFERENCES `clinica`.`doctor` (`id_doctor`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_turnos_usuario1`
+    FOREIGN KEY (`usuario_id_usuario`)
+    REFERENCES `clinica`.`usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`metodo_pago`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`metodo_pago` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`metodo_pago` (
+  `id_metodo_pago` INT NOT NULL AUTO_INCREMENT,
+  `nombre_metodo` VARCHAR(50) NULL,
+  PRIMARY KEY (`id_metodo_pago`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`turno-pago`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`turno-pago` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`turno-pago` (
+  `id_turno-pago` INT NOT NULL AUTO_INCREMENT,
+  `estado` INT(3) NULL,
+  `importe` FLOAT NULL,
+  `fecha_pago` DATETIME NULL,
+  `turnos_id_turnos` INT NOT NULL,
+  PRIMARY KEY (`id_turno-pago`),
+  INDEX `fk_turno-pago_turnos1_idx` (`turnos_id_turnos` ASC),
+  CONSTRAINT `fk_turno-pago_turnos1`
+    FOREIGN KEY (`turnos_id_turnos`)
+    REFERENCES `clinica`.`turnos` (`id_turnos`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`recibo`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`recibo` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`recibo` (
+  `id_recibo` INT(10) NOT NULL AUTO_INCREMENT,
+  `clinica_id_clinica` INT NOT NULL,
+  `turno-pago_id_turno-pago` INT NOT NULL,
+  PRIMARY KEY (`id_recibo`),
+  INDEX `fk_recibo_clinica1_idx` (`clinica_id_clinica` ASC),
+  INDEX `fk_recibo_turno-pago1_idx` (`turno-pago_id_turno-pago` ASC),
+  CONSTRAINT `fk_recibo_clinica1`
+    FOREIGN KEY (`clinica_id_clinica`)
+    REFERENCES `clinica`.`clinica` (`id_clinica`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_recibo_turno-pago1`
+    FOREIGN KEY (`turno-pago_id_turno-pago`)
+    REFERENCES `clinica`.`turno-pago` (`id_turno-pago`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`clinica-contacto`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`clinica-contacto` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`clinica-contacto` (
+  `id_clinica-contacto` INT NOT NULL AUTO_INCREMENT,
+  `contacto_id_contacto` INT(8) NOT NULL,
+  `clinica_id_clinica` INT NOT NULL,
+  PRIMARY KEY (`id_clinica-contacto`),
+  INDEX `fk_clinica-contacto_contacto1_idx` (`contacto_id_contacto` ASC),
+  INDEX `fk_clinica-contacto_clinica1_idx` (`clinica_id_clinica` ASC),
+  CONSTRAINT `fk_clinica-contacto_contacto1`
+    FOREIGN KEY (`contacto_id_contacto`)
+    REFERENCES `clinica`.`contacto` (`id_contacto`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_clinica-contacto_clinica1`
+    FOREIGN KEY (`clinica_id_clinica`)
+    REFERENCES `clinica`.`clinica` (`id_clinica`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`agendar-cita`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`agendar-cita` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`agendar-cita` (
+  `id_agendar-cita` INT NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(45) NULL,
+  `clinica_id_clinica` INT NOT NULL,
+  PRIMARY KEY (`id_agendar-cita`),
+  INDEX `fk_agendar-cita_clinica1_idx` (`clinica_id_clinica` ASC),
+  CONSTRAINT `fk_agendar-cita_clinica1`
+    FOREIGN KEY (`clinica_id_clinica`)
+    REFERENCES `clinica`.`clinica` (`id_clinica`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`calendario`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`calendario` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`calendario` (
+  `id_calendario` INT NOT NULL AUTO_INCREMENT,
+  `fecha_desde` DATE NULL,
+  `fecha_hasta` DATE NULL,
+  `hora_desde` TIME NULL,
+  `hora_hasta` TIME NULL,
+  `agendar-cita_id_agendar-cita` INT NOT NULL,
+  PRIMARY KEY (`id_calendario`),
+  INDEX `fk_calendario_agendar-cita1_idx` (`agendar-cita_id_agendar-cita` ASC),
+  CONSTRAINT `fk_calendario_agendar-cita1`
+    FOREIGN KEY (`agendar-cita_id_agendar-cita`)
+    REFERENCES `clinica`.`agendar-cita` (`id_agendar-cita`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`calendarios-turnos`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`calendarios-turnos` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`calendarios-turnos` (
+  `id_calendarios-turnos` INT NOT NULL AUTO_INCREMENT,
+  `calendario_id_calendario` INT NOT NULL,
+  `turnos_id_turnos` INT NOT NULL,
+  PRIMARY KEY (`id_calendarios-turnos`, `calendario_id_calendario`, `turnos_id_turnos`),
+  INDEX `fk_calendarios-turnos_calendario1_idx` (`calendario_id_calendario` ASC),
+  INDEX `fk_calendarios-turnos_turnos1_idx` (`turnos_id_turnos` ASC),
+  CONSTRAINT `fk_calendarios-turnos_calendario1`
+    FOREIGN KEY (`calendario_id_calendario`)
+    REFERENCES `clinica`.`calendario` (`id_calendario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_calendarios-turnos_turnos1`
+    FOREIGN KEY (`turnos_id_turnos`)
+    REFERENCES `clinica`.`turnos` (`id_turnos`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`modulos`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`modulos` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`modulos` (
+  `id_modulos` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(150) NULL,
+  PRIMARY KEY (`id_modulos`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`perfiles-modulos`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`perfiles-modulos` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`perfiles-modulos` (
+  `row_id` INT NOT NULL AUTO_INCREMENT,
+  `modulos_id_modulos` INT NOT NULL,
+  `perfil_id_perfil` INT(9) NOT NULL,
+  PRIMARY KEY (`row_id`),
+  INDEX `fk_perfiles-modulos_modulos1_idx` (`modulos_id_modulos` ASC),
+  INDEX `fk_perfiles-modulos_perfil1_idx` (`perfil_id_perfil` ASC),
+  CONSTRAINT `fk_perfiles-modulos_modulos1`
+    FOREIGN KEY (`modulos_id_modulos`)
+    REFERENCES `clinica`.`modulos` (`id_modulos`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_perfiles-modulos_perfil1`
+    FOREIGN KEY (`perfil_id_perfil`)
+    REFERENCES `clinica`.`perfil` (`id_perfil`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`estados`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`estados` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`estados` (
+  `id_estados` INT NOT NULL AUTO_INCREMENT,
+  `tipo_estado` VARCHAR(100) NULL,
+  `descripcion` VARCHAR(100) NULL,
+  PRIMARY KEY (`id_estados`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`estado-turno`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`estado-turno` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`estado-turno` (
+  `id_estado-turno` INT NOT NULL AUTO_INCREMENT,
+  `turnos_id_turnos` INT NOT NULL,
+  `estados_id_estados` INT NOT NULL,
+  PRIMARY KEY (`id_estado-turno`),
+  INDEX `fk_estado-turno_turnos1_idx` (`turnos_id_turnos` ASC),
+  INDEX `fk_estado-turno_estados1_idx` (`estados_id_estados` ASC),
+  CONSTRAINT `fk_estado-turno_turnos1`
+    FOREIGN KEY (`turnos_id_turnos`)
+    REFERENCES `clinica`.`turnos` (`id_turnos`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_estado-turno_estados1`
+    FOREIGN KEY (`estados_id_estados`)
+    REFERENCES `clinica`.`estados` (`id_estados`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`estado-calendario`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`estado-calendario` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`estado-calendario` (
+  `id_estado-calendario` INT NOT NULL AUTO_INCREMENT,
+  `estados_id_estados` INT NOT NULL,
+  `calendario_id_calendario` INT NOT NULL,
+  `doctor_id_doctor` INT(8) NOT NULL,
+  PRIMARY KEY (`id_estado-calendario`),
+  INDEX `fk_estado-calendario_estados1_idx` (`estados_id_estados` ASC),
+  INDEX `fk_estado-calendario_calendario1_idx` (`calendario_id_calendario` ASC),
+  INDEX `fk_estado-calendario_doctor1_idx` (`doctor_id_doctor` ASC),
+  CONSTRAINT `fk_estado-calendario_estados1`
+    FOREIGN KEY (`estados_id_estados`)
+    REFERENCES `clinica`.`estados` (`id_estados`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_estado-calendario_calendario1`
+    FOREIGN KEY (`calendario_id_calendario`)
+    REFERENCES `clinica`.`calendario` (`id_calendario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_estado-calendario_doctor1`
+    FOREIGN KEY (`doctor_id_doctor`)
+    REFERENCES `clinica`.`doctor` (`id_doctor`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`confirmacion`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`confirmacion` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`confirmacion` (
+  `id_paciente-confirmacion-turno` INT NOT NULL AUTO_INCREMENT,
+  `turnos_id_turnos` INT NOT NULL,
+  `confirmacion-paciente` VARCHAR(45) NULL,
+  `confirmacion-doctor` VARCHAR(45) NULL,
+  PRIMARY KEY (`id_paciente-confirmacion-turno`),
+  INDEX `fk_paciente-confirmacion_turnos1_idx` (`turnos_id_turnos` ASC),
+  CONSTRAINT `fk_paciente-confirmacion_turnos1`
+    FOREIGN KEY (`turnos_id_turnos`)
+    REFERENCES `clinica`.`turnos` (`id_turnos`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`condicion`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`condicion` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`condicion` (
+  `id_condicion` INT NOT NULL AUTO_INCREMENT,
+  `nombre_condicion` VARCHAR(150) NULL,
+  `detalle` VARCHAR(150) NULL,
+  PRIMARY KEY (`id_condicion`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`cita`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`cita` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`cita` (
+  `id_cita` INT NOT NULL AUTO_INCREMENT,
+  `razon` VARCHAR(150) NULL,
+  `turnos_id_turnos` INT NOT NULL,
+  `asistencia_doctor` TINYINT(1) NOT NULL DEFAULT 1,
+  `asistencia_paciente` TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id_cita`),
+  INDEX `fk_cita_turnos1_idx` (`turnos_id_turnos` ASC),
+  CONSTRAINT `fk_cita_turnos1`
+    FOREIGN KEY (`turnos_id_turnos`)
+    REFERENCES `clinica`.`turnos` (`id_turnos`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`diagnostico`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`diagnostico` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`diagnostico` (
+  `id_diagnostico` INT NOT NULL AUTO_INCREMENT,
+  `detalle` VARCHAR(150) NULL,
+  `cita_id_cita` INT NOT NULL,
+  PRIMARY KEY (`id_diagnostico`),
+  INDEX `fk_diagnostico_cita1_idx` (`cita_id_cita` ASC),
+  CONSTRAINT `fk_diagnostico_cita1`
+    FOREIGN KEY (`cita_id_cita`)
+    REFERENCES `clinica`.`cita` (`id_cita`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`persona-condicion`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`persona-condicion` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`persona-condicion` (
+  `id_persona-condicion` INT NOT NULL AUTO_INCREMENT,
+  `persona_id_persona` INT(10) NOT NULL,
+  `condicion_id_condicion` INT NOT NULL,
+  `diagnostico_id_diagnostico` INT NOT NULL,
+  PRIMARY KEY (`id_persona-condicion`),
+  INDEX `fk_persona-condicion_persona1_idx` (`persona_id_persona` ASC),
+  INDEX `fk_persona-condicion_condicion1_idx` (`condicion_id_condicion` ASC),
+  INDEX `fk_persona-condicion_diagnostico1_idx` (`diagnostico_id_diagnostico` ASC),
+  CONSTRAINT `fk_persona-condicion_persona1`
+    FOREIGN KEY (`persona_id_persona`)
+    REFERENCES `clinica`.`persona` (`id_persona`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_persona-condicion_condicion1`
+    FOREIGN KEY (`condicion_id_condicion`)
+    REFERENCES `clinica`.`condicion` (`id_condicion`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_persona-condicion_diagnostico1`
+    FOREIGN KEY (`diagnostico_id_diagnostico`)
+    REFERENCES `clinica`.`diagnostico` (`id_diagnostico`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`correo-confirmacion`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`correo-confirmacion` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`correo-confirmacion` (
+  `id_correo-confirmacion` INT NOT NULL AUTO_INCREMENT,
+  `fecha_envio` DATETIME NULL,
+  `fecha_acceso` DATETIME NULL,
+  `usuario_id_usuario` INT(9) NOT NULL,
+  `clinica-contacto_id_clinica-contacto` INT NOT NULL,
+  PRIMARY KEY (`id_correo-confirmacion`),
+  INDEX `fk_confirmacion-contacto_usuario1_idx` (`usuario_id_usuario` ASC),
+  INDEX `fk_confirmacion-contacto_clinica-contacto1_idx` (`clinica-contacto_id_clinica-contacto` ASC),
+  CONSTRAINT `fk_confirmacion-contacto_usuario1`
+    FOREIGN KEY (`usuario_id_usuario`)
+    REFERENCES `clinica`.`usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_confirmacion-contacto_clinica-contacto1`
+    FOREIGN KEY (`clinica-contacto_id_clinica-contacto`)
+    REFERENCES `clinica`.`clinica-contacto` (`id_clinica-contacto`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`recordatorio`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`recordatorio` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`recordatorio` (
+  `id_recordatorio` INT NOT NULL AUTO_INCREMENT,
+  `fecha_inicio` DATETIME NULL,
+  `fecha_fin` DATETIME NULL,
+  `turnos_id_turnos` INT NOT NULL,
+  PRIMARY KEY (`id_recordatorio`),
+  INDEX `fk_recordatorio_turnos1_idx` (`turnos_id_turnos` ASC),
+  CONSTRAINT `fk_recordatorio_turnos1`
+    FOREIGN KEY (`turnos_id_turnos`)
+    REFERENCES `clinica`.`turnos` (`id_turnos`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`prestecion-recibo`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`prestecion-recibo` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`prestecion-recibo` (
+  `id_prestacion-recibo` INT NOT NULL AUTO_INCREMENT,
+  `recibo_id_recibo` INT(10) NOT NULL,
+  PRIMARY KEY (`id_prestacion-recibo`),
+  INDEX `fk_tratamiento-recibo_recibo1_idx` (`recibo_id_recibo` ASC),
+  CONSTRAINT `fk_tratamiento-recibo_recibo1`
+    FOREIGN KEY (`recibo_id_recibo`)
+    REFERENCES `clinica`.`recibo` (`id_recibo`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`doctor-prestacion`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`doctor-prestacion` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`doctor-prestacion` (
+  `id_doctor-prestacion` INT NOT NULL AUTO_INCREMENT,
+  `costo` FLOAT NULL,
+  `doctor_id_doctor` INT(8) NOT NULL,
+  `prestecion-recibo_id_prestacion-recibo` INT NOT NULL,
+  PRIMARY KEY (`id_doctor-prestacion`),
+  INDEX `fk_doctor-tratamiento_doctor1_idx` (`doctor_id_doctor` ASC),
+  INDEX `fk_doctor-prestacion_prestecion-recibo1_idx` (`prestecion-recibo_id_prestacion-recibo` ASC),
+  CONSTRAINT `fk_doctor-tratamiento_doctor1`
+    FOREIGN KEY (`doctor_id_doctor`)
+    REFERENCES `clinica`.`doctor` (`id_doctor`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_doctor-prestacion_prestecion-recibo1`
+    FOREIGN KEY (`prestecion-recibo_id_prestacion-recibo`)
+    REFERENCES `clinica`.`prestecion-recibo` (`id_prestacion-recibo`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`prestacion`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`prestacion` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`prestacion` (
+  `id_prestacion` INT NOT NULL AUTO_INCREMENT,
+  `nombre_prestacion` VARCHAR(150) NULL,
+  `detalle` VARCHAR(150) NULL,
+  `doctor-prestacion_id_doctor-prestacion` INT NOT NULL,
+  PRIMARY KEY (`id_prestacion`),
+  INDEX `fk_prestacion_doctor-prestacion1_idx` (`doctor-prestacion_id_doctor-prestacion` ASC),
+  CONSTRAINT `fk_prestacion_doctor-prestacion1`
+    FOREIGN KEY (`doctor-prestacion_id_doctor-prestacion`)
+    REFERENCES `clinica`.`doctor-prestacion` (`id_doctor-prestacion`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`diagnostico_has_prestacion`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`diagnostico_has_prestacion` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`diagnostico_has_prestacion` (
+  `diagnostico_id_diagnostico` INT NOT NULL,
+  `prestacion_id_prestacion` INT NOT NULL,
+  `estados_id_estados` INT NOT NULL,
+  `fecha_inicio` DATETIME NULL,
+  `fecha_fin` DATETIME NULL,
+  `doctor-prestacion_id_doctor-prestacion` INT NOT NULL,
+  PRIMARY KEY (`diagnostico_id_diagnostico`, `prestacion_id_prestacion`),
+  INDEX `fk_diagnostico_has_tratamiento_diagnostico1_idx` (`diagnostico_id_diagnostico` ASC),
+  INDEX `fk_diagnostico_has_tratamiento_estados1_idx` (`estados_id_estados` ASC),
+  INDEX `fk_diagnostico_has_prestacion_doctor-prestacion1_idx` (`doctor-prestacion_id_doctor-prestacion` ASC),
+  CONSTRAINT `fk_diagnostico_has_tratamiento_diagnostico1`
+    FOREIGN KEY (`diagnostico_id_diagnostico`)
+    REFERENCES `clinica`.`diagnostico` (`id_diagnostico`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_diagnostico_has_tratamiento_estados1`
+    FOREIGN KEY (`estados_id_estados`)
+    REFERENCES `clinica`.`estados` (`id_estados`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_diagnostico_has_prestacion_doctor-prestacion1`
+    FOREIGN KEY (`doctor-prestacion_id_doctor-prestacion`)
+    REFERENCES `clinica`.`doctor-prestacion` (`id_doctor-prestacion`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`asistente`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`asistente` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`asistente` (
+  `id_asistente` INT NOT NULL AUTO_INCREMENT,
+  `fecha_inicio` DATE NULL,
+  `fecha_fin` DATE NULL,
+  `hora_inicio` TIME NULL,
+  `hora_fin` TIME NULL,
+  `salario` FLOAT NULL,
+  `usuario_id_usuario` INT(9) NOT NULL,
+  PRIMARY KEY (`id_asistente`),
+  INDEX `fk_asistente_usuario1_idx` (`usuario_id_usuario` ASC),
+  CONSTRAINT `fk_asistente_usuario1`
+    FOREIGN KEY (`usuario_id_usuario`)
+    REFERENCES `clinica`.`usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`nosotros`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`nosotros` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`nosotros` (
+  `id_nosotros` INT NOT NULL AUTO_INCREMENT,
+  `clinica-contacto_id_clinica-contacto` INT NOT NULL,
+  `clinica_id_clinica` INT NOT NULL,
+  PRIMARY KEY (`id_nosotros`),
+  INDEX `fk_nosotros_clinica-contacto1_idx` (`clinica-contacto_id_clinica-contacto` ASC),
+  INDEX `fk_nosotros_clinica1_idx` (`clinica_id_clinica` ASC),
+  CONSTRAINT `fk_nosotros_clinica-contacto1`
+    FOREIGN KEY (`clinica-contacto_id_clinica-contacto`)
+    REFERENCES `clinica`.`clinica-contacto` (`id_clinica-contacto`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_nosotros_clinica1`
+    FOREIGN KEY (`clinica_id_clinica`)
+    REFERENCES `clinica`.`clinica` (`id_clinica`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`obra-social_has_prestacion`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`obra-social_has_prestacion` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`obra-social_has_prestacion` (
+  `obra-social_id_obra-social` INT(8) NOT NULL,
+  `prestacion_id_prestacion` INT NOT NULL,
+  `codigo` VARCHAR(45) NULL,
+  PRIMARY KEY (`obra-social_id_obra-social`, `prestacion_id_prestacion`),
+  INDEX `fk_obra-social_has_prestacion_prestacion1_idx` (`prestacion_id_prestacion` ASC),
+  INDEX `fk_obra-social_has_prestacion_obra-social1_idx` (`obra-social_id_obra-social` ASC),
+  CONSTRAINT `fk_obra-social_has_prestacion_obra-social1`
+    FOREIGN KEY (`obra-social_id_obra-social`)
+    REFERENCES `clinica`.`obra-social` (`id_obra-social`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_obra-social_has_prestacion_prestacion1`
+    FOREIGN KEY (`prestacion_id_prestacion`)
+    REFERENCES `clinica`.`prestacion` (`id_prestacion`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`ordenes-consulta`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`ordenes-consulta` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`ordenes-consulta` (
+  `id_ordenes-medicas` INT NOT NULL AUTO_INCREMENT,
+  `numero_autorizacion` VARCHAR(45) NULL,
+  `estado` TINYINT(1) NULL DEFAULT 1,
+  `fecha_solicitud` DATE NULL,
+  `fecha_vencimiento` DATE NULL,
+  `fecha_prescripcion` DATE NULL,
+  `estados_id_estados` INT NOT NULL,
+  `obra-social_has_prestacion_obra-social_id_obra-social` INT(8) NOT NULL,
+  `obra-social_has_prestacion_prestacion_id_prestacion` INT NOT NULL,
+  PRIMARY KEY (`id_ordenes-medicas`),
+  INDEX `fk_ordenes-consulta_estados1_idx` (`estados_id_estados` ASC),
+  INDEX `fk_ordenes-consulta_obra-social_has_prestacion1_idx` (`obra-social_has_prestacion_obra-social_id_obra-social` ASC, `obra-social_has_prestacion_prestacion_id_prestacion` ASC),
+  CONSTRAINT `fk_ordenes-consulta_estados1`
+    FOREIGN KEY (`estados_id_estados`)
+    REFERENCES `clinica`.`estados` (`id_estados`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ordenes-consulta_obra-social_has_prestacion1`
+    FOREIGN KEY (`obra-social_has_prestacion_obra-social_id_obra-social` , `obra-social_has_prestacion_prestacion_id_prestacion`)
+    REFERENCES `clinica`.`obra-social_has_prestacion` (`obra-social_id_obra-social` , `prestacion_id_prestacion`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`orden-consulta_turno`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`orden-consulta_turno` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`orden-consulta_turno` (
+  `id_orden-consulta_turno` INT NOT NULL AUTO_INCREMENT,
+  `ordenes-consulta_id_ordenes-medicas` INT NOT NULL,
+  `turnos_id_turnos` INT NOT NULL,
+  PRIMARY KEY (`id_orden-consulta_turno`),
+  INDEX `fk_orden-consulta_turno_ordenes-consulta1_idx` (`ordenes-consulta_id_ordenes-medicas` ASC),
+  INDEX `fk_orden-consulta_turno_turnos1_idx` (`turnos_id_turnos` ASC),
+  CONSTRAINT `fk_orden-consulta_turno_ordenes-consulta1`
+    FOREIGN KEY (`ordenes-consulta_id_ordenes-medicas`)
+    REFERENCES `clinica`.`ordenes-consulta` (`id_ordenes-medicas`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_orden-consulta_turno_turnos1`
+    FOREIGN KEY (`turnos_id_turnos`)
+    REFERENCES `clinica`.`turnos` (`id_turnos`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`familiar`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`familiar` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`familiar` (
+  `id_familiar` INT NOT NULL AUTO_INCREMENT,
+  `relacion` VARCHAR(45) NULL,
+  `descripcion` VARCHAR(45) NULL,
+  PRIMARY KEY (`id_familiar`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`familiar-persona`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`familiar-persona` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`familiar-persona` (
+  `id_familiar-persona` INT NOT NULL AUTO_INCREMENT,
+  `familiar_id_familiar` INT NOT NULL,
+  `persona_id_persona` INT(10) NOT NULL,
+  PRIMARY KEY (`id_familiar-persona`),
+  INDEX `fk_familiar-persona_familiar1_idx` (`familiar_id_familiar` ASC),
+  INDEX `fk_familiar-persona_persona1_idx` (`persona_id_persona` ASC),
+  CONSTRAINT `fk_familiar-persona_familiar1`
+    FOREIGN KEY (`familiar_id_familiar`)
+    REFERENCES `clinica`.`familiar` (`id_familiar`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_familiar-persona_persona1`
+    FOREIGN KEY (`persona_id_persona`)
+    REFERENCES `clinica`.`persona` (`id_persona`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`coordenadas`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`coordenadas` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`coordenadas` (
+  `id_coordenadas` INT NOT NULL AUTO_INCREMENT,
+  `latitud` VARCHAR(100) NULL,
+  `longitud` VARCHAR(100) NULL,
+  PRIMARY KEY (`id_coordenadas`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`coordenada-direccion`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`coordenada-direccion` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`coordenada-direccion` (
+  `id_coordenada-direccion` INT NOT NULL AUTO_INCREMENT,
+  `direccion_id_direccion` INT(10) NOT NULL,
+  `coordenadas_id_coordenadas` INT NOT NULL,
+  PRIMARY KEY (`id_coordenada-direccion`),
+  INDEX `fk_coordenada-direccion_direccion1_idx` (`direccion_id_direccion` ASC),
+  INDEX `fk_coordenada-direccion_coordenadas1_idx` (`coordenadas_id_coordenadas` ASC),
+  CONSTRAINT `fk_coordenada-direccion_direccion1`
+    FOREIGN KEY (`direccion_id_direccion`)
+    REFERENCES `clinica`.`direccion` (`id_direccion`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_coordenada-direccion_coordenadas1`
+    FOREIGN KEY (`coordenadas_id_coordenadas`)
+    REFERENCES `clinica`.`coordenadas` (`id_coordenadas`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`mision`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`mision` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`mision` (
+  `id_mision` INT NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(150) NULL,
+  `titulo` VARCHAR(45) NULL,
+  PRIMARY KEY (`id_mision`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`banner`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`banner` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`banner` (
+  `id_banner` INT NOT NULL AUTO_INCREMENT,
+  `foto` VARCHAR(500) NULL,
+  `estado` TINYINT(1) NOT NULL DEFAULT 1,
+  `fecha_alta` DATE NULL,
+  `fecha_baja` DATE NULL,
+  `obligatorio` TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id_banner`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`noticias`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`noticias` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`noticias` (
+  `id_noticias` INT NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(45) NULL,
+  `nombre` VARCHAR(45) NULL,
+  `fecha_inicio` VARCHAR(45) NULL,
+  `fecha_fin` VARCHAR(45) NULL,
+  `obligatorio` TINYINT(1) NOT NULL DEFAULT 1,
+  `estado` TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id_noticias`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`banner-noticia`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`banner-noticia` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`banner-noticia` (
+  `id_banner-noticia` INT NOT NULL AUTO_INCREMENT,
+  `noticias_id_noticias` INT NOT NULL,
+  `banner_id_banner` INT NOT NULL,
+  PRIMARY KEY (`id_banner-noticia`),
+  INDEX `fk_banner-noticia_noticias1_idx` (`noticias_id_noticias` ASC),
+  INDEX `fk_banner-noticia_banner1_idx` (`banner_id_banner` ASC),
+  CONSTRAINT `fk_banner-noticia_noticias1`
+    FOREIGN KEY (`noticias_id_noticias`)
+    REFERENCES `clinica`.`noticias` (`id_noticias`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_banner-noticia_banner1`
+    FOREIGN KEY (`banner_id_banner`)
+    REFERENCES `clinica`.`banner` (`id_banner`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`nosotros-banner`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`nosotros-banner` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`nosotros-banner` (
+  `id_nosotros-banner` INT NOT NULL AUTO_INCREMENT,
+  `banner_id_banner` INT NOT NULL,
+  `nosotros_id_nosotros` INT NOT NULL,
+  PRIMARY KEY (`id_nosotros-banner`),
+  INDEX `fk_nosotros-banner_banner1_idx` (`banner_id_banner` ASC),
+  INDEX `fk_nosotros-banner_nosotros1_idx` (`nosotros_id_nosotros` ASC),
+  CONSTRAINT `fk_nosotros-banner_banner1`
+    FOREIGN KEY (`banner_id_banner`)
+    REFERENCES `clinica`.`banner` (`id_banner`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_nosotros-banner_nosotros1`
+    FOREIGN KEY (`nosotros_id_nosotros`)
+    REFERENCES `clinica`.`nosotros` (`id_nosotros`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`mision-banner`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`mision-banner` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`mision-banner` (
+  `id_mision-banner` INT NOT NULL AUTO_INCREMENT,
+  `mision_id_mision` INT NOT NULL,
+  `banner_id_banner` INT NOT NULL,
+  PRIMARY KEY (`id_mision-banner`),
+  INDEX `fk_mision-banner_mision1_idx` (`mision_id_mision` ASC),
+  INDEX `fk_mision-banner_banner1_idx` (`banner_id_banner` ASC),
+  CONSTRAINT `fk_mision-banner_mision1`
+    FOREIGN KEY (`mision_id_mision`)
+    REFERENCES `clinica`.`mision` (`id_mision`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_mision-banner_banner1`
+    FOREIGN KEY (`banner_id_banner`)
+    REFERENCES `clinica`.`banner` (`id_banner`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`consultas`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`consultas` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`consultas` (
+  `id_consultas` INT NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(45) NULL,
+  `ttulo` VARCHAR(45) NULL,
+  `nosotros_id_nosotros` INT NOT NULL,
+  PRIMARY KEY (`id_consultas`),
+  INDEX `fk_consultas_nosotros1_idx` (`nosotros_id_nosotros` ASC),
+  CONSTRAINT `fk_consultas_nosotros1`
+    FOREIGN KEY (`nosotros_id_nosotros`)
+    REFERENCES `clinica`.`nosotros` (`id_nosotros`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`preguntas`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`preguntas` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`preguntas` (
+  `id_preguntas` INT NOT NULL AUTO_INCREMENT,
+  `titulo_pregunta` VARCHAR(45) NULL,
+  `descripcion` VARCHAR(45) NULL,
+  `estado` TINYINT(1) NULL DEFAULT 1,
+  `fecha_alta` DATE NULL,
+  `fecha_fin` DATE NULL,
+  `consultas_id_consultas` INT NOT NULL,
+  PRIMARY KEY (`id_preguntas`),
+  INDEX `fk_preguntas_consultas1_idx` (`consultas_id_consultas` ASC),
+  CONSTRAINT `fk_preguntas_consultas1`
+    FOREIGN KEY (`consultas_id_consultas`)
+    REFERENCES `clinica`.`consultas` (`id_consultas`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`sintomas`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`sintomas` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`sintomas` (
+  `id_sintomas` INT NOT NULL AUTO_INCREMENT,
+  `nombre_sintomas` VARCHAR(45) NULL,
+  `descripcion` VARCHAR(45) NULL,
+  PRIMARY KEY (`id_sintomas`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`condicion-sintomas`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`condicion-sintomas` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`condicion-sintomas` (
+  `id_condicion-sintomas` INT NOT NULL AUTO_INCREMENT,
+  `condicion_id_condicion` INT NOT NULL,
+  `sintomas_id_sintomas` INT NOT NULL,
+  `biblioteca-salud_id_biblioteca-salud` INT NOT NULL,
+  PRIMARY KEY (`id_condicion-sintomas`),
+  INDEX `fk_condicion-sintomas_condicion1_idx` (`condicion_id_condicion` ASC),
+  INDEX `fk_condicion-sintomas_sintomas1_idx` (`sintomas_id_sintomas` ASC),
+  INDEX `fk_condicion-sintomas_biblioteca-salud1_idx` (`biblioteca-salud_id_biblioteca-salud` ASC),
+  CONSTRAINT `fk_condicion-sintomas_condicion1`
+    FOREIGN KEY (`condicion_id_condicion`)
+    REFERENCES `clinica`.`condicion` (`id_condicion`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_condicion-sintomas_sintomas1`
+    FOREIGN KEY (`sintomas_id_sintomas`)
+    REFERENCES `clinica`.`sintomas` (`id_sintomas`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_condicion-sintomas_biblioteca-salud1`
+    FOREIGN KEY (`biblioteca-salud_id_biblioteca-salud`)
+    REFERENCES `clinica`.`biblioteca-salud` (`id_biblioteca-salud`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`que-esperar`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`que-esperar` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`que-esperar` (
+  `id_que-esperar` INT NOT NULL AUTO_INCREMENT,
+  `titulo` VARCHAR(45) NULL,
+  `descripcion` VARCHAR(45) NULL,
+  PRIMARY KEY (`id_que-esperar`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`preparacion`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`preparacion` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`preparacion` (
+  `id_preparacion` INT NOT NULL AUTO_INCREMENT,
+  `titulo` VARCHAR(45) NULL,
+  `descripcion` VARCHAR(45) NULL,
+  PRIMARY KEY (`id_preparacion`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`analisis-procedimiento`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`analisis-procedimiento` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`analisis-procedimiento` (
+  `id_analisis-procedimiento` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NULL,
+  `descripcion` VARCHAR(45) NULL,
+  `que-esperar_id_que-esperar` INT NOT NULL,
+  `preparacion_id_preparacion` INT NOT NULL,
+  PRIMARY KEY (`id_analisis-procedimiento`),
+  INDEX `fk_analisis-procedimiento_que-esperar1_idx` (`que-esperar_id_que-esperar` ASC),
+  INDEX `fk_analisis-procedimiento_preparacion1_idx` (`preparacion_id_preparacion` ASC),
+  CONSTRAINT `fk_analisis-procedimiento_que-esperar1`
+    FOREIGN KEY (`que-esperar_id_que-esperar`)
+    REFERENCES `clinica`.`que-esperar` (`id_que-esperar`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_analisis-procedimiento_preparacion1`
+    FOREIGN KEY (`preparacion_id_preparacion`)
+    REFERENCES `clinica`.`preparacion` (`id_preparacion`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`con-sin_has_an-pro`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`con-sin_has_an-pro` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`con-sin_has_an-pro` (
+  `id_condicion-analisis` INT NOT NULL AUTO_INCREMENT,
+  `condicion-sintomas_id_condicion-sintomas` INT NOT NULL,
+  `analisis-procedimiento_id_analisis-procedimiento` INT NOT NULL,
+  PRIMARY KEY (`id_condicion-analisis`),
+  INDEX `fk_con-sin_has_an-pro_condicion-sintomas1_idx` (`condicion-sintomas_id_condicion-sintomas` ASC),
+  INDEX `fk_con-sin_has_an-pro_analisis-procedimiento1_idx` (`analisis-procedimiento_id_analisis-procedimiento` ASC),
+  CONSTRAINT `fk_con-sin_has_an-pro_condicion-sintomas1`
+    FOREIGN KEY (`condicion-sintomas_id_condicion-sintomas`)
+    REFERENCES `clinica`.`condicion-sintomas` (`id_condicion-sintomas`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_con-sin_has_an-pro_analisis-procedimiento1`
+    FOREIGN KEY (`analisis-procedimiento_id_analisis-procedimiento`)
+    REFERENCES `clinica`.`analisis-procedimiento` (`id_analisis-procedimiento`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`biblioteca-salud`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`biblioteca-salud` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`biblioteca-salud` (
+  `id_biblioteca-salud` INT NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(45) NULL,
+  `clinica_id_clinica` INT NOT NULL,
+  `con-sin_has_an-pro_id_condicion-analisis` INT NOT NULL,
+  PRIMARY KEY (`id_biblioteca-salud`),
+  INDEX `fk_biblioteca-salud_clinica1_idx` (`clinica_id_clinica` ASC),
+  INDEX `fk_biblioteca-salud_con-sin_has_an-pro1_idx` (`con-sin_has_an-pro_id_condicion-analisis` ASC),
+  CONSTRAINT `fk_biblioteca-salud_clinica1`
+    FOREIGN KEY (`clinica_id_clinica`)
+    REFERENCES `clinica`.`clinica` (`id_clinica`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_biblioteca-salud_con-sin_has_an-pro1`
+    FOREIGN KEY (`con-sin_has_an-pro_id_condicion-analisis`)
+    REFERENCES `clinica`.`con-sin_has_an-pro` (`id_condicion-analisis`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`riesgos`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`riesgos` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`riesgos` (
+  `id_riesgos` INT NOT NULL AUTO_INCREMENT,
+  `titulo` VARCHAR(45) NULL,
+  `descripcion` VARCHAR(45) NULL,
+  `analisis-procedimiento_id_analisis-procedimiento` INT NOT NULL,
+  PRIMARY KEY (`id_riesgos`),
+  INDEX `fk_riesgos_analisis-procedimiento1_idx` (`analisis-procedimiento_id_analisis-procedimiento` ASC),
+  CONSTRAINT `fk_riesgos_analisis-procedimiento1`
+    FOREIGN KEY (`analisis-procedimiento_id_analisis-procedimiento`)
+    REFERENCES `clinica`.`analisis-procedimiento` (`id_analisis-procedimiento`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`razon`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`razon` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`razon` (
+  `id_razon` INT NOT NULL AUTO_INCREMENT,
+  `titulo` VARCHAR(45) NULL,
+  `descripcion` VARCHAR(45) NULL,
+  `analisis-procedimiento_id_analisis-procedimiento` INT NOT NULL,
+  PRIMARY KEY (`id_razon`),
+  INDEX `fk_razon_analisis-procedimiento1_idx` (`analisis-procedimiento_id_analisis-procedimiento` ASC),
+  CONSTRAINT `fk_razon_analisis-procedimiento1`
+    FOREIGN KEY (`analisis-procedimiento_id_analisis-procedimiento`)
+    REFERENCES `clinica`.`analisis-procedimiento` (`id_analisis-procedimiento`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`condicion-sintoma_analisis-procedimiento-banner`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`condicion-sintoma_analisis-procedimiento-banner` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`condicion-sintoma_analisis-procedimiento-banner` (
+  `id_condicion-sintoma_analisis-procedimiento-banner` INT NOT NULL AUTO_INCREMENT,
+  `banner_id_banner` INT NOT NULL,
+  `con-sin_has_an-pro_id_condicion-analisis` INT NOT NULL,
+  PRIMARY KEY (`id_condicion-sintoma_analisis-procedimiento-banner`),
+  INDEX `fk_condicion-sintoma_analisis-procedimiento-banner_banner1_idx` (`banner_id_banner` ASC),
+  INDEX `fk_condicion-sintoma_analisis-procedimiento-banner_con-sin__idx` (`con-sin_has_an-pro_id_condicion-analisis` ASC),
+  CONSTRAINT `fk_condicion-sintoma_analisis-procedimiento-banner_banner1`
+    FOREIGN KEY (`banner_id_banner`)
+    REFERENCES `clinica`.`banner` (`id_banner`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_condicion-sintoma_analisis-procedimiento-banner_con-sin_ha1`
+    FOREIGN KEY (`con-sin_has_an-pro_id_condicion-analisis`)
+    REFERENCES `clinica`.`con-sin_has_an-pro` (`id_condicion-analisis`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`especialidad_has_doctor`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`especialidad_has_doctor` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`especialidad_has_doctor` (
+  `especialidad_id_especialidad` INT(10) NOT NULL,
+  `doctor_id_doctor` INT(8) NOT NULL,
+  `medicos-especialidades_id_medicos-especialidades` INT NOT NULL,
+  PRIMARY KEY (`especialidad_id_especialidad`, `doctor_id_doctor`),
+  INDEX `fk_especialidad_has_doctor_doctor1_idx` (`doctor_id_doctor` ASC),
+  INDEX `fk_especialidad_has_doctor_especialidad1_idx` (`especialidad_id_especialidad` ASC),
+  INDEX `fk_especialidad_has_doctor_medicos-especialidades1_idx` (`medicos-especialidades_id_medicos-especialidades` ASC),
+  CONSTRAINT `fk_especialidad_has_doctor_especialidad1`
+    FOREIGN KEY (`especialidad_id_especialidad`)
+    REFERENCES `clinica`.`especialidad` (`id_especialidad`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_especialidad_has_doctor_doctor1`
+    FOREIGN KEY (`doctor_id_doctor`)
+    REFERENCES `clinica`.`doctor` (`id_doctor`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_especialidad_has_doctor_medicos-especialidades1`
+    FOREIGN KEY (`medicos-especialidades_id_medicos-especialidades`)
+    REFERENCES `clinica`.`medicos-especialidades` (`id_medicos-especialidades`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`guia`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`guia` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`guia` (
+  `id_guia` INT NOT NULL AUTO_INCREMENT,
+  `nombre_guia` VARCHAR(45) NULL,
+  `titulo` VARCHAR(45) NULL,
+  `subtitulo` VARCHAR(45) NULL,
+  `descripcion` VARCHAR(45) NULL,
+  `clinica_id_clinica` INT NOT NULL,
+  PRIMARY KEY (`id_guia`),
+  INDEX `fk_guia_clinica1_idx` (`clinica_id_clinica` ASC),
+  CONSTRAINT `fk_guia_clinica1`
+    FOREIGN KEY (`clinica_id_clinica`)
+    REFERENCES `clinica`.`clinica` (`id_clinica`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`fotos`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`fotos` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`fotos` (
+  `id_fotos` INT NOT NULL AUTO_INCREMENT,
+  `estado` TINYINT(1) NOT NULL DEFAULT 1,
+  `obligatorio` TINYINT(1) NOT NULL DEFAULT 1,
+  `fecha_alta` DATE NULL,
+  `fecha_baja` DATE NULL,
+  `descripcion` VARCHAR(45) NULL,
+  `guia_id_guia` INT NOT NULL,
+  PRIMARY KEY (`id_fotos`),
+  INDEX `fk_fotos_guia1_idx` (`guia_id_guia` ASC),
+  CONSTRAINT `fk_fotos_guia1`
+    FOREIGN KEY (`guia_id_guia`)
+    REFERENCES `clinica`.`guia` (`id_guia`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`mi-perfil`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`mi-perfil` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`mi-perfil` (
+  `id_mi-perfil` INT NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(45) NULL,
+  `fecha_entrada` DATETIME NULL,
+  `fecha_salida` DATETIME NULL,
+  `modificacion` DATETIME NULL,
+  `usuario_id_usuario` INT(9) NOT NULL,
+  `clinica_id_clinica` INT NOT NULL,
+  PRIMARY KEY (`id_mi-perfil`),
+  INDEX `fk_mi-perfil_usuario1_idx` (`usuario_id_usuario` ASC),
+  INDEX `fk_mi-perfil_clinica1_idx` (`clinica_id_clinica` ASC),
+  CONSTRAINT `fk_mi-perfil_usuario1`
+    FOREIGN KEY (`usuario_id_usuario`)
+    REFERENCES `clinica`.`usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_mi-perfil_clinica1`
+    FOREIGN KEY (`clinica_id_clinica`)
+    REFERENCES `clinica`.`clinica` (`id_clinica`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`auditoria-turno`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`auditoria-turno` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`auditoria-turno` (
+  `id_auditoria-turno` INT NOT NULL AUTO_INCREMENT,
+  `turnos_id_turnos` INT NOT NULL,
+  `doctor_antes` VARCHAR(45) NULL,
+  `fecha_hora_inicio_anterior` DATETIME NULL,
+  `fecha_hora_fin_anterior` DATETIME NULL,
+  `fecha_modificacion` DATETIME NULL,
+  `persona_modificacion` VARCHAR(45) NULL,
+  PRIMARY KEY (`id_auditoria-turno`),
+  INDEX `fk_auditoria-turno_turnos1_idx` (`turnos_id_turnos` ASC),
+  CONSTRAINT `fk_auditoria-turno_turnos1`
+    FOREIGN KEY (`turnos_id_turnos`)
+    REFERENCES `clinica`.`turnos` (`id_turnos`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`doctor-auditoria`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`doctor-auditoria` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`doctor-auditoria` (
+  `id_doctor-auditoria` INT NOT NULL AUTO_INCREMENT,
+  `salario_anterior` FLOAT NULL,
+  `fecha_modificacion` DATETIME NULL,
+  `fecha_inicio_anterior` DATE NULL,
+  `fecha_fin_anterior` DATE NULL,
+  `horario_inicio_anterior` TIME NULL,
+  `horario_fin` TIME NULL,
+  `doctor_id_doctor` INT(8) NOT NULL,
+  PRIMARY KEY (`id_doctor-auditoria`),
+  INDEX `fk_doctor-auditoria_doctor1_idx` (`doctor_id_doctor` ASC),
+  CONSTRAINT `fk_doctor-auditoria_doctor1`
+    FOREIGN KEY (`doctor_id_doctor`)
+    REFERENCES `clinica`.`doctor` (`id_doctor`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`asistente-auditoria`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`asistente-auditoria` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`asistente-auditoria` (
+  `id_asistente-auditoria` INT NOT NULL AUTO_INCREMENT,
+  `fecha_inicio_anterior` DATE NULL,
+  `fecha_fin_anterior` VARCHAR(45) NULL,
+  PRIMARY KEY (`id_asistente-auditoria`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`obra-social_turno`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`obra-social_turno` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`obra-social_turno` (
+  `idobra-social_turno` INT NOT NULL AUTO_INCREMENT,
+  `turnos_id_turnos` INT NOT NULL,
+  `obra-social_id_obra-social` INT(8) NOT NULL,
+  PRIMARY KEY (`idobra-social_turno`),
+  INDEX `fk_obra-social_turno_turnos1_idx` (`turnos_id_turnos` ASC),
+  INDEX `fk_obra-social_turno_obra-social1_idx` (`obra-social_id_obra-social` ASC),
+  CONSTRAINT `fk_obra-social_turno_turnos1`
+    FOREIGN KEY (`turnos_id_turnos`)
+    REFERENCES `clinica`.`turnos` (`id_turnos`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_obra-social_turno_obra-social1`
+    FOREIGN KEY (`obra-social_id_obra-social`)
+    REFERENCES `clinica`.`obra-social` (`id_obra-social`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`metodo_pago_has_turno-pago`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`metodo_pago_has_turno-pago` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`metodo_pago_has_turno-pago` (
+  `metodo_pago_id_metodo_pago` INT NOT NULL,
+  `turno-pago_id_turno-pago` INT NOT NULL,
+  PRIMARY KEY (`metodo_pago_id_metodo_pago`, `turno-pago_id_turno-pago`),
+  INDEX `fk_metodo_pago_has_turno-pago_turno-pago1_idx` (`turno-pago_id_turno-pago` ASC),
+  INDEX `fk_metodo_pago_has_turno-pago_metodo_pago1_idx` (`metodo_pago_id_metodo_pago` ASC),
+  CONSTRAINT `fk_metodo_pago_has_turno-pago_metodo_pago1`
+    FOREIGN KEY (`metodo_pago_id_metodo_pago`)
+    REFERENCES `clinica`.`metodo_pago` (`id_metodo_pago`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_metodo_pago_has_turno-pago_turno-pago1`
+    FOREIGN KEY (`turno-pago_id_turno-pago`)
+    REFERENCES `clinica`.`turno-pago` (`id_turno-pago`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `clinica`.`usuario_has_perfil`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `clinica`.`usuario_has_perfil` ;
+
+CREATE TABLE IF NOT EXISTS `clinica`.`usuario_has_perfil` (
+  `usuario_id_usuario` INT(9) NOT NULL,
+  `perfil_id_perfil` INT(9) NOT NULL,
+  PRIMARY KEY (`usuario_id_usuario`, `perfil_id_perfil`),
+  INDEX `fk_usuario_has_perfil_perfil1_idx` (`perfil_id_perfil` ASC),
+  INDEX `fk_usuario_has_perfil_usuario1_idx` (`usuario_id_usuario` ASC),
+  CONSTRAINT `fk_usuario_has_perfil_usuario1`
+    FOREIGN KEY (`usuario_id_usuario`)
+    REFERENCES `clinica`.`usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_usuario_has_perfil_perfil1`
+    FOREIGN KEY (`perfil_id_perfil`)
+    REFERENCES `clinica`.`perfil` (`id_perfil`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
