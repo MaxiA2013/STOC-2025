@@ -1099,3 +1099,9 @@
         }
 
     }
+
+    .dashboard-paciente .turno-aviso {
+    cursor: pointer;
+    font-size: .9rem;
+    vertical-align: middle;
+}

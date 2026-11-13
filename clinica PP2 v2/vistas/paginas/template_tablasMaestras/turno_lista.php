@@ -4,6 +4,7 @@ require_once "modelos/paciente.php";
 require_once "modelos/agenda.php";
 require_once "modelos/agenda_turno.php";
 require_once "modelos/estados.php";
+require_once "modelos/actualizador_turnos.php";
 
 $turnoControllerPath = "controladores/turno/turno_controlador.php";
 
@@ -16,6 +17,8 @@ $doctores       = $agendaObj->obtenerDoctores();
 $pacien         = new Paciente();
 $lista_paciente = $pacien->listarPacientes();
 $pacientes      = $lista_paciente;
+
+ActualizadorTurnos::marcarVencidos(); // va antes asi se lee primero y ya aparece actualizado todo
 
 $agendaTurnoObj   = new AgendaTurno();
 $turnos_pacientes = $agendaTurnoObj->listar(); // turnos asignados a pacientes

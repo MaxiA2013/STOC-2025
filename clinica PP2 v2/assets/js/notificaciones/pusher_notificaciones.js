@@ -125,7 +125,22 @@ document.addEventListener("DOMContentLoaded", function () {
   // =====================================================
 
   pusher.connection.bind("error", function (error) {
-    console.error("Error de conexión con Pusher:", error);
+    console.warn(
+      "Pusher: error de conexión (el cliente reintenta solo).",
+      JSON.stringify(error)
+    );
+  });
+
+  pusher.connection.bind("state_change", function (estados) {
+    console.log("Pusher: " + estados.previous + " → " + estados.current);
+  });
+
+  channel.bind("pusher:subscription_succeeded", function () {
+    console.log("Pusher: canal autorizado (" + nombreCanal + ").");
+  });
+
+  channel.bind("pusher:subscription_error", function (status) {
+    console.error("Pusher: falló la autorización del canal.", status);
   });
 
   // =====================================================

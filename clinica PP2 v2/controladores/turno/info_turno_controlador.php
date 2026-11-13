@@ -1,5 +1,6 @@
 <?php
 require_once "modelos/turno.php";
+//este archivo es el controlador para el paginado de los turnos de la pagina turno.php (despues le cambio el nombre... o no... nose)
 
 class TurnoControlador {
 

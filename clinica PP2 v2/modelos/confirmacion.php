@@ -92,17 +92,28 @@ class Confirmacion
     }
 
     // Crear registro de confirmación para un agenda_turno
+    // Es idempotente: si ya existe, devuelve su id sin crear otro.
     public function crearParaAgendaTurno($id_agenda_turno)
     {
         $con = new Conexion();
         $id_agenda_turno = intval($id_agenda_turno);
+
+        if ($id_agenda_turno <= 0) {
+            return false;
+        }
+
+        $existente = $this->obtenerPorAgendaTurno($id_agenda_turno);
+
+        if ($existente) {
+            return $existente['id_confirmacion'];
+        }
 
         $sql = "INSERT INTO confirmacion (confirmacion_paciente, confirmacion_doctor, agenda_turno_id_agenda_turno)
                 VALUES (NULL, NULL, $id_agenda_turno)";
         return $con->insertar($sql);
     }
 
-    // Actualizar confirmación (paciente o doctor)
+    // Actualizar confirmación (paciente o doctor) y registrar cuándo respondió
     public function actualizarConfirmacion($id_confirmacion, $esPaciente, $valor)
     {
         $con = new Conexion();
@@ -112,11 +123,13 @@ class Confirmacion
 
         if ($esPaciente) {
             $sql = "UPDATE confirmacion 
-                    SET confirmacion_paciente = $valor
+                    SET confirmacion_paciente = $valor,
+                        fecha_confirmacion_paciente = NOW()
                     WHERE id_confirmacion = $id_confirmacion";
         } else {
             $sql = "UPDATE confirmacion 
-                    SET confirmacion_doctor = $valor
+                    SET confirmacion_doctor = $valor,
+                        fecha_confirmacion_doctor = NOW()
                     WHERE id_confirmacion = $id_confirmacion";
         }
 
@@ -224,6 +237,64 @@ class Confirmacion
             WHERE at.paciente_id_paciente = $paciente_id
               AND c.confirmacion_paciente IS NULL   -- pendiente para el paciente
             ORDER BY t.fecha_hora ASC";
+
+        return $con->consultarArray($sql);
+    }
+
+        // Turnos Activos de HOY que todavía no tienen fila de confirmación
+    // (los usa el aviso diario: controladores/cita/enviar_confirmaciones.php)
+    public function listarTurnosDelDiaSinConfirmacion()
+    {
+        $con = new Conexion();
+
+        $sql = "SELECT
+                    at.id_agenda_turno,
+                    t.fecha_hora,
+                    a.doctor_id_doctor,
+
+                    p.usuario_id_usuario AS paciente_usuario_id,
+                    perp.nombre AS paciente_nombre,
+                    perp.apellido AS paciente_apellido,
+
+                    d.usuario_id_usuario AS doctor_usuario_id,
+                    perd.nombre AS doctor_nombre,
+                    perd.apellido AS doctor_apellido
+
+                FROM agenda_turno at
+
+                INNER JOIN turno t
+                    ON at.turno_id_turnos = t.id_turnos
+
+                INNER JOIN agenda a
+                    ON t.agenda_id_agenda = a.id_agenda
+
+                INNER JOIN paciente p
+                    ON at.paciente_id_paciente = p.id_paciente
+
+                INNER JOIN usuario up
+                    ON p.usuario_id_usuario = up.id_usuario
+
+                INNER JOIN persona perp
+                    ON up.persona_id_persona = perp.id_persona
+
+                INNER JOIN doctor d
+                    ON a.doctor_id_doctor = d.id_doctor
+
+                INNER JOIN usuario ud
+                    ON d.usuario_id_usuario = ud.id_usuario
+
+                INNER JOIN persona perd
+                    ON ud.persona_id_persona = perd.id_persona
+
+                LEFT JOIN confirmacion c
+                    ON c.agenda_turno_id_agenda_turno = at.id_agenda_turno
+
+                WHERE at.estados_id_estados = 1
+                  AND DATE(t.fecha_hora) = CURDATE()
+                  AND t.fecha_hora >= NOW()
+                  AND c.id_confirmacion IS NULL
+
+                ORDER BY d.id_doctor ASC, t.fecha_hora ASC";
 
         return $con->consultarArray($sql);
     }

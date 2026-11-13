@@ -1,3 +1,4 @@
+//este archivo contiene funciones varias no criticas (cosas como los cambios para checklist, select2, etc)
 $(function () {
   // INICIALIZAR SELECT2
 

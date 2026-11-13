@@ -1,10 +1,6 @@
-// ---- Manejo AJAX para modal de editar turnos asignados ----
-//lo tuve que separar porque me costo horrores que ande, no andaba pero con esto anduvo
+// Manejo AJAX para modal de editar turnos asignados lo tuve que separar porque me costo horrores que ande, no andaba pero con esto anduvo
 (function ($) {
-
     'use strict';
-
-
     // ==========================================================
     // FORMATEAR FECHA
     // ==========================================================

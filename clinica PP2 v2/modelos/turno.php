@@ -95,6 +95,53 @@ class Turno
         return $con->eliminar($sql);
     }
 
+    /** Turnos asignados a un paciente (excluye cancelados) */
+public function obtenerTurnosPorPaciente($id_paciente)
+{
+    $con = new Conexion();
+    $id_paciente = intval($id_paciente);
+    if ($id_paciente <= 0) {
+        return [];
+    }
+
+    $sql = "SELECT
+                at.id_agenda_turno,
+                t.id_turnos,
+                t.fecha_hora,
+                t.minutos_turnos,
+                at.estados_id_estados,
+                e.tipo_estado,
+                per.nombre,
+                per.apellido
+
+            FROM agenda_turno at
+
+            INNER JOIN turno t
+                ON at.turno_id_turnos = t.id_turnos
+
+            INNER JOIN agenda a
+                ON t.agenda_id_agenda = a.id_agenda
+
+            INNER JOIN doctor d
+                ON a.doctor_id_doctor = d.id_doctor
+
+            INNER JOIN usuario u
+                ON d.usuario_id_usuario = u.id_usuario
+
+            INNER JOIN persona per
+                ON u.persona_id_persona = per.id_persona
+
+            INNER JOIN estados e
+                ON at.estados_id_estados = e.id_estados
+
+            WHERE at.paciente_id_paciente = $id_paciente
+              AND at.estados_id_estados <> 3
+
+            ORDER BY t.fecha_hora ASC";
+
+    return $con->consultarArray($sql);
+}
+
         public function obtenerTurnosPorDoctor($id_doctor)
     {
         $con = new Conexion();

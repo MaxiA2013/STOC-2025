@@ -50,6 +50,7 @@ require_once "../../modelos/conexion.php";
 require_once "../../modelos/paciente.php";
 require_once "../../modelos/doctor.php";
 require_once "../../modelos/notificacion.php";
+require_once "../../modelos/actualizador_turnos.php";
 
 /**
  * Notifica a un paciente por push, resolviendo su usuario_id
@@ -1363,6 +1364,18 @@ if (esPacienteSesion()) {
                 $obra_social_id = 0;
             }
 
+            // Si indicó "con obra social", debe haber elegido una.
+            // Sin esto, se guardaría silenciosamente como "sin obra social".
+            if ($con_obra_social === 1 && $obra_social_id <= 0) {
+
+                echo json_encode([
+                    "success" => false,
+                    "error" => "Debe seleccionar una obra social."
+                ]);
+
+                exit();
+            }
+
 
             if (
                 $id_agenda_turno <= 0 ||
@@ -1854,6 +1867,184 @@ if (esPacienteSesion()) {
                 'turno_modificado'
             );
 
+
+            echo json_encode([
+                "success" => true
+            ]);
+
+            exit();
+        // ==========================================================
+        // MARCAR ASISTENCIA (solo doctor o administrador)
+        // asistio = 1 -> "Asistio"   |   asistio = 0 -> "No asistio"
+        // Permite corregir un "No asistio" automático.
+        // ==========================================================
+        case "marcar_asistencia":
+
+            $id_agenda_turno = intval($_POST["id_agenda_turno"] ?? 0);
+            $asistio = intval($_POST["asistio"] ?? 0) === 1;
+
+            $perfilSesion = strtolower(trim($_SESSION['nombre_perfil'] ?? ''));
+
+            if (!in_array($perfilSesion, ['doctor', 'administrador'], true)) {
+
+                echo json_encode([
+                    "success" => false,
+                    "error" => "No tenés permiso para registrar asistencia."
+                ]);
+
+                exit();
+            }
+
+            if ($id_agenda_turno <= 0) {
+
+                echo json_encode([
+                    "success" => false,
+                    "error" => "ID de turno inválido."
+                ]);
+
+                exit();
+            }
+
+            // Ids de estado leídos de la tabla "estados" (por nombre).
+            $estados_id = ActualizadorTurnos::obtenerIdsEstados();
+
+            if ($estados_id === null) {
+
+                echo json_encode([
+                    "success" => false,
+                    "error" => "Faltan estados en la tabla de estados."
+                ]);
+
+                exit();
+            }
+
+            $con = new Conexion();
+
+            $fila = $con->consultarArray("
+                SELECT
+                    at.id_agenda_turno,
+                    at.turno_id_turnos,
+                    at.estados_id_estados,
+                    t.fecha_hora,
+                    a.doctor_id_doctor
+                FROM agenda_turno at
+                INNER JOIN turno t
+                    ON at.turno_id_turnos = t.id_turnos
+                INNER JOIN agenda a
+                    ON t.agenda_id_agenda = a.id_agenda
+                WHERE at.id_agenda_turno = $id_agenda_turno
+                LIMIT 1
+            ");
+
+            if (empty($fila)) {
+
+                echo json_encode([
+                    "success" => false,
+                    "error" => "La asignación no existe."
+                ]);
+
+                exit();
+            }
+
+            // Un doctor solo puede marcar la asistencia de SUS turnos.
+            if ($perfilSesion === 'doctor') {
+
+                $doctorModel = new Doctor();
+
+                $datosDoctor = $doctorModel->obtenerPorUsuarioId(
+                    intval($_SESSION['id_usuario'] ?? 0)
+                );
+
+                if (
+                    !$datosDoctor ||
+                    intval($datosDoctor['id_doctor']) !== intval($fila[0]['doctor_id_doctor'])
+                ) {
+
+                    echo json_encode([
+                        "success" => false,
+                        "error" => "Este turno no pertenece a tu agenda."
+                    ]);
+
+                    exit();
+                }
+            }
+
+            $estado_actual = intval($fila[0]['estados_id_estados']);
+
+            // Solo turnos Activos, o ya marcados (para poder corregir).
+            if (!in_array($estado_actual, [
+                $estados_id['activo'],
+                $estados_id['no_asistio'],
+                $estados_id['asistio']
+            ], true)) {
+
+                echo json_encode([
+                    "success" => false,
+                    "error" => "Solo se puede registrar la asistencia de turnos Activos."
+                ]);
+
+                exit();
+            }
+
+            // El turno ya tiene que haber comenzado.
+            $zonaAsistencia = new DateTimeZone('America/Argentina/Buenos_Aires');
+
+            $inicioTurno = new DateTime($fila[0]['fecha_hora'], $zonaAsistencia);
+            $ahoraAsistencia = new DateTime('now', $zonaAsistencia);
+
+            if ($inicioTurno > $ahoraAsistencia) {
+
+                echo json_encode([
+                    "success" => false,
+                    "error" => "El turno todavía no comenzó."
+                ]);
+
+                exit();
+            }
+
+            $nuevo_estado = $asistio
+                ? $estados_id['asistio']
+                : $estados_id['no_asistio'];
+
+            if ($nuevo_estado === $estado_actual) {
+
+                echo json_encode([
+                    "success" => true,
+                    "sin_cambios" => true
+                ]);
+
+                exit();
+            }
+
+            $upd = $con->actualizar("
+                UPDATE agenda_turno
+                SET estados_id_estados = $nuevo_estado
+                WHERE id_agenda_turno = $id_agenda_turno
+            ");
+
+            if ($upd === false) {
+
+                echo json_encode([
+                    "success" => false,
+                    "error" => "No se pudo registrar la asistencia."
+                ]);
+
+                exit();
+            }
+
+            $turno = new Turno();
+
+            $turno->registrarHistorial(
+                intval($fila[0]['turno_id_turnos']),
+                usuarioActual(),
+                $asistio ? 'asistio' : 'no_asistio',
+                'estados_id_estados',
+                $estado_actual,
+                $nuevo_estado,
+                $asistio
+                    ? 'Se registró la asistencia del paciente.'
+                    : 'Se registró que el paciente no asistió.'
+            );
 
             echo json_encode([
                 "success" => true

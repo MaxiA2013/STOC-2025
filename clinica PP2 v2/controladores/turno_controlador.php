@@ -1,6 +1,7 @@
 <?php
 require_once "../modelos/turno.php";
 require_once "../modelos/agenda.php";
+//controlador que genera turnos, solo Alta no BM
 
 $action = $_POST["action"] ?? null;
 

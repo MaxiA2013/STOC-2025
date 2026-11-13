@@ -225,7 +225,7 @@ public function listarAgendasActivasPorDoctor($doctorId)
     return $con->consultarArray($sql);
 }
 
-    public function obtenerTurnosDetalladosPorPaciente($id_paciente)
+        public function obtenerTurnosDetalladosPorPaciente($id_paciente)
 {
     $con = new Conexion();
 
@@ -263,7 +263,13 @@ public function listarAgendasActivasPorDoctor($doctorId)
                 COALESCE(per.apellido, '')
             ) AS doctor_nombre,
 
-            e.tipo_estado
+            e.tipo_estado,
+
+            c.id_confirmacion,
+            c.confirmacion_paciente,
+            c.confirmacion_doctor,
+            ci.asistencia_paciente,
+            ci.asistencia_doctor
 
         FROM agenda_turno at
 
@@ -287,6 +293,12 @@ public function listarAgendasActivasPorDoctor($doctorId)
 
         LEFT JOIN obra_social os
             ON t.obra_social_id_obra_social = os.id_obra_social
+
+        LEFT JOIN confirmacion c
+            ON c.agenda_turno_id_agenda_turno = at.id_agenda_turno
+
+        LEFT JOIN cita ci
+            ON ci.agenda_turno_id_agenda_turno = at.id_agenda_turno
 
         WHERE at.paciente_id_paciente = $id_paciente
 

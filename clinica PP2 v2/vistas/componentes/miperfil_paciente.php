@@ -9,8 +9,63 @@ require_once __DIR__ . "/../../modelos/paciente.php";
 require_once __DIR__ . "/../../modelos/agenda_turno.php";
 require_once __DIR__ . "/../../modelos/agenda.php";
 require_once __DIR__ . "/../../modelos/estados.php";
+require_once __DIR__ . "/../../modelos/actualizador_turnos.php";
+require_once __DIR__ . "/../../modelos/cita.php";
+require_once __DIR__ . "/../../config/citas.php";
 
 $turnoControllerPath = "controladores/turno/turno_controlador.php";
+
+if (!function_exists('estadoVisualTurno')) {
+
+    function estadoVisualTurno(array $t): array
+    {
+        $original = $t['tipo_estado'] ?? 'Pendiente';
+
+        // Se decide por el NOMBRE del estado (viene de la base),
+        // ignorando mayúsculas y tildes.
+        $clave = strtr(
+            mb_strtolower(trim($original), 'UTF-8'),
+            ['á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u']
+        );
+
+        switch ($clave) {
+
+            case 'no asistio':
+                return [
+                    'etiqueta' => 'No asistió',
+                    'color'    => '#8999AE',
+                    'mensaje'  => 'No asististe a este turno.'
+                ];
+
+            case 'vencido':
+            case 'no aprobado':
+                return [
+                    'etiqueta' => $original,
+                    'color'    => '#8999AE',
+                    'mensaje'  => 'Este turno no fue aprobado por administración.'
+                ];
+
+            case 'asistio':
+                return ['etiqueta' => 'Asistió', 'color' => '#024296', 'mensaje' => null];
+
+            case 'inactivo':
+                return ['etiqueta' => $original, 'color' => '#8999AE', 'mensaje' => null];
+
+            case 'activo':
+            case 'confirmado':
+                return ['etiqueta' => $original, 'color' => '#198754', 'mensaje' => null];
+
+            case 'pendiente':
+                return ['etiqueta' => $original, 'color' => '#f0ad4e', 'mensaje' => null];
+
+            case 'cancelado':
+                return ['etiqueta' => $original, 'color' => '#dc3545', 'mensaje' => null];
+
+            default:
+                return ['etiqueta' => $original, 'color' => '#007DC6', 'mensaje' => null];
+        }
+    }
+}
 
 /* DATOS DEL PACIENTE */
 $nombrePaciente = $_SESSION['nombre_usuario'] ?? 'Paciente';
@@ -31,7 +86,11 @@ $nombre = $datosPaciente['nombre'] ?? '';
 $apellido = $datosPaciente['apellido'] ?? '';
 
 /* TURNOS DEL PACIENTE */
+
 $agendaTurnoModel = new AgendaTurno();
+
+// Respaldo de la tarea programada: si ya corrió, no encuentra nada que cambiar.
+ActualizadorTurnos::marcarVencidos();
 
 $turnosRaw = $idPaciente > 0
     ? $agendaTurnoModel->obtenerTurnosDetalladosPorPaciente($idPaciente)
@@ -229,53 +288,13 @@ foreach ($turnosRaw as $t) {
 
         $fechaFin->modify("+{$minutos} minutes");
 
-        $estado = trim(
-            $t['tipo_estado'] ?? 'Pendiente'
-        );
+        //para los estados de turno
+        $visual = estadoVisualTurno($t);
 
-        /*
-         * Colores según estado.
-         */
-        switch (mb_strtolower($estado)) {
+        $estado = trim($visual['etiqueta']);
 
-            case 'activo':
-            case 'confirmado':
-
-                $colorEvento = '#198754';
-                $colorTexto = '#ffffff';
-
-                break;
-
-            case 'pendiente':
-
-                $colorEvento = '#f0ad4e';
-                $colorTexto = '#ffffff';
-
-                break;
-
-            case 'cancelado':
-
-                $colorEvento = '#dc3545';
-                $colorTexto = '#ffffff';
-
-                break;
-
-            case 'finalizado':
-            case 'realizado':
-            case 'atendido':
-
-                $colorEvento = '#8999AE';
-                $colorTexto = '#ffffff';
-
-                break;
-
-            default:
-
-                $colorEvento = '#007DC6';
-                $colorTexto = '#ffffff';
-
-                break;
-        }
+        $colorEvento = $visual['color'];
+        $colorTexto  = '#ffffff';
 
         $doctorNombre = trim(
             $t['doctor_nombre'] ?? 'Profesional'
@@ -325,7 +344,10 @@ foreach ($turnosRaw as $t) {
                 intval($t['con_obra_social'] ?? 0),
 
                 'agenda' =>
-                $t['agenda_desc'] ?? ''
+                $t['agenda_desc'] ?? '',
+
+                'mensajeEstado' =>
+                $visual['mensaje']
 
             ]
         ];
@@ -736,6 +758,70 @@ if ($eventosCalendarioJson === false) {
 
                             <!-- Botones -->
                             <?php $estadoTurnoId = intval($t['estados_id_estados'] ?? 0); ?>
+                                                        <?php
+                            $inicioTurno = strtotime($t['fecha_hora']);
+                            $esHoyTurno = date('Y-m-d', $inicioTurno) === date('Y-m-d');
+                            $esTurnoActivo = ($estadoTurnoId === 1);
+
+                            // 1) CONFIRMACIÓN ("voy a asistir"): se habilita cuando el aviso del día creó la fila
+                            $puedeResponderAsistencia = $esHoyTurno && $esTurnoActivo && !empty($t['id_confirmacion']);
+                            $respuestaAsistencia = $t['confirmacion_paciente'] ?? null;
+
+                            // Una respuesta ya dada se puede cambiar hasta cierto tiempo antes del turno
+                            $limiteCambio = $inicioTurno - (MINUTOS_LIMITE_CAMBIO_CONFIRMACION * 60);
+                            $puedeCambiarRespuesta = (time() <= $limiteCambio);
+
+                            // 2) PRESENCIA ("estoy en la cita"): desde unos minutos antes del turno
+                            $asistenciaPaciente = $t['asistencia_paciente'] ?? null;
+                            $ventanaPresenciaAbierta = (time() >= ($inicioTurno - (MINUTOS_ANTICIPACION_ASISTENCIA * 60)));
+                            $puedeMarcarPresente = $esHoyTurno && $esTurnoActivo && $asistenciaPaciente === null && $ventanaPresenciaAbierta;
+                            ?>
+
+                            <?php if ($puedeResponderAsistencia): ?>
+
+                                <?php if ($respuestaAsistencia !== null): ?>
+                                    <span class="estado-turno <?= intval($respuestaAsistencia) === 1 ? 'estado-confirmado' : 'estado-cancelado' ?>">
+                                        <?= intval($respuestaAsistencia) === 1 ? 'Vas a asistir' : 'No asistirás' ?>
+                                    </span>
+                                <?php endif; ?>
+
+                                <?php if ($respuestaAsistencia === null || $puedeCambiarRespuesta): ?>
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm <?= $respuestaAsistencia === null ? 'btn-outline-success' : 'btn-outline-secondary' ?> btn-asistencia-turno"
+                                        data-id-agenda-turno="<?= intval($t['id_agenda_turno']) ?>"
+                                        data-hora="<?= htmlspecialchars(date('H:i', $inicioTurno)) ?>"
+                                        data-doctor="<?= htmlspecialchars(trim($t['doctor_nombre'] ?? 'Profesional')) ?>"
+                                        data-respuesta="<?= $respuestaAsistencia === null ? '' : intval($respuestaAsistencia) ?>"
+                                        data-limite="<?= htmlspecialchars(date('H:i', $limiteCambio)) ?>"
+                                        title="<?= $respuestaAsistencia === null ? 'Confirmar asistencia' : 'Cambiar respuesta' ?>">
+                                        <i class="bi <?= $respuestaAsistencia === null ? 'bi-person-check' : 'bi-arrow-repeat' ?>"></i>
+                                        <?= $respuestaAsistencia === null ? 'Confirmar asistencia' : 'Cambiar respuesta' ?>
+                                    </button>
+                                <?php endif; ?>
+
+                            <?php endif; ?>
+
+                            <?php if ($asistenciaPaciente !== null): ?>
+
+                                <span class="estado-turno <?= intval($asistenciaPaciente) === 1 ? 'estado-confirmado' : 'estado-cancelado' ?>">
+                                    <?= intval($asistenciaPaciente) === 1 ? 'Presente' : 'Ausente' ?>
+                                </span>
+
+                            <?php elseif ($puedeMarcarPresente): ?>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-success btn-presente-turno"
+                                    data-id-agenda-turno="<?= intval($t['id_agenda_turno']) ?>"
+                                    data-hora="<?= htmlspecialchars(date('H:i', $inicioTurno)) ?>"
+                                    data-doctor="<?= htmlspecialchars(trim($t['doctor_nombre'] ?? 'Profesional')) ?>"
+                                    title="Registrar que estás presente en la cita">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    Estoy presente
+                                </button>
+
+                            <?php endif; ?>
 
                             <?php if ($estadoTurnoId === 1): ?>
                                 <button
@@ -944,7 +1030,19 @@ if ($eventosCalendarioJson === false) {
                                         </td>
 
                                         <td>
-                                            <?= htmlspecialchars( $t['tipo_estado'] ?? '' ) ?>
+                                            <?php $visual = estadoVisualTurno($t); ?>
+
+                                            <?= htmlspecialchars($visual['etiqueta']) ?>
+
+                                            <?php if ($visual['mensaje']): ?>
+                                                <i class="bi bi-exclamation-circle-fill text-warning ms-1 turno-aviso"
+                                                    tabindex="0"
+                                                    role="button"
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    data-bs-trigger="hover focus"
+                                                    title="<?= htmlspecialchars($visual['mensaje']) ?>"></i>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -1151,7 +1249,7 @@ if ($eventosCalendarioJson === false) {
                     </div>
 
                     <!-- COBERTURA -->
-                    <div class="turno-modal-section div-obra-social-toggle-modal">
+                    <div class="turno-modal-section">
                         <div class="turno-modal-section-title">
                             <i class="bi bi-credit-card-2-front"></i>
                             <span>
@@ -1176,23 +1274,24 @@ if ($eventosCalendarioJson === false) {
                                 </div>
                             </div>
 
-                            <!-- Oculto por defecto: lo muestra/oculta el mismo
-                                 JS genérico que ya usa turno_lista.php -->
-                            <div class="mt-3 d-none div-select-obra-social-modal">
+                            <!-- Oculto por defecto: lo controla el JS de esta misma página -->
+                            <div class="mt-3 d-none" id="modal_obra_social_wrapper">
                                 <label class="turno-modal-label">
                                     <i class="bi bi-shield-check"></i>
                                     Obra social
                                 </label>
 
                                 <select
-                                    name="obra_social_id_obra_social"
+                                    name="obra_social_id"
                                     id="modal_obra_social_id"
-                                    class="form-select">
-
-                                    <option value="">
-                                        Seleccioná una obra social
-                                    </option>
+                                    class="form-select"
+                                    disabled>
+                                    <option value="">Seleccioná una obra social</option>
                                 </select>
+
+                                <small class="text-muted">
+                                    Solo se muestran las obras sociales que tenés en común con el profesional.
+                                </small>
                             </div>
                         </div>
                     </div>
@@ -1225,16 +1324,11 @@ if ($eventosCalendarioJson === false) {
 </div>
 
 <script src="assets/js/sweetalert2@11.js"></script>
-<!--
-     FullCalendar local.
-     Colocá los archivos de FullCalendar en:
-     assets/vendor/fullcalendar/
-     Este archivo corresponde al bundle estándar.
--->
+<!-- FullCalendar local. Colocá los archivos de FullCalendar en: assets/vendor/fullcalendar/
+     Este archivo corresponde al bundle estándar.-->
 <script src="assets/vendor/fullcalendar/index.global.min.js"></script>
-<script type="module" src="assets/js/validaciones/turno/funciones_turno_lista.js"></script>
 <script type="module">
-        // ============================================================
+    // ============================================================
     // MODAL MODIFICAR TURNO - PERFIL DEL PACIENTE
     // Este código pertenece EXCLUSIVAMENTE a miperfil_paciente.php
     // No modifica ni interfiere con turno_lista.php
@@ -1252,6 +1346,8 @@ if ($eventosCalendarioJson === false) {
         const $agenda = $('#modal_agenda_id_agenda');
         const $turno = $('#modal_turno_id_turnos');
         const $minutos = $('#modal_minutos_turnos');
+        const $obraWrapper = $('#modal_obra_social_wrapper');
+        const $obraSelect = $('#modal_obra_social_id');
 
         // FORMATEAR FECHA/HORA
         function formatearTurno(fechaHora) {
@@ -1305,6 +1401,16 @@ if ($eventosCalendarioJson === false) {
                 !$turno.hasClass('select2-hidden-accessible')
             ) {
                 $turno.select2({
+                    dropdownParent: $modal,
+                    width: '100%'
+                });
+            }
+
+            if (
+                $obraSelect.length &&
+                !$obraSelect.hasClass('select2-hidden-accessible')
+            ) {
+                $obraSelect.select2({
                     dropdownParent: $modal,
                     width: '100%'
                 });
@@ -1668,6 +1774,155 @@ if ($eventosCalendarioJson === false) {
         }
 
 
+                // ========================================================
+        // COBERTURA / OBRA SOCIAL
+        // ========================================================
+
+        function textoSelectObra(texto) {
+
+            $obraSelect
+                .empty()
+                .append(
+                    $('<option>')
+                        .val('')
+                        .text(texto)
+                )
+                .trigger('change');
+        }
+
+
+        function cargarObrasSocialesPaciente(
+            doctorId,
+            pacienteId,
+            obraSeleccionada
+        ) {
+
+            textoSelectObra('Cargando obras sociales...');
+
+            if (!doctorId || !pacienteId) {
+
+                textoSelectObra(
+                    'No se pudo determinar el profesional o el paciente'
+                );
+
+                return Promise.resolve([]);
+            }
+
+            return fetch(
+                'controladores/turno/ajax_get_obras_sociales_compatibles.php' +
+                '?doctor_id=' + encodeURIComponent(doctorId) +
+                '&paciente_id=' + encodeURIComponent(pacienteId)
+            )
+
+            .then(function (response) {
+
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+
+                return response.json();
+            })
+
+            .then(function (data) {
+
+                const lista = Array.isArray(data.data) ? data.data : [];
+
+                if (lista.length === 0) {
+
+                    textoSelectObra(
+                        'No tenés obras sociales en común con este profesional'
+                    );
+
+                    return lista;
+                }
+
+                $obraSelect
+                    .empty()
+                    .append(
+                        $('<option>')
+                            .val('')
+                            .text('Seleccioná una obra social')
+                    );
+
+                lista.forEach(function (os) {
+
+                    const $option = $('<option>')
+                        .val(os.id_obra_social)
+                        .text(os.nombre_obra_social);
+
+                    if (
+                        obraSeleccionada &&
+                        String(os.id_obra_social) === String(obraSeleccionada)
+                    ) {
+                        $option.prop('selected', true);
+                    }
+
+                    $obraSelect.append($option);
+                });
+
+                $obraSelect.trigger('change');
+
+                return lista;
+            })
+
+            .catch(function (error) {
+
+                console.error(
+                    'Error al cargar obras sociales del paciente:',
+                    error
+                );
+
+                textoSelectObra('Error al cargar obras sociales');
+
+                return [];
+            });
+        }
+
+
+        function actualizarCoberturaPaciente() {
+
+            const conObraSocial =
+                $modal
+                    .find('input[name="con_obra_social"]:checked')
+                    .val() === '1';
+
+            // Atención particular: se oculta y se deshabilita el
+            // select, así no viaja en el POST.
+            if (!conObraSocial) {
+
+                $obraWrapper.addClass('d-none');
+
+                $obraSelect.prop('disabled', true);
+
+                textoSelectObra('Seleccioná una obra social');
+
+                return;
+            }
+
+            // Con obra social: se muestra y se cargan las compatibles
+            // entre el doctor del turno y este paciente.
+            $obraWrapper.removeClass('d-none');
+
+            $obraSelect.prop('disabled', false);
+
+            const turnoActual = window.turnoPacienteActual || {};
+
+            cargarObrasSocialesPaciente(
+                turnoActual.doctor_id,
+                $('#modal_paciente_id').val(),
+                turnoActual.obra_social_id_obra_social || ''
+            );
+        }
+
+
+        // Cambio del radio "Atención particular / Obra social"
+        $modal.on(
+            'change.perfilPaciente',
+            'input[name="con_obra_social"]',
+            function () {
+                actualizarCoberturaPaciente();
+            }
+        );
         // ========================================================
         // CUANDO CAMBIA LA AGENDA
         // ========================================================
@@ -1768,13 +2023,12 @@ if ($eventosCalendarioJson === false) {
                     turnoActual.turno_id_turnos || '';
 
 
-                /*
-                 * El doctor ya fue cargado por abrirModalTurno().
-                 */
-                $doctor
+                /* El doctor ya fue cargado por abrirModalTurno(). */
+                    $doctor
                     .val(doctorId)
                     .trigger('change');
-
+                // Cobertura: muestra u oculta el select de obra social según el radio marcado y, si corresponde, carga las obras sociales compatibles con el doctor del turno.
+                actualizarCoberturaPaciente();
 
                 /*
                  * Cargamos las agendas del doctor y, cuando
@@ -1890,8 +2144,38 @@ function inicializarCalendarioPaciente() {
                     hour12: false
                 },
 
-                events:
+                                events:
                     eventosCalendarioPaciente,
+
+                eventDidMount: function(info) {
+
+                    const mensaje = info.event.extendedProps.mensajeEstado;
+
+                    if (!mensaje) {
+                        return;
+                    }
+
+                    info.el.setAttribute('title', mensaje);
+
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                        new bootstrap.Tooltip(info.el, {
+                            placement: 'top',
+                            container: 'body'
+                        });
+                    }
+                },
+
+                eventWillUnmount: function(info) {
+
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+
+                        const tip = bootstrap.Tooltip.getInstance(info.el);
+
+                        if (tip) {
+                            tip.dispose();
+                        }
+                    }
+                },
 
                 eventClick: function(info) {
 
@@ -1954,6 +2238,18 @@ if (document.readyState === 'loading') {
             );
             return;
         }
+        // Turno vencido: se explica por qué figura así.
+        if (props.mensajeEstado) {
+
+            Swal.fire({
+                icon: 'info',
+                title: 'Turno no vigente',
+                text: props.mensajeEstado
+            });
+
+            return;
+        }
+
         // Solo los turnos Activos (estado 1) pueden modificarse.
         if (parseInt(turno.estados_id_estados) !== 1) {
 
@@ -2055,20 +2351,8 @@ if (document.readyState === 'loading') {
             radioParticular.checked = true;
         }
 
-        /* OBRA SOCIAL: option inicial con la obra social actual (si la hay). El toggle de visibilidad y la recarga de opciones compatibles las maneja el JS compartido de funciones_turno_lista.js, igual que en turno_lista.php. */
-        const obraSocialSelect =
-            document.getElementById('modal_obra_social_id');
-
-        if (obraSocialSelect) {
-            obraSocialSelect.innerHTML = '';
-
-            const opt = document.createElement('option');
-            opt.value = turno.obra_social_id_obra_social || '';
-            opt.textContent = turno.nombre_obra_social || 'Obra social actual';
-            opt.selected = true;
-
-            obraSocialSelect.appendChild(opt);
-        }
+        // OBRA SOCIAL: la maneja el bloque jQuery de esta página
+        // (actualizarCoberturaPaciente), cuando el modal termina de mostrarse.
 
         // Abrir modal
         const modalElement =
@@ -2177,6 +2461,139 @@ if (document.readyState === 'loading') {
         }
     );
 
+            /*  ASISTENCIA DEL PACIENTE: CONFIRMACIÓN ("voy a asistir") Y PRESENCIA ("estoy presente") */
+
+    // Evita inyectar HTML con datos que vienen de los atributos del botón
+    function escaparHtml(texto) {
+        const d = document.createElement('div');
+        d.textContent = texto;
+        return d.innerHTML;
+    }
+
+    // Envía una acción a cita_controlador.php y recarga si salió bien
+    function enviarAccionCita(parametros, mensajeExito) {
+
+        fetch('controladores/cita/cita_controlador.php', {
+                method: 'POST',
+                body: new URLSearchParams(parametros)
+            })
+            .then(function(r) {
+                return r.json();
+            })
+            .then(function(data) {
+                if (data.success) {
+                    Swal.fire('Listo', mensajeExito, 'success').then(function() {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire(
+                        'No se pudo registrar',
+                        data.error || 'Intentá nuevamente.',
+                        'error'
+                    );
+                }
+            })
+            .catch(function() {
+                Swal.fire(
+                    'Error',
+                    'Error de red al registrar tu respuesta.',
+                    'error'
+                );
+            });
+    }
+
+    document.addEventListener(
+        'click',
+        function(e) {
+
+            // 1) Confirmar (o cambiar) "voy a asistir"
+            const btnConfirmar = e.target.closest('.btn-asistencia-turno');
+
+            if (btnConfirmar) {
+
+                const idAgendaTurno = btnConfirmar.dataset.idAgendaTurno;
+                const respuestaActual = btnConfirmar.dataset.respuesta; // '' | '1' | '0'
+                const esCambio = respuestaActual !== '';
+
+                let cabecera =
+                    '<p style="margin-bottom:12px;">Tu turno es hoy a las <strong>' +
+                    escaparHtml(btnConfirmar.dataset.hora) + ' hs</strong> con el Dr. ' +
+                    escaparHtml(btnConfirmar.dataset.doctor) + '.</p>';
+
+                if (esCambio) {
+                    cabecera +=
+                        '<p style="margin-bottom:12px;">Tu respuesta actual: <strong>' +
+                        (respuestaActual === '1' ? 'Vas a asistir' : 'No asistirás') +
+                        '</strong>. Podés cambiarla hasta las ' +
+                        escaparHtml(btnConfirmar.dataset.limite) + ' hs.</p>';
+                }
+
+                Swal.fire({
+                    title: esCambio ? 'Cambiar tu respuesta' : '¿Confirmás que asistirás?',
+                    html: cabecera +
+                        '<div style="background:#fff8e1;border:1px solid #ffe08a;color:#7a5b00;' +
+                        'border-radius:10px;padding:10px 12px;font-size:.85rem;text-align:left;">' +
+                        '<i class="bi bi-exclamation-triangle-fill me-1"></i>' +
+                        'Si no vas a presentarte, todavía podés modificar tu turno desde esta misma página.' +
+                        '</div>',
+                    icon: 'question',
+                    showDenyButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, asistiré',
+                    denyButtonText: 'No asistiré',
+                    cancelButtonText: 'Cerrar',
+                    reverseButtons: true
+                }).then(function(result) {
+
+                    if (result.isConfirmed) {
+                        enviarAccionCita({
+                            action: 'confirmar',
+                            id_agenda_turno: idAgendaTurno,
+                            respuesta: 1
+                        }, 'Tu asistencia quedó confirmada.');
+                    } else if (result.isDenied) {
+                        enviarAccionCita({
+                            action: 'confirmar',
+                            id_agenda_turno: idAgendaTurno,
+                            respuesta: 0
+                        }, 'Avisamos al doctor que no asistirás.');
+                    }
+                });
+
+                return;
+            }
+
+            // 2) "Estoy presente": registra la asistencia del paciente
+            const btnPresente = e.target.closest('.btn-presente-turno');
+
+            if (btnPresente) {
+
+                const idAgendaTurno = btnPresente.dataset.idAgendaTurno;
+
+                Swal.fire({
+                    title: '¿Ya estás en la cita?',
+                    html: '<p>Vas a registrar tu presencia en el turno de las <strong>' +
+                        escaparHtml(btnPresente.dataset.hora) + ' hs</strong> con el Dr. ' +
+                        escaparHtml(btnPresente.dataset.doctor) + '.</p>',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, estoy presente',
+                    cancelButtonText: 'Cerrar',
+                    reverseButtons: true
+                }).then(function(result) {
+
+                    if (result.isConfirmed) {
+                        enviarAccionCita({
+                            action: 'asistencia',
+                            id_agenda_turno: idAgendaTurno,
+                            valor: 1
+                        }, 'Tu presencia quedó registrada.');
+                    }
+                });
+            }
+        }
+    );
+
     /*  BOTONES "MODIFICAR" DE LA LISTA */
     document.addEventListener(
         'click',
@@ -2248,6 +2665,28 @@ if (document.readyState === 'loading') {
             }
 
             e.preventDefault();
+
+            // Si eligió "Obra social", tiene que haber una seleccionada.
+            const coberturaMarcada =
+                form.querySelector('input[name="con_obra_social"]:checked');
+
+            const obraElegida =
+                document.getElementById('modal_obra_social_id');
+
+            if (
+                coberturaMarcada &&
+                coberturaMarcada.value === '1' &&
+                (!obraElegida || !obraElegida.value)
+            ) {
+
+                Swal.fire(
+                    'Obra social',
+                    'Seleccioná la obra social con la que vas a usar este turno, o elegí atención particular.',
+                    'warning'
+                );
+
+                return;
+            }
 
             const formData =
                 new FormData(form);
@@ -2321,6 +2760,13 @@ if (document.readyState === 'loading') {
 
         if (minutosInput && minutos) {
             minutosInput.value = minutos + ' minutos';
+        }
+    });
+
+    /* TOOLTIPS DEL HISTORIAL (turnos vencidos) */
+    document.querySelectorAll('.turno-aviso').forEach(function (el) {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+            new bootstrap.Tooltip(el);
         }
     });
 </script>

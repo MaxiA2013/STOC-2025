@@ -1,3 +1,16 @@
+<? if (!isset($_SESSION['id_usuario'])) {
+    header('Location: login.php');
+    exit();
+}
+
+$nombre_usuario = $_SESSION['nombre_usuario'];
+$email = $_SESSION['email'];
+$perfil_id = $_SESSION['id_perfil'];
+
+require_once 'modelos/doctor.php';
+$docs = new Doctor();
+$doctores_no_disponibles = $docs->all_doctores();?>
+
 <header class="mb-4 text-center">
                 <h1>Bienvenido Administrador, <?= htmlspecialchars($nombre_usuario) ?></h1>
             </header>

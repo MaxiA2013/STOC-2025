@@ -141,31 +141,34 @@ class Notificacion
     // ==========================================
 
     // GUARDAR NOTIFICACION
+
     public function guardarNotificacion()
     {
         $con = new Conexion();
+
+        $titulo  = addslashes($this->titulo);
+        $mensaje = addslashes($this->mensaje);
+        $tipo    = addslashes($this->tipo);
+        $url     = addslashes($this->url);
 
         $query = "INSERT INTO notificacion
                   (usuario_id_usuario, titulo, mensaje, tipo, url, leida)
                   VALUES
                   ('$this->usuario_id_usuario',
-                   '$this->titulo',
-                   '$this->mensaje',
-                   '$this->tipo',
-                   '$this->url',
+                   '$titulo',
+                   '$mensaje',
+                   '$tipo',
+                   '$url',
                    '$this->leida')";
 
         $con->insertar($query);
     }
 
-        // ==========================================
-    // CREAR NOTIFICACIÓN + ENVIAR POR PUSHER
-    // ==========================================
-    // Punto único de entrada para notificar a un usuario.
-    // Guarda en la tabla `notificacion` Y dispara el evento
-    // en tiempo real por el canal privado del usuario.
-    // Cualquier controlador (notificaciones, turnos, etc.)
-    // llama a este método en vez de reimplementar la lógica.
+    /* CREAR NOTIFICACIÓN + ENVIAR POR PUSHER
+    Punto único de entrada para notificar a un usuario.
+    Guarda en la tabla `notificacion` Y dispara el evento en tiempo real por el canal privado del usuario.
+    Cualquier controlador (notificaciones, turnos, etc.)
+    llama a este método en vez de reimplementar la lógica. */
     public function crearYNotificar(
         $usuario_id_usuario,
         $titulo,
