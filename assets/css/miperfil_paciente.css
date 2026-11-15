@@ -1,0 +1,1101 @@
+/* DASHBOARD PACIENTE */
+    .dashboard-paciente {
+        --azul-oscuro: #000967;
+        --azul: #024296;
+        --azul-claro: #007DC6;
+        --gris-azulado: #8999AE;
+        --celeste: #AFCEDF;
+        background: #f6f8fb;
+        min-height: calc(100vh - 20px);
+    }
+
+    /* HEADER */
+    .dashboard-paciente .dashboard-header h1 {
+        color: var(--azul-oscuro);
+        font-weight: 700;
+        letter-spacing: -0.4px;
+    }
+    .dashboard-paciente .dashboard-header p {
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+    .dashboard-paciente .dashboard-date {
+        background: #fff;
+        border: 1px solid #e9edf3;
+        border-radius: 14px;
+        padding: 10px 16px;
+        color: #5f6b7a;
+        font-size: .875rem;
+        box-shadow: 0 3px 12px rgba(0, 9, 103, .04);
+    }
+
+    /* STAT CARDS */
+    .dashboard-paciente .dashboard-stat-card {
+        position: relative;
+        height: 100%;
+        background: #fff;
+        border: 0;
+        border-radius: 18px;
+        box-shadow: 0 4px 18px rgba(0, 9, 103, .06);
+        overflow: hidden;
+        transition: all .25s ease;
+    }
+
+    .dashboard-paciente .dashboard-stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 9, 103, .10);
+    }
+
+    .dashboard-paciente .dashboard-stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--azul-claro);
+    }
+
+    .dashboard-paciente .dashboard-stat-card.primary::before {
+        background: var(--azul-oscuro);
+    }
+
+    .dashboard-paciente .dashboard-stat-card.success::before {
+        background: #198754;
+    }
+
+    .dashboard-paciente .dashboard-stat-card.warning::before {
+        background: #f0ad4e;
+    }
+
+    .dashboard-paciente .stat-content {
+        padding: 1.2rem;
+    }
+
+    .dashboard-paciente .stat-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        margin-bottom: .85rem;
+    }
+
+    .dashboard-paciente .stat-icon.primary {
+        background: rgba(0, 9, 103, .08);
+        color: var(--azul-oscuro);
+    }
+
+    .dashboard-paciente .stat-icon.blue {
+        background: rgba(0, 125, 198, .10);
+        color: var(--azul-claro);
+    }
+
+    .dashboard-paciente .stat-icon.success {
+        background: rgba(25, 135, 84, .10);
+        color: #198754;
+    }
+
+    .dashboard-paciente .stat-icon.warning {
+        background: rgba(240, 173, 78, .12);
+        color: #d68a00;
+    }
+
+    .dashboard-paciente .stat-title {
+        color: #8999AE;
+        font-size: .76rem;
+        font-weight: 700;
+        margin-bottom: .2rem;
+        text-transform: uppercase;
+    }
+
+    .dashboard-paciente .stat-number {
+        color: #202735;
+        font-size: 1.7rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .dashboard-paciente .stat-description {
+        color: #8999AE;
+        font-size: .74rem;
+        margin-top: .35rem;
+    }
+
+    /* CARD PERFIL */
+    .dashboard-paciente .profile-card {
+        position: relative;
+        height: 100%;
+        background: #fff;
+        border-radius: 18px;
+        padding: 1.2rem 1.3rem;
+        box-shadow: 0 4px 18px rgba(0, 9, 103, .06);
+        overflow: hidden;
+    }
+
+    .dashboard-paciente .profile-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--azul-claro);
+    }
+
+    .profile-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: .85rem;
+    }
+
+    .profile-card-title {
+        color: #8999AE;
+        font-size: .76rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .profile-card-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 125, 198, .09);
+        color: var(--azul-claro);
+    }
+
+    .profile-card-name {
+        color: #202735;
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+
+    .profile-card-email {
+        color: #8999AE;
+        font-size: .75rem;
+        margin-bottom: .8rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .profile-progress {
+        height: 7px;
+        background: #edf1f5;
+        border-radius: 20px;
+        overflow: hidden;
+        margin-top: .45rem;
+    }
+
+    .profile-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #007DC6, #024296);
+        border-radius: 20px;
+        transition: width .4s ease;
+    }
+
+    .profile-progress-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #8999AE;
+        font-size: .7rem;
+        margin-top: .4rem;
+    }
+
+    .profile-progress-label strong {
+        color: var(--azul);
+        font-size: .74rem;
+    }
+
+    /*  BOTON MIS DATOS */
+    .btn-mis-datos {
+        border: 0;
+        background: rgba(0, 125, 198, .08);
+        color: var(--azul);
+        border-radius: 10px;
+        padding: 7px 11px;
+        font-size: .72rem;
+        font-weight: 600;
+        transition: all .2s ease;
+    }
+
+    .btn-mis-datos:hover {
+        background: rgba(0, 125, 198, .15);
+        color: var(--azul-oscuro);
+        transform: translateY(-1px);
+    }
+
+    /* DASHBOARD CARDS */
+    .dashboard-paciente .dashboard-card {
+        background: #fff;
+        border: 0;
+        border-radius: 18px;
+        box-shadow: 0 4px 18px rgba(0, 9, 103, .055);
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .dashboard-paciente .dashboard-card-header {
+        padding: 1.15rem 1.3rem;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .dashboard-paciente .dashboard-card-header h5 {
+        margin: 0;
+        color: #202735;
+        font-size: .98rem;
+        font-weight: 700;
+    }
+
+    .dashboard-paciente .dashboard-card-header p {
+        margin: .25rem 0 0;
+        color: #8999AE;
+        font-size: .75rem;
+    }
+
+    .dashboard-paciente .dashboard-card-body {
+        padding: 1.15rem 1.3rem;
+    }
+
+    /*  PROXIMO TURNO */
+    .proximo-turno-card {
+        background: linear-gradient(135deg, #f7fbfe, #ffffff);
+        border: 1px solid #e8f0f5;
+        border-radius: 15px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .proximo-turno-date {
+        width: 55px;
+        min-width: 55px;
+        text-align: center;
+        border-radius: 13px;
+        background: rgba(0, 125, 198, .09);
+        padding: .5rem .3rem;
+    }
+
+    .proximo-turno-day {
+        color: var(--azul-oscuro);
+        font-size: 1.3rem;
+        line-height: 1;
+        font-weight: 800;
+    }
+
+    .proximo-turno-month {
+        color: var(--azul-claro);
+        font-size: .65rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-top: 3px;
+    }
+
+    .proximo-turno-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .proximo-turno-doctor {
+        color: #202735;
+        font-size: .88rem;
+        font-weight: 700;
+    }
+
+    .proximo-turno-details {
+        color: #8999AE;
+        font-size: .73rem;
+        margin-top: 3px;
+    }
+
+    .proximo-turno-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 7px;
+        color: #198754;
+        background: rgba(25, 135, 84, .09);
+        border-radius: 20px;
+        padding: 4px 8px;
+        font-size: .66rem;
+        font-weight: 700;
+    }
+
+    /* TURNOS */
+    .dashboard-paciente .turno-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f2f5;
+        flex-wrap: wrap;
+    }
+
+    .dashboard-paciente .turno-item:last-child {
+        border-bottom: 0;
+    }
+
+    .dashboard-paciente .turno-hora {
+        min-width: 85px;
+        color: var(--azul-oscuro);
+        font-weight: 700;
+        font-size: .82rem;
+    }
+
+    .dashboard-paciente .turno-avatar {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        border-radius: 11px;
+        background: #edf5fa;
+        color: var(--azul);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: .78rem;
+    }
+
+    .dashboard-paciente .turno-info {
+        flex: 1;
+        min-width: 130px;
+    }
+
+    .dashboard-paciente .turno-paciente {
+        color: #252b35;
+        font-size: .83rem;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+
+    .dashboard-paciente .turno-tipo {
+        color: #8999AE;
+        font-size: .7rem;
+    }
+
+    .dashboard-paciente .estado-turno {
+        font-size: .64rem;
+        padding: 5px 8px;
+        border-radius: 30px;
+        font-weight: 600;
+    }
+
+    .dashboard-paciente .estado-confirmado {
+        color: #198754;
+        background: rgba(25, 135, 84, .10);
+    }
+
+    .dashboard-paciente .estado-pendiente {
+        color: var(--azul);
+        background: rgba(0, 66, 150, .08);
+    }
+
+    .dashboard-paciente .estado-cancelado {
+        color: #dc3545;
+        background: rgba(220, 53, 69, .10);
+    }
+
+    /* BOTONES */
+    .dashboard-paciente .btn-dashboard-primary {
+        background: var(--azul-oscuro);
+        border-color: var(--azul-oscuro);
+        color: #fff;
+        border-radius: 10px;
+        font-weight: 600;
+        padding: 8px 13px;
+        font-size: .77rem;
+    }
+
+    .dashboard-paciente .btn-dashboard-primary:hover {
+        background: var(--azul);
+        border-color: var(--azul);
+        color: #fff;
+    }
+
+    /* FULLCALENDAR */
+    .calendario-paciente-wrapper {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 4px 18px rgba(0, 9, 103, .055);
+        overflow: hidden;
+    }
+
+    .calendario-paciente-header {
+        padding: 1.15rem 1.3rem;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .calendario-paciente-header h5 {
+        margin: 0;
+        color: #202735;
+        font-size: .98rem;
+        font-weight: 700;
+    }
+
+    .calendario-paciente-header p {
+        margin: .25rem 0 0;
+        color: #8999AE;
+        font-size: .75rem;
+    }
+
+    .calendario-paciente-body {
+        padding: 1rem;
+    }
+
+
+    /* Personalización completa del calendario. */
+    #calendarioPaciente {
+        width: 100%;
+    }
+
+    #calendarioPaciente .fc {
+        font-family: inherit;
+        font-size: .78rem;
+        color: #303744;
+    }
+
+    #calendarioPaciente .fc-toolbar {
+        margin-bottom: 1rem;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    #calendarioPaciente .fc-toolbar-title {
+        color: var(--azul-oscuro);
+        font-size: 1.05rem;
+        font-weight: 700;
+    }
+
+    #calendarioPaciente .fc-button {
+        background: #f4f7fa;
+        border: 1px solid #e4eaf0;
+        color: var(--azul);
+        border-radius: 9px;
+        box-shadow: none;
+        font-size: .72rem;
+        font-weight: 600;
+        transition: all .2s ease;
+    }
+
+    #calendarioPaciente .fc-button:hover {
+        background: #eaf3f8;
+        border-color: #cddfe9;
+        color: var(--azul-oscuro);
+    }
+
+    #calendarioPaciente .fc-button-primary:not(:disabled).fc-button-active {
+        background: var(--azul-oscuro);
+        border-color: var(--azul-oscuro);
+        color: #fff;
+    }
+
+    #calendarioPaciente .fc-col-header-cell {
+        background: #f8fafc;
+        border-color: #edf0f4;
+    }
+
+    #calendarioPaciente .fc-col-header-cell-cushion {
+        color: #8999AE;
+        font-size: .67rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        padding: 8px 4px;
+        text-decoration: none;
+    }
+    #calendarioPaciente .fc-daygrid-day {
+        border-color: #edf0f4;
+        transition: background .2s ease;
+    }
+    #calendarioPaciente .fc-daygrid-day:hover {
+        background: #fafcfe;
+    }
+    #calendarioPaciente .fc-daygrid-day-number {
+        color: #59697c;
+        font-size: .72rem;
+        font-weight: 600;
+        text-decoration: none;
+        padding: 7px;
+    }
+    #calendarioPaciente .fc-day-today {
+        background: rgba(0, 125, 198, .055) !important;
+    }
+    #calendarioPaciente .fc-day-today .fc-daygrid-day-number {
+        background: var(--azul-claro);
+        color: #fff;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 4px;
+    }
+
+    #calendarioPaciente .fc-event {
+        border: 0;
+        border-radius: 6px;
+        padding: 2px 4px;
+        cursor: pointer;
+        font-size: .65rem;
+        font-weight: 600;
+        box-shadow: none;
+        transition: transform .15s ease;
+    }
+
+    #calendarioPaciente .fc-event:hover {
+        transform: translateY(-1px);
+    }
+
+    #calendarioPaciente .fc-event-time {
+        font-weight: 700;
+    }
+
+    #calendarioPaciente .fc-event-title {
+        font-weight: 600;
+    }
+
+    #calendarioPaciente .fc-more-link {
+        color: var(--azul);
+        font-size: .65rem;
+        font-weight: 700;
+    }
+
+    /* LEYENDA */
+    .calendario-leyenda {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 1rem;
+        padding-top: .85rem;
+        border-top: 1px solid #edf0f4;
+    }
+
+    .calendario-leyenda-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: #8999AE;
+        font-size: .66rem;
+        font-weight: 600;
+    }
+
+    .calendario-leyenda-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+    }
+
+    .calendario-leyenda-dot.activo {
+        background: #198754;
+    }
+
+    .calendario-leyenda-dot.pendiente {
+        background: #f0ad4e;
+    }
+
+    .calendario-leyenda-dot.cancelado {
+        background: #dc3545;
+    }
+
+    .calendario-leyenda-dot.finalizado {
+        background: #8999AE;
+    }
+
+    /* ACCIONES RAPIDAS */
+    .dashboard-paciente .quick-action {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px;
+        border: 1px solid #edf0f4;
+        border-radius: 13px;
+        text-decoration: none;
+        color: #303744;
+        margin-bottom: 9px;
+        transition: all .2s ease;
+    }
+
+    .dashboard-paciente .quick-action:last-child {
+        margin-bottom: 0;
+    }
+
+    .dashboard-paciente .quick-action:hover {
+        border-color: var(--celeste);
+        background: #f8fbfd;
+        color: var(--azul);
+        transform: translateX(3px);
+    }
+
+    .dashboard-paciente .quick-action-icon {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 10px;
+        background: rgba(0, 125, 198, .08);
+        color: var(--azul-claro);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .dashboard-paciente .quick-action-text {
+        flex: 1;
+    }
+
+    .dashboard-paciente .quick-action-title {
+        display: block;
+        font-size: .8rem;
+        font-weight: 600;
+    }
+
+    .dashboard-paciente .quick-action-description {
+        display: block;
+        color: #8999AE;
+        font-size: .68rem;
+        margin-top: 2px;
+    }
+
+    .dashboard-paciente .quick-action-arrow {
+        color: #b2bbc6;
+    }
+
+    /* HISTORIAL */
+    .dashboard-paciente .table thead th {
+        color: #8999AE;
+        font-size: .69rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        border-bottom: 1px solid #edf0f4;
+        white-space: nowrap;
+    }
+
+    .dashboard-paciente .table tbody td {
+        color: #394352;
+        font-size: .78rem;
+        vertical-align: middle;
+        border-color: #f0f2f5;
+    }
+
+
+    /* OFFCANVAS MIS DATOS */
+    .offcanvas-mis-datos {
+        width: min(480px, 100vw) !important;
+        border: 0;
+        box-shadow: -10px 0 45px rgba(0, 9, 103, .12);
+    }
+
+    .offcanvas-mis-datos .offcanvas-header {
+        padding: 1.25rem 1.4rem;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .offcanvas-mis-datos .offcanvas-title {
+        color: var(--azul-oscuro);
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .offcanvas-mis-datos .offcanvas-body {
+        padding: 1.35rem;
+        background: #f8fafc;
+    }
+
+    .offcanvas-profile-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 1rem;
+        background: #fff;
+        border: 1px solid #e8edf2;
+        border-radius: 15px;
+        margin-bottom: 1rem;
+    }
+
+    .offcanvas-profile-avatar {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 125, 198, .09);
+        color: var(--azul);
+        font-weight: 800;
+    }
+
+    .offcanvas-profile-name {
+        color: #202735;
+        font-size: .88rem;
+        font-weight: 700;
+    }
+
+    .offcanvas-profile-email {
+        color: #8999AE;
+        font-size: .7rem;
+        margin-top: 2px;
+    }
+
+    .mis-datos-placeholder {
+        background: #fff;
+        border: 1px dashed #cfdbe4;
+        border-radius: 15px;
+        padding: 1.2rem;
+        text-align: center;
+    }
+
+    .mis-datos-placeholder-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto .8rem;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 125, 198, .08);
+        color: var(--azul-claro);
+        font-size: 1.2rem;
+    }
+
+    .mis-datos-placeholder h6 {
+        color: #303744;
+        font-weight: 700;
+        font-size: .88rem;
+    }
+
+    .mis-datos-placeholder p {
+        color: #8999AE;
+        font-size: .74rem;
+        line-height: 1.5;
+    }
+
+    /* MODAL MODIFICAR TURNO */
+    .modal-turno-paciente {
+        border: 0;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 9, 103, 0.18);
+    }
+
+    .modal-turno-paciente .modal-header {
+        padding: 1.5rem 1.5rem 1rem;
+        background: #fff;
+        border-bottom: 0;
+    }
+
+    .modal-turno-paciente .modal-body {
+        padding: 0 1.5rem 1.5rem;
+        background: #fff;
+    }
+
+    .modal-turno-paciente .modal-footer {
+        padding: 1rem 1.5rem 1.5rem;
+        background: #fff;
+        border-top: 0;
+    }
+
+    .turno-modal-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 125, 198, 0.10);
+        color: #007DC6;
+    }
+
+    .turno-modal-icon i {
+        font-size: 1.4rem;
+    }
+
+    .turno-modal-title {
+        color: #000967;
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin-bottom: .2rem;
+    }
+
+    .turno-modal-subtitle {
+        color: #8999AE;
+        font-size: .86rem;
+    }
+
+    .turno-modal-section {
+        margin-top: 1.25rem;
+    }
+
+    .turno-modal-section-title {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin-bottom: .9rem;
+        color: #000967;
+        font-size: .78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+    }
+
+    .turno-modal-section-title i {
+        color: #007DC6;
+        font-size: .95rem;
+    }
+
+    .turno-modal-label {
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+        margin-bottom: .4rem;
+        color: #4f5d73;
+        font-size: .82rem;
+        font-weight: 600;
+    }
+
+    .turno-modal-label i {
+        color: #007DC6;
+    }
+
+    .turno-modal-paciente .form-control,
+    .turno-modal-paciente .form-select {
+        min-height: 46px;
+        border: 1px solid #dce5ed;
+        border-radius: 13px;
+        background-color: #f8fafc;
+        color: #26364a;
+        padding: .65rem .85rem;
+        box-shadow: none;
+        transition: all .2s ease;
+    }
+
+    .turno-modal-paciente .form-control:focus,
+    .turno-modal-paciente .form-select:focus {
+        border-color: #007DC6;
+        background-color: #fff;
+        box-shadow: 0 0 0 3px rgba(0, 125, 198, .10);
+    }
+
+    .turno-info-card {
+        height: 100%;
+        padding: .9rem 1rem;
+        border-radius: 15px;
+        background: #f6f9fc;
+        border: 1px solid #e4ebf1;
+    }
+
+    .turno-info-card .turno-info-icon {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: rgba(0, 125, 198, .10);
+        color: #007DC6;
+        margin-bottom: .5rem;
+    }
+
+    .turno-info-card .turno-info-label {
+        color: #8999AE;
+        font-size: .72rem;
+        font-weight: 600;
+        margin-bottom: .15rem;
+    }
+
+    .turno-info-card .turno-info-value {
+        color: #000967;
+        font-size: .92rem;
+        font-weight: 700;
+    }
+
+    .turno-cobertura-card {
+        padding: 1rem;
+        border-radius: 16px;
+        background: #f8fafc;
+        border: 1px solid #e3ebf2;
+    }
+
+    .turno-cobertura-option {
+        display: flex;
+        align-items: center;
+        gap: .55rem;
+        padding: .7rem .8rem;
+
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background-color .2s ease;
+    }
+
+    .turno-cobertura-option:hover {
+        background-color: rgba(0, 125, 198, .06);
+    }
+
+    .turno-cobertura-option label {
+        margin: 0;
+        color: #34445a;
+        font-size: .87rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .turno-modal-notice {
+        display: flex;
+        align-items: flex-start;
+        gap: .7rem;
+        margin-top: 1.2rem;
+        padding: .85rem 1rem;
+        border-radius: 13px;
+        background: rgba(0, 125, 198, .07);
+        color: #52657a;
+        font-size: .78rem;
+        line-height: 1.45;
+    }
+
+    .turno-modal-notice i {
+        color: #007DC6;
+        font-size: 1rem;
+        margin-top: 1px;
+    }
+
+    .btn-cancelar-turno-modal {
+        min-height: 44px;
+        padding: .65rem 1.15rem;
+        border-radius: 12px;
+        color: #59697c;
+        background: #f1f4f7;
+        border: 0;
+        font-weight: 600;
+    }
+
+    .btn-guardar-turno-modal {
+        min-height: 44px;
+        padding: .65rem 1.25rem;
+        border-radius: 12px;
+        background: #007DC6;
+        border-color: #007DC6;
+        font-weight: 600;
+        box-shadow: 0 5px 15px rgba(0, 125, 198, .20);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1199.98px) {
+        .calendario-paciente-body {
+            padding: .8rem;
+        }
+
+        #calendarioPaciente .fc-toolbar-title {
+            font-size: .95rem;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .dashboard-paciente {
+            padding-left: .75rem !important;
+            padding-right: .75rem !important;
+        }
+
+        .dashboard-paciente .dashboard-header h1 {
+            font-size: 1.35rem;
+        }
+
+        .dashboard-paciente .dashboard-date {
+            margin-top: 12px;
+        }
+
+        .dashboard-paciente .turno-hora {
+            min-width: 75px;
+        }
+
+        .calendario-paciente-body {
+            padding: .55rem;
+        }
+
+        #calendarioPaciente .fc-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        #calendarioPaciente .fc-toolbar-chunk {
+            display: flex;
+            justify-content: center;
+        }
+
+        #calendarioPaciente .fc-toolbar-title {
+            font-size: .9rem;
+        }
+
+        #calendarioPaciente .fc-button {
+            font-size: .68rem;
+            padding: .35rem .5rem;
+        }
+
+        #calendarioPaciente .fc-col-header-cell-cushion {
+            font-size: .58rem;
+        }
+
+        #calendarioPaciente .fc-event {
+            font-size: .58rem;
+        }
+
+        .calendario-leyenda {
+            gap: 7px;
+        }
+
+        .calendario-leyenda-item {
+            font-size: .6rem;
+        }
+
+    }
+
+    @media (max-width: 575.98px) {
+        .dashboard-paciente .stat-number {
+            font-size: 1.45rem;
+        }
+
+        .dashboard-paciente .stat-content {
+            padding: 1rem;
+        }
+
+        .profile-card {
+            padding: 1rem;
+        }
+
+        .dashboard-paciente .dashboard-card-header {
+            padding: 1rem;
+        }
+
+        .dashboard-paciente .dashboard-card-body {
+            padding: 1rem;
+        }
+
+        .proximo-turno-card {
+            padding: .8rem;
+        }
+
+        .modal-turno-paciente {
+            margin: .5rem;
+            border-radius: 20px;
+        }
+
+        .modal-turno-paciente .modal-header,
+        .modal-turno-paciente .modal-body,
+        .modal-turno-paciente .modal-footer {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .turno-modal-icon {
+            width: 46px;
+            height: 46px;
+        }
+
+    }
